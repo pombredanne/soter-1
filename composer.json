@@ -1,0 +1,21 @@
+
+{
+    "name": "ssnepenthe/soter",
+    "description": "Check your Composer dependencies against the WPVulnDB API and the Sensio Labs Security Advisory Database.",
+    "type": "library",
+    "homepage": "https://github.com/ssnepenthe/soter",
+    "license": "GPL-2.0",
+    "require": {
+        "php": ">=5.4",
+        "ssnepenthe/composer-utilities": "dev-master"
+    },
+    "autoload": {
+        "psr-4": { "SSNepenthe\\Soter\\": "src/" }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:ssnepenthe/composer-utilities.git"
+        }
+    ]
+}
