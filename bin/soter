@@ -1,0 +1,22 @@
+#! /usr/bin/env php
+<?php
+
+use SSNepenthe\Soter\Console\CheckCommand;
+use Symfony\Component\Console\Application;
+
+$soter_root = dirname( __DIR__ );
+$project_vendor = dirname( dirname( $soter_root ) );
+
+if ( file_exists( $soter_root . '/vendor/autoload.php' ) ) {
+	$autoloader = $soter_root . '/vendor/autoload.php';
+} else {
+	$autoloader = $project_vendor . '/autoload.php';
+}
+
+if ( file_exists( $autoloader ) ) {
+	require_once $autoloader;
+}
+
+$app = new Application( 'Soter Security Checker', '0.1.0' );
+$app->add( new CheckCommand );
+$app->run();
