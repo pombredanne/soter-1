@@ -13,11 +13,7 @@ class Checker
 {
 	protected $client;
 	protected $lock;
-	protected $messages = [
-		'error' => [],
-		'ok' => [],
-		'vulnerable' => [],
-	];
+	protected $messages = [];
 	protected $packages;
 
 	public function __construct( $lock ) {
@@ -50,26 +46,36 @@ class Checker
 				$response = $this->fetch( $endpoint . '/' . $slug );
 
 				if ( $response->is_vulnerable( $package->version ) ) {
-					$this->messages['vulnerable'][] = $package->name;
+					$this->messages[] = [
+						'package' => $package->name,
+						'status' => 'VULNERABLE',
+						'message' => '',
+					];
 				} else {
-					$this->messages['ok'][] = $package->name;
+					$this->messages[] = [
+						'package' => $package->name,
+						'status' => 'SAFE',
+						'message' => '',
+					];
 				}
 			} catch ( ServerException $e ) {
-				$this->messages['error'][] = sprintf(
-					'Server error while checking %s',
-					$package->name
-				);
+				$this->messages[] = [
+					'package' => $package->name,
+					'status' => 'ERROR',
+					'message' => sprintf( 'Server error while checking %s', $package->name ),
+				];
 			} catch ( ClientException $e ) {
-				$this->messages['error'][] = sprintf(
-					'Received %s error while checking %s',
-					$e->getResponse()->getStatusCode(),
-					$package->name
-				);
+				$this->messages[] = [
+					'package' => $package->name,
+					'status' => 'ERROR',
+					'message' => sprintf( 'Received %s error while checking %s', $e->getResponse()->getStatusCode(), $package->name ),
+				];
 			} catch ( TransferException $e ) {
-				$this->messages['error'][] = sprintf(
-					'Error while checking %s',
-					$package->name
-				);
+				$this->messages[] = [
+					'package' => $package->name,
+					'status' => 'ERROR',
+					'message' => sprintf( 'Error while checking %s', $package->name ),
+				];
 			}
 		}
 
