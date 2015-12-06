@@ -18,5 +18,8 @@
             "type": "vcs",
             "url": "git@github.com:ssnepenthe/composer-utilities.git"
         }
-    ]
+    ],
+    "require-dev": {
+        "illuminate/cache": "~5.1"
+    }
 }
