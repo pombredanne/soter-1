@@ -18,5 +18,6 @@
             "type": "vcs",
             "url": "git@github.com:ssnepenthe/composer-utilities.git"
         }
-    ]
+    ],
+    "bin": ["bin/soter"]
 }
