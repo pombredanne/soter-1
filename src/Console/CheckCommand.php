@@ -1,4 +1,9 @@
 <?php
+/**
+ * Registers the check command.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Console;
 
@@ -10,7 +15,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * This class registers the 'check' command with our symfony/console app.
+ */
 class CheckCommand extends Command {
+	/**
+	 * Sets up this symfony console command.
+	 *
+	 * @todo Add the following options (all set to VALUE_NONE):
+	 *       with-ok (o), with-errors (e), with-cache (c), clear-cache (null).
+	 *       Alternatively look into using the verbosity flags for deciding on what to report.
+	 *
+	 * @return void
+	 */
 	public function configure() {
 		$this->setName( 'check' )
 			->setDescription(
@@ -18,32 +35,24 @@ class CheckCommand extends Command {
 			)
 			->addArgument(
 				'lock',
-				InputArgument::REQUIRED,
-				'Path to your composer.lock file.'
-			)
-			// ->addOption(
-			// 	'with-ok',
-			// 	'o',
-			// 	InputOption::VALUE_NONE,
-			// 	'Include safe packages in the output.'
-			// )
-			// ->addOption(
-			// 	'with-errors',
-			// 	'e',
-			// 	InputOption::VALUE_NONE,
-			// 	'Include errors in the output.'
-			// )
-			;
+				InputArgument::OPTIONAL,
+				'Path to your composer.lock file.',
+				getcwd() . '/composer.lock'
+			);
 	}
 
+	/**
+	 * Functionality of this Symfony Console command.
+	 *
+	 * @param InputInterface  $input Symfony/console input interface.
+	 * @param OutputInterface $output Symfony/console output interface.
+	 *
+	 * @return void
+	 */
 	public function execute( InputInterface $input, OutputInterface $output ) {
 		$lock = $input->getArgument( 'lock' );
 
-		// Check out the verbosity flags instead...
-		// $show_errors = $input->getOption( 'with-errors' );
-		// $show_ok = $input->getOption( 'with-ok' );
-
-		$output->writeln( '<info>Checking ' . $lock . '...</info>' );
+		$output->writeln( sprintf( '<info>Checking %s...</info>', $lock );
 
 		$checker = new Checker( $lock );
 		$messages = $checker->check();

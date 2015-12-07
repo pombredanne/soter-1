@@ -1,4 +1,9 @@
 <?php
+/**
+ * Functionality for checking a composer.lock file against the WPVulnDB database.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter;
 
@@ -9,12 +14,38 @@ use GuzzleHttp\Exception\TransferException;
 use SSNepenthe\ComposerUtilities\ComposerLock;
 use SSNepenthe\Soter\WPVulnDB\ApiResponse;
 
+/**
+ * This class retrieves all of your WordPress packages from a composer.lock file
+ * and queries the WPVulnDB API to check them for security vulnerabilities.
+ */
 class Checker
 {
+	/**
+	 * Guzzle Client Interface
+	 *
+	 * @var GuzzleHtp\ClientInterface
+	 */
 	protected $client;
+
+	/**
+	 * Object representation of our composer.lock file.
+	 *
+	 * @var SSNepenthe\ComposerUtilities\ComposerLock
+	 */
 	protected $lock;
+
+	/**
+	 * Messages explaining the current state of our packages.
+	 *
+	 * @var array
+	 */
 	protected $messages = [];
 
+	/**
+	 * Set up the object.
+	 *
+	 * @param string $lock Path to composer.lock file.
+	 */
 	public function __construct( $lock ) {
 		$this->client = new Client(
 			[
@@ -28,6 +59,11 @@ class Checker
 		$this->lock = new ComposerLock( $lock );
 	}
 
+	/**
+	 * Check the composer.lock file against the WPVulnDB API.
+	 *
+	 * @return array
+	 */
 	public function check() {
 		foreach ( $this->wordpress_packages() as $package ) {
 			list( $endpoint, $vendor, $slug ) = $this->get_route_info( $package );
@@ -76,12 +112,27 @@ class Checker
 		return $this->messages;
 	}
 
+	/**
+	 * Put together the API uri and make a GET request to it.
+	 *
+	 * @param string $endpoint WPVulnDB API endpoint: 'wordpresses', 'plugins', or 'themes'.
+	 * @param string $slug The package slug as used by wp.org.
+	 *
+	 * @return SSNepenthe\Soter\WPVulnDB\ApiResponse
+	 */
 	protected function fetch( $endpoint, $slug ) {
 		$response = $this->client->get( $endpoint . '/' . $slug );
 
 		return new ApiResponse( (string) $response->getBody() );
 	}
 
+	/**
+	 * Get the necessary info to create our API uri.
+	 *
+	 * @param string $package Package name.
+	 *
+	 * @return array
+	 */
 	protected function get_route_info( $package ) {
 		list( $vendor, $name ) = explode( '/', $package->name() );
 
@@ -103,10 +154,30 @@ class Checker
 		return [ $endpoint, $vendor, $slug ];
 	}
 
+	/**
+	 * Determine if the supplied package is a WordPress package, excluding mu-plugins.
+	 *
+	 * @param SSNepenthe\ComposerUtilities\LockPackage $package The package to check.
+	 *
+	 * @return boolean
+	 */
+	protected function is_wordpress_package( $package ) {
+		if ( $package->is_wpackagist_package() || $package->is_wp_core() ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get an array of all WordPress packages, excluding mu-plugins.
+	 *
+	 * @return array
+	 */
 	protected function wordpress_packages() {
 		$packages = array_merge(
 			$this->lock->packages(),
-			$this->lock->devPackages()
+			$this->lock->dev_packages()
 		);
 
 		$packages = array_filter(
@@ -115,13 +186,5 @@ class Checker
 		);
 
 		return $packages;
-	}
-
-	protected function is_wordpress_package( $package ) {
-		if ( $package->isWpackagistPackage() || $package->isWPCorePackage() ) {
-			return true;
-		}
-
-		return false;
 	}
 }
