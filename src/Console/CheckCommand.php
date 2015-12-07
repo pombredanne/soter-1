@@ -52,7 +52,7 @@ class CheckCommand extends Command {
 	public function execute( InputInterface $input, OutputInterface $output ) {
 		$lock = $input->getArgument( 'lock' );
 
-		$output->writeln( sprintf( '<info>Checking %s...</info>', $lock );
+		$output->writeln( sprintf( '<info>Checking %s...</info>', $lock ) );
 
 		$checker = new Checker( $lock );
 		$messages = $checker->check();
