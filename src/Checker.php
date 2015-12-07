@@ -14,7 +14,6 @@ class Checker
 	protected $client;
 	protected $lock;
 	protected $messages = [];
-	protected $packages;
 
 	public function __construct( $lock ) {
 		$this->client = new Client(
@@ -27,54 +26,49 @@ class Checker
 		);
 
 		$this->lock = new ComposerLock( $lock );
-
-		$this->packages = $this->wordpress_packages();
 	}
 
 	public function check() {
-		foreach ( $this->packages as $package ) {
-			if (
-				'wpackagist-' !== substr( $package->name, 0, 11 ) &&
-				'wordpress-core' !== $package->type
-			) {
-				continue;
-			}
-
+		foreach ( $this->wordpress_packages() as $package ) {
 			list( $endpoint, $vendor, $slug ) = $this->get_route_info( $package );
 
 			try {
-				$response = $this->fetch( $endpoint . '/' . $slug );
+				$response = $this->fetch( $endpoint, $slug );
 
-				if ( $response->is_vulnerable( $package->version ) ) {
+				if ( $response->is_vulnerable( $package->version() ) ) {
 					$this->messages[] = [
-						'package' => $package->name,
+						'package' => $package->name(),
 						'status' => 'VULNERABLE',
-						'message' => '',
+						'message' => implode( "\n", $response->vulnerabilities( $package->version() ) ),
 					];
 				} else {
 					$this->messages[] = [
-						'package' => $package->name,
+						'package' => $package->name(),
 						'status' => 'SAFE',
 						'message' => '',
 					];
 				}
 			} catch ( ServerException $e ) {
 				$this->messages[] = [
-					'package' => $package->name,
+					'package' => $package->name(),
 					'status' => 'ERROR',
-					'message' => sprintf( 'Server error while checking %s', $package->name ),
+					'message' => sprintf( 'Server error while checking %s', $package->name() ),
 				];
 			} catch ( ClientException $e ) {
 				$this->messages[] = [
-					'package' => $package->name,
+					'package' => $package->name(),
 					'status' => 'ERROR',
-					'message' => sprintf( 'Received %s error while checking %s', $e->getResponse()->getStatusCode(), $package->name ),
+					'message' => sprintf(
+						'Received %s error while checking %s',
+						$e->getResponse()->getStatusCode(),
+						$package->name()
+					),
 				];
 			} catch ( TransferException $e ) {
 				$this->messages[] = [
-					'package' => $package->name,
+					'package' => $package->name(),
 					'status' => 'ERROR',
-					'message' => sprintf( 'Error while checking %s', $package->name ),
+					'message' => sprintf( 'Error while checking %s', $package->name() ),
 				];
 			}
 		}
@@ -82,16 +76,16 @@ class Checker
 		return $this->messages;
 	}
 
-	protected function fetch( $route ) {
-		$response = $this->client->get( $route );
+	protected function fetch( $endpoint, $slug ) {
+		$response = $this->client->get( $endpoint . '/' . $slug );
 
 		return new ApiResponse( (string) $response->getBody() );
 	}
 
 	protected function get_route_info( $package ) {
-		list( $vendor, $name ) = explode( '/', $package->name );
+		list( $vendor, $name ) = explode( '/', $package->name() );
 
-		switch ( $package->type ) {
+		switch ( $package->type() ) {
 			case 'wordpress-plugin':
 				$endpoint = 'plugins';
 				$slug = $name;
@@ -102,7 +96,7 @@ class Checker
 				break;
 			case 'wordpress-core':
 				$endpoint = 'wordpresses';
-				$slug = str_replace( '.', '', $package->version );
+				$slug = str_replace( '.', '', $package->version() );
 				break;
 		}
 
@@ -124,19 +118,9 @@ class Checker
 	}
 
 	protected function is_wordpress_package( $package ) {
-		if ( 'wordpress-plugin' === $package->type ) {
+		if ( $package->isWpackagistPackage() || $package->isWPCorePackage() ) {
 			return true;
 		}
-
-		if ( 'wordpress-theme' === $package->type ) {
-			return true;
-		}
-
-		if ( 'wordpress-core' === $package->type ) {
-			return true;
-		}
-
-		// WPVulnDB does not have any mu-plugins so no need to include them.
 
 		return false;
 	}
