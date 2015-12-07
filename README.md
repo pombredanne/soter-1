@@ -1,2 +1,2 @@
 # soter
-Check your Composer dependencies against the WPVulnDB API and the Sensio Labs Security Advisory Database.
+Check your Composer dependencies for security vulnerabilities against the WPVulnDB API.
