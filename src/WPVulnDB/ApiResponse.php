@@ -3,7 +3,8 @@
 namespace SSNepenthe\Soter\WPVulnDB;
 
 class ApiResponse {
-	protected $reponse;
+	protected $response;
+	protected $vulnerabilities = [];
 
 	public function __construct( $response_body ) {
 		if ( ! is_string( $response_body ) ) {
@@ -16,34 +17,48 @@ class ApiResponse {
 			);
 		}
 
-		$json = json_decode( $response_body );
-
-		if ( is_null( $json ) ) {
+		if ( is_null( $json = json_decode( $response_body, true ) ) ) {
 			throw new \InvalidArgumentException(
 				sprintf(
                     'Argument 1 passed to %s could not be json decoded.',
-                    __METHOD__,
-                    gettype( $json )
+                    __METHOD__
                 )
 			);
 		}
 
-		$this->response = $json;
+		$this->response = current( $json );
 	}
 
 	public function is_vulnerable( $version ) {
-		$vulnerable = false;
+		return ! empty( $this->vulnerabilities( $version ) );
+	}
 
-		foreach ( $this->response as $key => $value ) {
-			if ( ! empty( $value->vulnerabilities ) ) {
-				foreach ( $value->vulnerabilities as $vulnerability ) {
-					if ( version_compare( $version, $vulnerability->fixed_in, '<' ) ) {
-						$vulnerable = true;
-					}
+	public function vulnerabilities( $version ) {
+		if ( empty( $this->response['vulnerabilities'] ) ) {
+			return;
+		}
+
+		if ( ! isset( $this->vulnerabilities[ $version ] ) ) {
+			$this->vulnerabilities[ $version ] = [];
+
+			foreach ( $this->response['vulnerabilities'] as $vulnerability ) {
+				if (
+					is_null( $vulnerability['fixed_in'] ) ||
+					version_compare( $version, $vulnerability['fixed_in'], '<' )
+				) {
+					$fixed = is_null( $vulnerability['fixed_in'] ) ?
+						'not yet fixed' :
+						sprintf( 'fixed in %s', $vulnerability['fixed_in'] );
+
+					$this->vulnerabilities[ $version ][] = sprintf(
+						'%s vulnerability, %s',
+						$vulnerability['vuln_type'],
+						$fixed
+					);
 				}
 			}
 		}
 
-		return $vulnerable;
+		return $this->vulnerabilities[ $version ];
 	}
 }
