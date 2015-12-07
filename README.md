@@ -15,7 +15,7 @@ From any other location:
 ./path/to/soter check /path/to/composer.lock
 ```
 
-This will check your WordPress packages and provide output similar to the following:
+This will check your WordPress packages and provide output similar to the following (assumes wordpress v4.3, cache-buddy v0.2.0, eshop v6.2.8, pagelines v1.4.6, twentyfifteen 1.3):
 
 ```
 Checking /Users/ssnepenthe/Code/vuln-test/composer.lock...
