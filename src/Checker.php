@@ -11,7 +11,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
-use SSNepenthe\ComposerUtilities\ComposerLock;
+use SSNepenthe\ComposerUtilities\WordPressLock;
 use SSNepenthe\Soter\WPVulnDB\ApiResponse;
 
 /**
@@ -56,7 +56,7 @@ class Checker
 			]
 		);
 
-		$this->lock = new ComposerLock( $lock );
+		$this->lock = new WordPressLock( $lock );
 	}
 
 	/**
@@ -176,8 +176,9 @@ class Checker
 	 */
 	protected function wordpress_packages() {
 		$packages = array_merge(
-			$this->lock->packages(),
-			$this->lock->dev_packages()
+			$this->lock->core_packages(),
+			$this->lock->plugin_packages(),
+			$this->lock->theme_packages()
 		);
 
 		$packages = array_filter(
