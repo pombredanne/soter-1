@@ -9,11 +9,10 @@ namespace SSNepenthe\Soter\Console;
 
 use SSNepenthe\Soter\Checker;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * This class registers the 'check' command with our symfony/console app.
@@ -52,17 +51,16 @@ class CheckCommand extends Command {
 	public function execute( InputInterface $input, OutputInterface $output ) {
 		$lock = $input->getArgument( 'lock' );
 
-		$output->writeln( sprintf( '<info>Checking %s...</info>', $lock ) );
+		$io = new SymfonyStyle( $input, $output );
+
+		$io->text( sprintf( 'Checking %s...', $lock ) );
+		$io->newLine();
 
 		$checker = new Checker( $lock );
 		$messages = $checker->check();
 
 		if ( ! empty( $messages ) ) {
-			$table = new Table( $output );
-
-			$table->setHeaders( [ 'Package Name', 'Status', 'Message' ] )
-				->setRows( $messages )
-				->render();
+			$io->table( [ 'Package Name', 'Status', 'Message' ], $messages );
 		}
 	}
 }
