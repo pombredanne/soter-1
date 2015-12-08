@@ -1,5 +1,10 @@
 #! /usr/bin/env php
 <?php
+/**
+ * Create and run the Soter security checker console application.
+ *
+ * @package soter
+ */
 
 use SSNepenthe\Soter\Console\CheckCommand;
 use Symfony\Component\Console\Application;

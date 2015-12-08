@@ -18,8 +18,7 @@ use SSNepenthe\Soter\WPVulnDB\ApiResponse;
  * This class retrieves all of your WordPress packages from a composer.lock file
  * and queries the WPVulnDB API to check them for security vulnerabilities.
  */
-class Checker
-{
+class Checker {
 	/**
 	 * Guzzle Client Interface
 	 *
