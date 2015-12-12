@@ -7,22 +7,16 @@
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
+use RuntimeException;
+
 /**
  * This class provides some convenience functionality for WPVulnDB API responses.
  */
 class ApiResponse {
-	/**
-	 * JSON decoded response.
-	 *
-	 * @var array
-	 */
 	protected $response;
 
-	/**
-	 * Array of vulnerabilities by version.
-	 *
-	 * @var array
-	 */
+	protected $object;
+
 	protected $vulnerabilities = [];
 
 	/**
@@ -32,73 +26,79 @@ class ApiResponse {
 	 *
 	 * @throws \InvalidArgumentException If passed argument is not a string or invalid json.
 	 */
-	public function __construct( $response_body ) {
-		if ( ! is_string( $response_body ) ) {
-			throw new \InvalidArgumentException(
-				sprintf(
-					'Argument 1 passed to %s must be of type string, %s given.',
-					__METHOD__,
-					gettype( $response_body )
-				)
-			);
+	public function __construct( $response, $slug ) {
+		// Verify json is valid?
+		$this->response = $response;
+
+		$object = json_decode( $response );
+
+		if ( ! $this->valid( $object ) ) {
+			throw new RuntimeException( 'Response does not appear to be valid JSON' );
 		}
 
-		if ( is_null( $json = json_decode( $response_body, true ) ) ) {
-			throw new \InvalidArgumentException(
-				sprintf(
-					'Argument 1 passed to %s could not be json decoded.',
-					__METHOD__
-				)
-			);
+		$this->object = $object->{$slug};
+	}
+
+	public function vulnerabilities() {
+		return $this->object->vulnerabilities;
+	}
+
+	public function advisories_by_version( $version ) {
+		if ( empty( $this->vulnerabilities_by_version( $version ) ) ) {
+			return [ 'There are no known vulnerabilities in this package.' ];
 		}
 
-		$this->response = current( $json );
+		$r = [];
+
+		foreach ( $this->vulnerabilities_by_version( $version ) as $vulnerability ) {
+			$urls = isset( $vulnerability->references->url ) ?
+				implode( "\n", $vulnerability->references->url ) :
+				'';
+
+			$fixed = is_null( $vulnerability->fixed_in ) ?
+				"Not fixed yet" :
+				sprintf( "Fixed in v%s", $vulnerability->fixed_in );
+
+			$r[] = $vulnerability->title . $urls . $fixed;
+		}
+
+		return $r;
 	}
 
 	/**
-	 * Determine if a package is vulnerable based on version.
-	 *
-	 * @param string $version Package version.
-	 *
-	 * @return boolean
-	 */
-	public function is_vulnerable( $version ) {
-		return ! empty( $this->vulnerabilities( $version ) );
-	}
-
-	/**
-	 * Get a list of vulnerabilities by version, generating if necessary.
+	 * Get a list of vulnerabilities by version.
 	 *
 	 * @param string $version Package version.
 	 *
 	 * @return array
 	 */
-	public function vulnerabilities( $version ) {
-		if ( empty( $this->response['vulnerabilities'] ) ) {
-			return;
+	public function vulnerabilities_by_version( $version ) {
+		if ( empty( $this->object->vulnerabilities ) ) {
+			return [];
 		}
 
-		if ( ! isset( $this->vulnerabilities[ $version ] ) ) {
-			$this->vulnerabilities[ $version ] = [];
+		$vulnerabilities = [];
 
-			foreach ( $this->response['vulnerabilities'] as $vulnerability ) {
-				if (
-					is_null( $vulnerability['fixed_in'] ) ||
-					version_compare( $version, $vulnerability['fixed_in'], '<' )
-				) {
-					$fixed = is_null( $vulnerability['fixed_in'] ) ?
-						'not yet fixed' :
-						sprintf( 'fixed in %s', $vulnerability['fixed_in'] );
+		foreach ( $this->object->vulnerabilities as $vulnerability ) {
+			if ( is_null( $vulnerability->fixed_in ) ) {
+				$vulnerabilities[] = $vulnerability;
+				continue;
+			}
 
-					$this->vulnerabilities[ $version ][] = sprintf(
-						'%s vulnerability, %s',
-						$vulnerability['vuln_type'],
-						$fixed
-					);
-				}
+			if ( version_compare( $version, $vulnerability->fixed_in, '<' ) ) {
+				$vulnerabilities[] = $vulnerability;
+				continue;
 			}
 		}
 
-		return $this->vulnerabilities[ $version ];
+		return $vulnerabilities;
+	}
+
+	protected function valid( $object ) {
+		if ( null === $object || JSON_ERROR_NONE !== json_last_error() ) {
+			return false;
+		}
+
+		return true;
 	}
 }
