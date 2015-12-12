@@ -105,6 +105,3 @@ Individual packages will be listed as follows:
 Only checks packages with a type of `wordpress-core` or a name that begins with `wpackagist-`.
 
 The output isn't very nice looking for either, but the WP-CLI version in particular is a heaping pile of shit.
-
-## Todo
-Testing with cURL timeout settings against a 40x/50x response.
