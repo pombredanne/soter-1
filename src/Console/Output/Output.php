@@ -1,4 +1,9 @@
 <?php
+/**
+ * Use the SymfonyStyle class to output styled messages to the console.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Console\Output;
 
@@ -6,6 +11,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * This class generates output for the check command.
+ */
 class Output {
 	/**
 	 * SymfonyStyle instance.

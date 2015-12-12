@@ -1,11 +1,27 @@
 <?php
+/**
+ * Handle HTTP requests with cURL.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Http;
 
 use RuntimeException;
 use SSNepenthe\Soter\Contracts\Http;
 
+/**
+ * This class can be used to make HTTP GET requests with cURL.
+ */
 class CurlClient implements Http {
+	/**
+	 * Set up the object.
+	 *
+	 * @param string $base_url   The base URL all request URLs will be built from.
+	 * @param string $user_agent User agent to connect with.
+	 *
+	 * @throws RuntimeException If cURL does not exist.
+	 */
 	public function __construct( $base_url, $user_agent = null ) {
 		if ( ! function_exists( 'curl_init' ) ) {
 			throw new RuntimeException( 'cURL is required to use the cURL client' );
@@ -17,12 +33,21 @@ class CurlClient implements Http {
 			$user_agent;
 	}
 
+	/**
+	 * Make a GET request to the given endpoint.
+	 *
+	 * @param  string $endpoint Endpoint to build the URL with.
+	 *
+	 * @throws RuntimeException For cURL errors and non-200 status codes.
+	 *
+	 * @return string JSON response.
+	 */
 	public function get( $endpoint = '' ) {
 		// Check for trailing slash before concat???
 		$url = $this->base_url . $endpoint;
 
 		if ( false === $curl = curl_init() ) {
-			throw new RuntimeException('Unable to create a cURL handle.');
+			throw new RuntimeException( 'Unable to create a cURL handle.' );
 		}
 
 		curl_setopt( $curl, CURLOPT_FAILONERROR, false );
@@ -58,6 +83,6 @@ class CurlClient implements Http {
 			throw new RuntimeException( sprintf( 'Unknown error (HTTP %s)', $status_code ) );
 		}
 
-		return [ $headers, $body ];
+		return $body;
 	}
 }

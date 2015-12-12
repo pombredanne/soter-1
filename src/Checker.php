@@ -18,12 +18,17 @@ use SSNepenthe\Soter\WPVulnDB\ApiResponse;
  * and queries the WPVulnDB API to check them for security vulnerabilities.
  */
 class Checker {
+	/**
+	 * Basic HTTP GET client.
+	 *
+	 * @var Http
+	 */
 	protected $client;
 
 	/**
 	 * Object representation of our composer.lock file.
 	 *
-	 * @var SSNepenthe\ComposerUtilities\WordPressLock
+	 * @var WordPressLock
 	 */
 	protected $lock;
 
@@ -42,7 +47,8 @@ class Checker {
 	/**
 	 * Set up the object.
 	 *
-	 * @param string $lock Path to composer.lock file.
+	 * @param string $path Path to composer.lock file.
+	 * @param Http $client Http instance for making GET requests.
 	 */
 	public function __construct( $path, Http $client ) {
 		$this->lock = new WordPressLock( $path );
@@ -52,8 +58,6 @@ class Checker {
 	/**
 	 * Check the composer.lock file against the WPVulnDB API.
 	 *
-	 * @todo Fallback messages in the event that there are no wordpress packages.
-	 *
 	 * @return array
 	 */
 	public function check() {
@@ -61,7 +65,7 @@ class Checker {
 			try {
 				$request = new ApiRequest( $package );
 
-				list( $headers, $body ) = $this->client->get( $request->endpoint() );
+				$body = $this->client->get( $request->endpoint() );
 
 				$response = new ApiResponse(
 					$body,
@@ -99,7 +103,7 @@ class Checker {
 	/**
 	 * Determine if the supplied package is a WordPress package, excluding mu-plugins.
 	 *
-	 * @param SSNepenthe\ComposerUtilities\LockPackage $package The package to check.
+	 * @param LockPackage $package The package to check.
 	 *
 	 * @return boolean
 	 */

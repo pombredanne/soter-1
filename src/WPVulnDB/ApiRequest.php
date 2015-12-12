@@ -1,14 +1,44 @@
 <?php
+/**
+ * Convenience functionality for a wpvulndb.com API request.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
 use SSNepenthe\ComposerUtilities\WordPressPackage;
 
-Class ApiRequest {
+/**
+ * This class provides the details needed for an API request based on a package.
+ */
+class ApiRequest {
+	/**
+	 * Full API endpoint.
+	 *
+	 * @var string
+	 */
 	protected $endpoint;
+
+	/**
+	 * API route based on package type.
+	 *
+	 * @var string
+	 */
 	protected $path;
+
+	/**
+	 * Package slug.
+	 *
+	 * @var string
+	 */
 	protected $slug;
 
+	/**
+	 * Set up the object.
+	 *
+	 * @param WordPressPackage $package An individual WordPress package.
+	 */
 	public function __construct( WordPressPackage $package ) {
 		$this->path = $this->get_path( $package );
 		$this->slug = $this->get_slug( $package );
@@ -16,18 +46,40 @@ Class ApiRequest {
 		$this->endpoint = sprintf( '%s/%s', $this->path, $this->slug );
 	}
 
+	/**
+	 * Get the endpoint for this package.
+	 *
+	 * @return string
+	 */
 	public function endpoint() {
 		return $this->endpoint;
 	}
 
-	public function path () {
+	/**
+	 * Get the route for this package.
+	 *
+	 * @return string
+	 */
+	public function path() {
 		return $this->path;
 	}
 
-	public function slug () {
+	/**
+	 * Get the slug for this package.
+	 *
+	 * @return string
+	 */
+	public function slug() {
 		return $this->slug;
 	}
 
+	/**
+	 * Determine the correct route for this package.
+	 *
+	 * @param  WordPressPackage $package An individual WordPress package.
+	 *
+	 * @return string
+	 */
 	protected function get_path( WordPressPackage $package ) {
 		if ( $package->is_wp_plugin() ) {
 			return 'plugins';
@@ -45,6 +97,13 @@ Class ApiRequest {
 		return '';
 	}
 
+	/**
+	 * Determine the correct package slug.
+	 *
+	 * @param  WordPressPackage $package An individual WordPress package.
+	 *
+	 * @return string
+	 */
 	protected function get_slug( WordPressPackage $package ) {
 		if ( $package->is_wp_core() ) {
 			return str_replace( '.', '', $package->version() );

@@ -13,21 +13,36 @@ use RuntimeException;
  * This class provides some convenience functionality for WPVulnDB API responses.
  */
 class ApiResponse {
+	/**
+	 * Raw JSON response.
+	 *
+	 * @var string
+	 */
 	protected $response;
 
+	/**
+	 * Decoded JSON response.
+	 *
+	 * @var stdClass
+	 */
 	protected $object;
 
+	/**
+	 * List of vulnerabilities associated with the request.
+	 *
+	 * @var array
+	 */
 	protected $vulnerabilities = [];
 
 	/**
 	 * Set up the object.
 	 *
-	 * @param string $response_body JSON response body from WPVulnDB.
+	 * @param string $response JSON response.
+	 * @param string $slug     Package slug associated with the response.
 	 *
-	 * @throws \InvalidArgumentException If passed argument is not a string or invalid json.
+	 * @throws RuntimeException If the response cannot be decoded properly.
 	 */
 	public function __construct( $response, $slug ) {
-		// Verify json is valid?
 		$this->response = $response;
 
 		$object = json_decode( $response );
@@ -39,10 +54,22 @@ class ApiResponse {
 		$this->object = $object->{$slug};
 	}
 
+	/**
+	 * Get the response vulnerabilities.
+	 *
+	 * @return array.
+	 */
 	public function vulnerabilities() {
 		return $this->object->vulnerabilities;
 	}
 
+	/**
+	 * Get the advisories for a specific package version.
+	 *
+	 * @param  string $version The package version.
+	 *
+	 * @return array
+	 */
 	public function advisories_by_version( $version ) {
 		if ( empty( $this->vulnerabilities_by_version( $version ) ) ) {
 			return [ 'There are no known vulnerabilities in this package.' ];
@@ -56,8 +83,8 @@ class ApiResponse {
 				'';
 
 			$fixed = is_null( $vulnerability->fixed_in ) ?
-				"Not fixed yet" :
-				sprintf( "Fixed in v%s", $vulnerability->fixed_in );
+				'Not fixed yet' :
+				sprintf( 'Fixed in v%s', $vulnerability->fixed_in );
 
 			$r[] = $vulnerability->title . $urls . $fixed;
 		}
@@ -66,7 +93,7 @@ class ApiResponse {
 	}
 
 	/**
-	 * Get a list of vulnerabilities by version.
+	 * Get a list of vulnerabilities for a specific package version.
 	 *
 	 * @param string $version Package version.
 	 *
@@ -94,6 +121,13 @@ class ApiResponse {
 		return $vulnerabilities;
 	}
 
+	/**
+	 * Check whether a JSON response was able to be decoded.
+	 *
+	 * @param  stdClass $object JSON decoded object.
+	 *
+	 * @return bool
+	 */
 	protected function valid( $object ) {
 		if ( null === $object || JSON_ERROR_NONE !== json_last_error() ) {
 			return false;

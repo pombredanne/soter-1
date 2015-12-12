@@ -1,11 +1,27 @@
 <?php
+/**
+ * Handle HTTP requests using the WordPress HTTP API.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Http;
 
 use RuntimeException;
 use SSNepenthe\Soter\Contracts\Http;
 
+/**
+ * This class can be used to make HTTP Get requests with the WP HTTP API.
+ */
 class WPClient implements Http {
+	/**
+	 * Set up the object.
+	 *
+	 * @param string $base_url   The base URL all requests will be built from.
+	 * @param string $user_agent User agent to connect with.
+	 *
+	 * @throws RuntimeException If the WordPress HTTP functions do not exist.
+	 */
 	public function __construct( $base_url, $user_agent = null ) {
 		if ( ! function_exists( 'wp_remote_get' ) ) {
 			throw new RuntimeException( 'The WordPress HTTP API is required to use the WP client' );
@@ -17,6 +33,13 @@ class WPClient implements Http {
 			$user_agent;
 	}
 
+	/**
+	 * Make a GET request to the given endpoint.
+	 *
+	 * @param  string $endpoint Endpoint to build the URL with.
+	 *
+	 * @return string JSON response.
+	 */
 	public function get( $endpoint = '' ) {
 		$url = trailingslashit( $this->base_url ) . $endpoint;
 
@@ -40,9 +63,6 @@ class WPClient implements Http {
 			throw new RuntimeException( sprintf( 'Unknown error (HTTP %s)', $status_code ) );
 		}
 
-		return [
-			wp_remote_retrieve_headers( $response ),
-			wp_remote_retrieve_body( $response )
-		];
+		return wp_remote_retrieve_body( $response );
 	}
 }
