@@ -5,14 +5,16 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Console;
+namespace SSNepenthe\Soter\Console\Command;
 
+use RuntimeException;
 use SSNepenthe\Soter\Checker;
+use SSNepenthe\Soter\Console\Output\Output;
+use SSNepenthe\Soter\Http\CurlClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * This class registers the 'check' command with our symfony/console app.
@@ -35,7 +37,7 @@ class CheckCommand extends Command {
 			->addArgument(
 				'lock',
 				InputArgument::OPTIONAL,
-				'Path to your composer.lock file.',
+				'Path to your composer.lock file (default is <cwd>/composer.lock).',
 				getcwd() . '/composer.lock'
 			);
 	}
@@ -46,21 +48,31 @@ class CheckCommand extends Command {
 	 * @param InputInterface  $input Symfony/console input interface.
 	 * @param OutputInterface $output Symfony/console output interface.
 	 *
+	 * @throws  RuntimeException If there is a problem with the passed lock file.
+	 *
 	 * @return void
 	 */
 	public function execute( InputInterface $input, OutputInterface $output ) {
-		$lock = $input->getArgument( 'lock' );
+		$lock = filter_var( $input->getArgument( 'lock' ), FILTER_SANITIZE_STRING );
 
-		$io = new SymfonyStyle( $input, $output );
+		if ( is_dir( $lock ) ) {
+			$lock = trailingslashit( $lock ) . 'composer.lock';
+		}
 
-		$io->text( sprintf( 'Checking %s...', $lock ) );
-		$io->newLine();
+		$lock = realpath( $lock );
 
-		$checker = new Checker( $lock );
+		if ( ! $lock || ! is_file( $lock ) ) {
+			throw new RuntimeException( 'The supplied lock file does not exist.' );
+		}
+
+		if ( 'composer.lock' !== substr( $lock, -13 ) ) {
+			throw new RuntimeException( 'The supplied file should be a composer.lock file.' );
+		}
+
+		$checker = new Checker( $lock, new CurlClient( 'https://wpvulndb.com/api/v2/' ) );
 		$messages = $checker->check();
 
-		if ( ! empty( $messages ) ) {
-			$io->table( [ 'Package Name', 'Status', 'Message' ], $messages );
-		}
+		$output = new Output( $input, $output );
+		$output->display( $lock, $messages );
 	}
 }
