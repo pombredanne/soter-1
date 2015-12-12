@@ -6,7 +6,7 @@
  * @package soter
  */
 
-use SSNepenthe\Soter\Console\CheckCommand;
+use SSNepenthe\Soter\Console\Command\CheckCommand;
 use Symfony\Component\Console\Application;
 
 $soter_root = dirname( __DIR__ );
