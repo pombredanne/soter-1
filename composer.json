@@ -6,11 +6,11 @@
     "license": "GPL-2.0",
     "require": {
         "php": ">=5.4",
-        "guzzlehttp/guzzle": "~6.1",
-        "ssnepenthe/composer-utilities": "dev-master",
-        "symfony/console": "~3.0"
+        "ssnepenthe/composer-utilities": "^0.1.0",
+        "symfony/console": "^3.0"
     },
     "autoload": {
+    	"files": ["wp-cli.php"],
         "psr-4": { "SSNepenthe\\Soter\\": "src/" }
     },
     "repositories": [
