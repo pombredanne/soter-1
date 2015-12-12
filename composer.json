@@ -13,11 +13,5 @@
     	"files": ["wp-cli.php"],
         "psr-4": { "SSNepenthe\\Soter\\": "src/" }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:ssnepenthe/composer-utilities.git"
-        }
-    ],
     "bin": ["bin/soter"]
 }
