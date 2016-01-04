@@ -96,12 +96,12 @@ array(4) {
 ```
 
 Individual packages will be listed as follows:
-* Under the `error` key if the response has a non-200 status code
+* Under the `error` key if the http client throws an exception (most likely a non-200 status code)
 * Under the `ok` key if there are no known vulnerabilities
-* Under the `unknown` key if the package has had any security issues, but you are on `dev-{master,trunk}`
+* Under the `unknown` key if the package has ever had any vulnerabilities, but the version used in your project cannot be easily determined (i.e. you are on `dev-{master,trunk}`)
 * Under the `vulnerable` key if the package is determined to be vulnerable
 
 ## Notes
 Only checks packages with a type of `wordpress-core` or a name that begins with `wpackagist-`.
 
-The output isn't very nice looking for either, but the WP-CLI version in particular is a heaping pile of shit.
+The output isn't very nice looking, but the WP-CLI version in particular is shit.
