@@ -65,10 +65,6 @@ class CheckCommand extends Command {
 			throw new RuntimeException( 'The supplied lock file does not exist.' );
 		}
 
-		if ( 'composer.lock' !== substr( $lock, -13 ) ) {
-			throw new RuntimeException( 'The supplied file should be a composer.lock file.' );
-		}
-
 		$checker = new Checker( $lock, new CurlClient( 'https://wpvulndb.com/api/v2/' ) );
 		$messages = $checker->check();
 

@@ -40,10 +40,6 @@ class WPCLICheckCommand {
 			WP_CLI::error( 'The supplied lock file does not exist.' );
 		}
 
-		if ( 'composer.lock' !== substr( $lock, -13 ) ) {
-			WP_CLI::error( 'The supplied file should be a composer.lock file.' );
-		}
-
 		$checker = new Checker( $lock, new WPClient( 'https://wpvulndb.com/api/v2/' ) );
 		$messages = $checker->check();
 
