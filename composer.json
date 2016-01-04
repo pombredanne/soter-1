@@ -1,6 +1,6 @@
 {
     "name": "ssnepenthe/soter",
-    "description": "Check your Composer dependencies against the WPVulnDB API and the Sensio Labs Security Advisory Database.",
+    "description": "Check your Composer dependencies for security vulnerabilities against the WPVulnDB API.",
     "type": "library",
     "homepage": "https://github.com/ssnepenthe/soter",
     "license": "GPL-2.0",
