@@ -1,6 +1,8 @@
 # soter
 Check your Composer dependencies for security vulnerabilities against the WPVulnDB API.
 
+Original inspiration comes from the [Sensio Labs Security Checker](https://github.com/sensiolabs/security-checker).
+
 ## Usage
 This package includes a basic command line utility for checking your (WordPress) Composer dependencies for security vulnerabilities. It can be used on its own or via WP-CLI.
 
