@@ -86,7 +86,7 @@ class ApiResponse {
 				'Not fixed yet' :
 				sprintf( 'Fixed in v%s', $vulnerability->fixed_in );
 
-			$r[] = $vulnerability->title . $urls . $fixed;
+			$r[] = sprintf( "%s\n%s\n%s", $vulnerability->title, $urls, $fixed );
 		}
 
 		return $r;
