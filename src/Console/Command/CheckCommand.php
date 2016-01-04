@@ -56,7 +56,7 @@ class CheckCommand extends Command {
 		$lock = filter_var( $input->getArgument( 'lock' ), FILTER_SANITIZE_STRING );
 
 		if ( is_dir( $lock ) ) {
-			$lock = trailingslashit( $lock ) . 'composer.lock';
+			$lock = rtrim( $lock, '/\\' ) . '/composer.lock';
 		}
 
 		$lock = realpath( $lock );
