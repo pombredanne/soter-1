@@ -7,7 +7,7 @@
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
-use SSNepenthe\ComposerUtilities\WordPressPackage;
+use SSNepenthe\ComposerUtilities\WordPress\Package;
 
 /**
  * This class provides the details needed for an API request based on a package.
@@ -39,7 +39,7 @@ class ApiRequest {
 	 *
 	 * @param WordPressPackage $package An individual WordPress package.
 	 */
-	public function __construct( WordPressPackage $package ) {
+	public function __construct( Package $package ) {
 		$this->path = $this->get_path( $package );
 		$this->slug = $this->get_slug( $package );
 
@@ -80,7 +80,7 @@ class ApiRequest {
 	 *
 	 * @return string
 	 */
-	protected function get_path( WordPressPackage $package ) {
+	protected function get_path( Package $package ) {
 		if ( $package->is_wp_plugin() ) {
 			return 'plugins';
 		}
@@ -104,7 +104,7 @@ class ApiRequest {
 	 *
 	 * @return string
 	 */
-	protected function get_slug( WordPressPackage $package ) {
+	protected function get_slug( Package $package ) {
 		if ( $package->is_wp_core() ) {
 			return str_replace( '.', '', $package->version() );
 		}

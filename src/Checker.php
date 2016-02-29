@@ -8,7 +8,7 @@
 namespace SSNepenthe\Soter;
 
 use Exception;
-use SSNepenthe\ComposerUtilities\WordPressLock;
+use SSNepenthe\ComposerUtilities\WordPress\Lock;
 use SSNepenthe\Soter\Contracts\Http;
 use SSNepenthe\Soter\WPVulnDB\ApiRequest;
 use SSNepenthe\Soter\WPVulnDB\ApiResponse;
@@ -51,7 +51,7 @@ class Checker {
 	 * @param Http $client Http instance for making GET requests.
 	 */
 	public function __construct( $path, Http $client ) {
-		$this->lock = new WordPressLock( $path );
+		$this->lock = new Lock( $path );
 		$this->client = $client;
 	}
 
