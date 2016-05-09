@@ -6,7 +6,11 @@
  * @package soter
  */
 
-use SSNepenthe\Soter\Console\Command\CheckCommand;
+use SSNepenthe\Soter\Console\Command\CheckProjectCommand;
+use SSNepenthe\Soter\Console\Command\CheckPluginCommand;
+use SSNepenthe\Soter\Console\Command\CheckThemeCommand;
+use SSNepenthe\Soter\Console\Command\CheckWordPressCommand;
+use SSNepenthe\Soter\Console\Command\CacheClearCommand;
 use Symfony\Component\Console\Application;
 
 function ssn_require_once_if_exists( $file ) {
@@ -31,10 +35,11 @@ if (
 }
 
 $app = new Application( 'Soter Security Checker', '0.1.0' );
-$app->add( new CheckCommand );
+
 $app->add( new CheckProjectCommand );
 $app->add( new CheckPluginCommand );
 $app->add( new CheckThemeCommand );
 $app->add( new CheckWordPressCommand );
 $app->add( new CacheClearCommand );
+
 $app->run();
