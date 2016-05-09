@@ -36,4 +36,5 @@ $app->add( new CheckProjectCommand );
 $app->add( new CheckPluginCommand );
 $app->add( new CheckThemeCommand );
 $app->add( new CheckWordPressCommand );
+$app->add( new CacheClearCommand );
 $app->run();
