@@ -9,17 +9,25 @@
 use SSNepenthe\Soter\Console\Command\CheckCommand;
 use Symfony\Component\Console\Application;
 
-$soter_root = dirname( __DIR__ );
-$project_vendor = dirname( dirname( $soter_root ) );
+function ssn_require_once_if_exists( $file ) {
+	if ( file_exists( $file ) ) {
+		return require_once $file;
+	}
 
-if ( file_exists( $soter_root . '/vendor/autoload.php' ) ) {
-	$autoloader = $soter_root . '/vendor/autoload.php';
-} else {
-	$autoloader = $project_vendor . '/autoload.php';
+	return false;
 }
 
-if ( file_exists( $autoloader ) ) {
-	require_once $autoloader;
+$soter_autoload = sprintf( '%s/vendor/autoload.php', dirname( __DIR__ ) );
+$project_autoload = sprintf(
+	'%s/vendor/autoload.php',
+	dirname( dirname( dirname( __DIR__ ) ) )
+);
+
+if (
+	! ssn_require_once_if_exists( $soter_autoload ) &&
+	! ssn_require_once_if_exists( $project_autoload )
+) {
+	die( 'Unable to find the Composer autoloader.' );
 }
 
 $app = new Application( 'Soter Security Checker', '0.1.0' );
