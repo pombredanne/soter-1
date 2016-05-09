@@ -33,4 +33,5 @@ if (
 $app = new Application( 'Soter Security Checker', '0.1.0' );
 $app->add( new CheckCommand );
 $app->add( new CheckPluginCommand );
+$app->add( new CheckThemeCommand );
 $app->run();
