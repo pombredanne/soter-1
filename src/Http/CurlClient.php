@@ -1,50 +1,38 @@
 <?php
-/**
- * Handle HTTP requests with cURL.
- *
- * @package soter
- */
 
 namespace SSNepenthe\Soter\Http;
 
 use RuntimeException;
 use SSNepenthe\Soter\Contracts\Http;
 
-/**
- * This class can be used to make HTTP GET requests with cURL.
- */
 class CurlClient implements Http {
-	/**
-	 * Set up the object.
-	 *
-	 * @param string $base_url   The base URL all request URLs will be built from.
-	 * @param string $user_agent User agent to connect with.
-	 *
-	 * @throws RuntimeException If cURL does not exist.
-	 */
-	public function __construct( $base_url, $user_agent = null ) {
+	protected $url_root = null;
+
+	public function __construct( $user_agent = null ) {
 		if ( ! function_exists( 'curl_init' ) ) {
 			throw new RuntimeException( 'cURL is required to use the cURL client' );
 		}
 
-		$this->base_url = $base_url;
 		$this->user_agent = is_null( $user_agent ) ?
 			'Soter Security Checker - v0.1.0 - https://github.com/ssnepenthe/soter' :
 			$user_agent;
 	}
 
-	/**
-	 * Make a GET request to the given endpoint.
-	 *
-	 * @param  string $endpoint Endpoint to build the URL with.
-	 *
-	 * @throws RuntimeException For cURL errors and non-200 status codes.
-	 *
-	 * @return string JSON response.
-	 */
+	public function set_url_root( $url_root ) {
+		// @todo Validation?
+		$this->url_root = $url_root;
+	}
+
 	public function get( $endpoint = '' ) {
-		// Check for trailing slash before concat???
-		$url = $this->base_url . $endpoint;
+		if ( is_null( $this->url_root ) ) {
+			throw new RuntimeException( sprintf(
+				'You must set the URL root before calling %s',
+				__METHOD__
+			) );
+		}
+
+		// @todo Check for trailing slash before concat???
+		$url = $this->url_root . $endpoint;
 
 		if ( false === $curl = curl_init() ) {
 			throw new RuntimeException( 'Unable to create a cURL handle.' );
