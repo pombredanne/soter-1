@@ -6,11 +6,21 @@
     "license": "GPL-2.0",
     "require": {
         "php": ">=5.4",
-        "ssnepenthe/composer-utilities": "^0.2.1",
-        "symfony/console": "~2.0||~3.0"
+        "ssnepenthe/composer-utilities": "^0.2",
+        "symfony/console": "~2.0||~3.0",
+        "doctrine/cache": "^1.6"
+    },
+    "require-dev": {
+        "psy/psysh": "^0.7",
+        "wp-coding-standards/wpcs": "0.9.0"
     },
     "autoload": {
         "psr-4": { "SSNepenthe\\Soter\\": "src/" }
+    },
+    "scripts": {
+        "phpcs": "phpcs --ignore=vendor/ --standard=WordPress",
+        "post-install-cmd": "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs/",
+        "post-update-cmd": "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs/"
     },
     "bin": ["bin/soter"]
 }
