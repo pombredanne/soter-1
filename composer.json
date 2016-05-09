@@ -10,7 +10,6 @@
         "symfony/console": "~2.0||~3.0"
     },
     "autoload": {
-    	"files": ["wp-cli.php"],
         "psr-4": { "SSNepenthe\\Soter\\": "src/" }
     },
     "bin": ["bin/soter"]
