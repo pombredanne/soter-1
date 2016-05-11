@@ -1,7 +1,9 @@
 <?php
 
-namespace SSNepenthe\Soter\Console\Command;
+namespace SSNepenthe\Soter\Console;
 
+use SSNepenthe\Soter\Container;
+use SSNepenthe\Soter\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,8 +20,7 @@ class CacheClearCommand extends Command {
 	public function execute( InputInterface $input, OutputInterface $output ) {
 		$io = new SymfonyStyle( $input, $output );
 
-		$cache = new \SSNepenthe\Soter\Cache\FilesystemCache;
-		$cache->flush();
+		$cache = Container::get( 'cache' )->flushAll();
 
 		$io->success('Cache cleared successfully!');
 	}
