@@ -4,106 +4,53 @@ Check your Composer dependencies for security vulnerabilities against the WPVuln
 Original inspiration comes from the [Sensio Labs Security Checker](https://github.com/sensiolabs/security-checker).
 
 ## Usage
-This package includes a basic command line utility for checking your (WordPress) Composer dependencies for security vulnerabilities. It can be used on its own or via WP-CLI.
-
-
-**Standalone:**
-
-`./vendor/bin/soter check /path/to/composer.lock`
-
-
-**WP-CLI (must be using the composer autoloader):**
-
-`wp soter check /path/to/composer.lock`
+```
+./vendor/bin/soter check:project /path/to/composer.lock
+```
 
 This will check your WordPress packages against the WPVulnDB API and provide a listing of potential vulnerabilities.
 
-You can also use it directly in your own code:
-
-```php
-use SSNepenthe\Soter\Checker;
-use SSNepenthe\Soter\Http\CurlClient;
-
-require_once 'vendor/autoload.php';
-
-$checker = new Checker(
-	'/path/to/composer.lock',
-	new CurlClient( 'https://wpvulndb.com/api/v2/' )
-);
-$messages = $checker->check();
-
-var_dump( $messages );
-```
-
-Note the second parameter passed to the Checker constructor can be any instance of `SSNepenthe\Soter\Contracts\Http`, and that the class `SSNepenthe\Soter\Http\WPClient` is included for use within WordPress (it uses the WP HTTP API instead of cURL).
-
-**Output will look a little like this:**
+You can also check individual plugins, themes and version of WordPress:
 
 ```
-array(4) {
-  ["error"]=>
-  array(1) {
-    ["vendor/package"]=>
-    array(2) {
-      ["version"]=>
-      string(3) "x.y.z"
-      ["advisories"]=>
-      array(1) {
-        [0]=>
-        string(83) "Error explanation, likely a 404"
-      }
-    }
-  }
-  ["ok"]=>
-  array(1) {
-    ["vendor/package"]=>
-    array(2) {
-      ["version"]=>
-      string(9) "x.y.z"
-      ["advisories"]=>
-      array(1) {
-        [0]=>
-        string(51) "There are no known vulnerabilities in this package"
-      }
-    }
-  }
-  ["unknown"]=>
-  array(1) {
-  	["vendor/package"]=>
-    array(2) {
-      ["version"]=>
-      string(9) "dev-trunk"
-      ["advisories"]=>
-      array(1) {
-        [0]=>
-        string(51) "One entry per vulnerability with title, reference urls and the version in which it was fixed"
-      }
-    }
-  }
-  ["vulnerable"]=>
-  array(1) {
-  	["vendor/package"]=>
-    array(2) {
-      ["version"]=>
-      string(9) "x.y.z"
-      ["advisories"]=>
-      array(1) {
-        [0]=>
-        string(51) "One entry per vulnerability with title, reference urls and the version in which it was fixed
-        "
-      }
-    }
-  }
-}
+./vendor/bin/soter check:plugin eshop 6.3.13
+./vendor/bin/soter check:theme pagelines 1.4.6
 ```
 
-Individual packages will be listed as follows:
-* Under the `error` key if the http client throws an exception (most likely a non-200 status code)
-* Under the `ok` key if there are no known vulnerabilities
-* Under the `unknown` key if the package has ever had any vulnerabilities, but the version used in your project cannot be easily determined (i.e. you are on `dev-{master,trunk}`)
-* Under the `vulnerable` key if the package is determined to be vulnerable
+Note that the version argument is optional for both commands.
 
-## Notes
-Only checks packages with a type of `wordpress-core` or a name that begins with `wpackagist-`.
+```
+./vendor/bin/soter check:wordpress 4.3
+```
 
-The output isn't very nice looking, but the WP-CLI version in particular is shit.
+## Config
+You can configure this tool using the following commands:
+
+```
+./vendor/bin/soter config:set <property> <value>
+./vendor/bin/soter config:remove <property> <value>
+./vendor/bin/soter config:reset <property>
+```
+
+Valid properties are:
+
+`cache.directory` - default is `[package dir]/.cache`
+
+`cache.ttl` - in seconds, default is 43200 (12 hours)
+
+`http.useragent` - default is `Soter Security Checker | vX.X.X | https://github.com/ssnepenthe/soter`
+
+`package.ignored` - default is an empty array - should be used for custom themes/plugins that aren't tracked by WPVulnDB.
+
+Example:
+
+```
+./vendor/bin/soter config:set package.ignored my-custom-plugin my-custom-theme
+```
+
+## Cache
+HTTP responses are cached locally in the package directory. To clear the cache:
+
+```
+./vendor/bin/soter cache:clear
+```
