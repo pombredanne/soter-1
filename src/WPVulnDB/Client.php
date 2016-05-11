@@ -2,17 +2,19 @@
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
-use SSNepenthe\Soter\Contracts\Cache;
+use Doctrine\Common\Cache\CacheProvider;
+use SSNepenthe\Soter\Config;
 use SSNepenthe\Soter\Contracts\Http;
 
 class Client {
 	protected $http_client;
 	protected $cache_provider;
 
-	public function __construct( Http $client, Cache $provider ) {
+	public function __construct( Http $client, CacheProvider $provider ) {
 		$this->cache_provider = $provider;
 		$this->http_client = $client;
 		$this->http_client->set_url_root( 'https://wpvulndb.com/api/v2/' );
+		$this->http_client->set_user_agent( Config::get( 'http.useragent' ) );
 	}
 
 	public function check_plugin( $slug ) {
@@ -42,7 +44,11 @@ class Client {
 		}
 
 		$response = $this->http_client->get( $endpoint );
-		$this->cache_provider->save( $endpoint, $response, 60 * 60 * 12 );
+		$this->cache_provider->save(
+			$endpoint,
+			$response,
+			Config::get( 'cache.ttl' )
+		);
 
 		return $response;
 	}
