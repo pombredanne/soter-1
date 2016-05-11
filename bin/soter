@@ -6,40 +6,46 @@
  * @package soter
  */
 
-use SSNepenthe\Soter\Console\Command\CheckProjectCommand;
-use SSNepenthe\Soter\Console\Command\CheckPluginCommand;
-use SSNepenthe\Soter\Console\Command\CheckThemeCommand;
-use SSNepenthe\Soter\Console\Command\CheckWordPressCommand;
-use SSNepenthe\Soter\Console\Command\CacheClearCommand;
-use Symfony\Component\Console\Application;
-
 function ssn_require_once_if_exists( $file ) {
-	if ( file_exists( $file ) ) {
-		return require_once $file;
-	}
+    if ( file_exists( $file ) ) {
+        return require_once $file;
+    }
 
-	return false;
+    return false;
 }
 
 $soter_autoload = sprintf( '%s/vendor/autoload.php', dirname( __DIR__ ) );
 $project_autoload = sprintf(
-	'%s/vendor/autoload.php',
-	dirname( dirname( dirname( __DIR__ ) ) )
+    '%s/vendor/autoload.php',
+    dirname( dirname( dirname( __DIR__ ) ) )
 );
 
 if (
-	! ssn_require_once_if_exists( $soter_autoload ) &&
-	! ssn_require_once_if_exists( $project_autoload )
+    ! ssn_require_once_if_exists( $soter_autoload ) &&
+    ! ssn_require_once_if_exists( $project_autoload )
 ) {
-	die( 'Unable to find the Composer autoloader.' );
+    die( 'Unable to find the Composer autoloader.' );
 }
 
-$app = new Application( 'Soter Security Checker', '0.1.0' );
+$app = new Symfony\Component\Console\Application(
+    SSNepenthe\Soter\Config::NAME,
+    SSNepenthe\Soter\Config::VERSION
+);
 
-$app->add( new CheckProjectCommand );
-$app->add( new CheckPluginCommand );
-$app->add( new CheckThemeCommand );
-$app->add( new CheckWordPressCommand );
-$app->add( new CacheClearCommand );
+$commands = [
+    'SSNepenthe\Soter\Console\CacheClearCommand',
+    'SSNepenthe\Soter\Console\CheckPluginCommand',
+    // 'SSNepenthe\Soter\Console\Command\CheckProjectCommand',
+    'SSNepenthe\Soter\Console\CheckThemeCommand',
+    'SSNepenthe\Soter\Console\CheckWordPressCommand',
+    'SSNepenthe\Soter\Console\ConfigSetCommand',
+    'SSNepenthe\Soter\Console\ConfigRemoveCommand',
+    'SSNepenthe\Soter\Console\ConfigResetCommand',
+    'SSNepenthe\Soter\Console\ConfigShowCommand',
+];
+
+foreach ( $commands as $command ) {
+    $app->add( new $command );
+}
 
 $app->run();
