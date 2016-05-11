@@ -1,4 +1,9 @@
 <?php
+/**
+ * Check:project command.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Console;
 
@@ -11,7 +16,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * This class defines the check:project command.
+ */
 class CheckProjectCommand extends Command {
+	/**
+	 * Set the name and description for this command.
+	 */
 	public function configure() {
 		$this->setName( 'check:project' )
 			->setDescription(
@@ -25,6 +36,14 @@ class CheckProjectCommand extends Command {
 			);
 	}
 
+	/**
+	 * The command functionality.
+	 *
+	 * @param  InputInterface  $input  Symfony console input Interface.
+	 * @param  OutputInterface $output Symfony console output Interface.
+	 *
+	 * @throws \RuntimeException When the supplied lock file does not exist.
+	 */
 	public function execute( InputInterface $input, OutputInterface $output ) {
 		$path = $input->getArgument( 'lock' );
 
@@ -51,7 +70,7 @@ class CheckProjectCommand extends Command {
 		foreach ( $packages as $package ) {
 			list( $vendor, $name ) = explode( '/', $package->name() );
 
-			if ( in_array( $name, Config::get( 'package.ignored' ) ) ) {
+			if ( in_array( $name, Config::get( 'package.ignored' ), true ) ) {
 				$io->progressAdvance();
 				continue;
 			}

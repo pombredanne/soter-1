@@ -1,4 +1,9 @@
 <?php
+/**
+ * Config:remove command.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Console;
 
@@ -8,7 +13,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * This class defines the check:theme command.
+ */
 class ConfigShowCommand extends Command {
+	/**
+	 * Set the name and description for this command.
+	 */
 	public function configure() {
 		$this->setName( 'config:show' )
 			->setDescription(
@@ -16,6 +27,12 @@ class ConfigShowCommand extends Command {
 			);
 	}
 
+	/**
+	 * The command functionality.
+	 *
+	 * @param  InputInterface  $input  Symfony console input Interface.
+	 * @param  OutputInterface $output Symfony console output Interface.
+	 */
 	public function execute( InputInterface $input, OutputInterface $output ) {
 		$io = new SymfonyStyle( $input, $output );
 

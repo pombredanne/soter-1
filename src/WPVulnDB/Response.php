@@ -1,16 +1,46 @@
 <?php
+/**
+ * Response wrapper.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
+/**
+ * This class defines a wrapper for a response from WPVulnDB.
+ */
 class Response {
+	/**
+	 * Response body.
+	 *
+	 * @var string
+	 */
 	protected $body;
+
+	/**
+	 * JSON decoded response.
+	 *
+	 * @var \stdClass
+	 */
 	protected $object;
+
+	/**
+	 * Status code.
+	 *
+	 * @var int
+	 */
 	protected $status_code;
 
-	public function status_code() {
-		return $this->status_code;
-	}
-
+	/**
+	 * Response constructor.
+	 *
+	 * @param array  $response HTTP response, status code at index 0, body at 1.
+	 * @param string $slug     Package slug.
+	 *
+	 * @throws \InvalidArgumentException When $slug is not a string.
+	 * @throws \RuntimeException When there is an error decoding the response.
+	 */
 	public function __construct( array $response, $slug ) {
 		if ( ! is_string( $slug ) ) {
 			throw new \InvalidArgumentException( sprintf(
@@ -43,6 +73,13 @@ class Response {
 		}
 	}
 
+	/**
+	 * __get magic method.
+	 *
+	 * @param  string $key Property key.
+	 *
+	 * @return mixed
+	 */
 	public function __get( $key ) {
 		if ( isset( $this->object->{$key} ) ) {
 			return $this->object->{$key};
@@ -51,6 +88,15 @@ class Response {
 		return null;
 	}
 
+	/**
+	 * Retrieve formatted advisories for a given package version.
+	 *
+	 * @param  null|string $version Package version.
+	 *
+	 * @return array                Formatted advisories.
+	 *
+	 * @throws \InvalidArgumentException When $version is not string or null.
+	 */
 	public function advisories_by_version( $version = null ) {
 		if ( ! is_null( $version ) && ! is_string( $version ) ) {
 			throw new \InvalidArgumentException(
@@ -73,10 +119,33 @@ class Response {
 		return $advisories;
 	}
 
+	/**
+	 * Determine whether this instance represents a non-200 status response.
+	 *
+	 * @return boolean
+	 */
 	public function is_error() {
 		return isset( $this->object->error );
 	}
 
+	/**
+	 * Status code getter.
+	 *
+	 * @return int
+	 */
+	public function status_code() {
+		return $this->status_code;
+	}
+
+	/**
+	 * Retrieve a list of all vulnerabilities affecting a given package version.
+	 *
+	 * @param  null|string $version Package version.
+	 *
+	 * @return array                List of vulnerability objects.
+	 *
+	 * @throws \InvalidArgumentException When $version is not string or null.
+	 */
 	public function vulnerabilities_by_version( $version = null ) {
 		if ( ! is_null( $version ) && ! is_string( $version ) ) {
 			throw new \InvalidArgumentException(
@@ -100,6 +169,13 @@ class Response {
 		return $vulnerabilities;
 	}
 
+	/**
+	 * Formats an advisory string from a vulnerability object.
+	 *
+	 * @param  Vulnerability $vulnerability Package vulnerability.
+	 *
+	 * @return string                       Formatted advisory.
+	 */
 	protected function build_advisories( Vulnerability $vulnerability ) {
 		$urls = isset( $vulnerability->references->url ) ?
 			implode( "\n", $vulnerability->references->url ) :
@@ -117,6 +193,13 @@ class Response {
 		);
 	}
 
+	/**
+	 * Instantiates a Vulnerability object from a given \stdClass vulnerability.
+	 *
+	 * @param  \stdClass $vulnerability JSON decoded vulnerability.
+	 *
+	 * @return Vulnerability
+	 */
 	protected function instantiate_vulnerability( \stdClass $vulnerability ) {
 		return new Vulnerability( $vulnerability );
 	}

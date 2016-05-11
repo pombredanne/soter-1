@@ -20,6 +20,7 @@
     },
     "scripts": {
         "phpcs": "phpcs --ignore=vendor/ --standard=WordPress",
+        "phpcbf": "phpcbf --ignore=vendor/ --standard=WordPress",
         "post-install-cmd": "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs/",
         "post-update-cmd": "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs/"
     },

@@ -1,13 +1,37 @@
 <?php
+/**
+ * A simple HTTP GET client.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Http;
 
 use SSNepenthe\Soter\Contracts\Http;
 
+/**
+ * This class defines a basic cURL client limited to GET requests.
+ */
 class CurlClient implements Http {
+	/**
+	 * URL root for all requests.
+	 *
+	 * @var null|string
+	 */
 	protected $url_root = null;
+
+	/**
+	 * User agent string for all requests.
+	 *
+	 * @var null|string
+	 */
 	protected $user_agent = null;
 
+	/**
+	 * CurlClient constructor.
+	 *
+	 * @throws \RuntimeException If PHP cURL functions are not present.
+	 */
 	public function __construct() {
 		if ( ! function_exists( 'curl_init' ) ) {
 			throw new \RuntimeException(
@@ -16,6 +40,13 @@ class CurlClient implements Http {
 		}
 	}
 
+	/**
+	 * Set the user agent string.
+	 *
+	 * @param string $user_agent The user agent for all requests.
+	 *
+	 * @throws \InvalidArgumentException When $user_agent is not a string.
+	 */
 	public function set_user_agent( $user_agent ) {
 		if ( ! is_string( $user_agent ) ) {
 			throw new \InvalidArgumentException( sprintf(
@@ -27,6 +58,14 @@ class CurlClient implements Http {
 		return $this->user_agent = $user_agent;
 	}
 
+	/**
+	 * Set the url root string.
+	 *
+	 * @param string $url_root The URL root for all requests.
+	 *
+	 * @throws \InvalidArgumentException When $url_root is not a string.
+	 * @throws \RuntimeException When the URL root does not validate as a URL.
+	 */
 	public function set_url_root( $url_root ) {
 		if ( ! is_string( $url_root ) ) {
 			throw new \InvalidArgumentException( sprintf(
@@ -44,6 +83,17 @@ class CurlClient implements Http {
 		return $this->url_root = rtrim( $url_root, '/\\' );
 	}
 
+	/**
+	 * Makes a GET request.
+	 *
+	 * @param  string $endpoint Endpoint to send request to.
+	 *
+	 * @return array            Response code at index 0, body at index 1.
+	 *
+	 * @throws \RuntimeException If URL root or user agent are not set, or there
+	 *         					 is a problem with cURL.
+	 * @throws \InvalidArgumentException If $endpoint is not a string.
+	 */
 	public function get( $endpoint = '' ) {
 		if ( is_null( $this->url_root ) ) {
 			throw new \RuntimeException(
