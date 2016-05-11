@@ -82,12 +82,12 @@ class Config {
 			static::instance()->user[ $namespace ][ $property ] = [];
 		}
 
-		// @todo Some sort of validation.
 		if ( ! in_array(
 			$value,
 			static::instance()->user[ $namespace ][ $property ]
 		) ) {
-			static::instance()->user[ $namespace ][ $property ][] = $value;
+			static::instance()->user[ $namespace ][ $property ][] =
+				static::instance()->ensure_correct_type( $key, $value );
 		}
 
 		return static::get( $key );
@@ -247,8 +247,8 @@ class Config {
 
 		list( $namespace, $property ) = explode( '.', $key );
 
-		// @todo Some sort of validation.
-		static::instance()->user[ $namespace ][ $property ] = $value;
+		static::instance()->user[ $namespace ][ $property ] =
+			static::instance()->ensure_correct_type( $key, $value );
 
 		return static::get( $key );
 	}
@@ -281,7 +281,10 @@ class Config {
 
 			if ( isset( $object[ $namespace ][ $property ] ) ) {
 				$this->user[ $namespace ][ $property ] =
-					$object[ $namespace ][ $property ];
+					$this->ensure_correct_type(
+						$key,
+						$object[ $namespace ][ $property ]
+					);
 			}
 		}
 	}
@@ -290,5 +293,13 @@ class Config {
 		if ( is_file( $this->path ) ) {
 			unlink( $this->path );
 		}
+	}
+
+	protected function ensure_correct_type( $key, $value ) {
+		if ( 'cache.ttl' === $key ) {
+			$value = abs( intval( $value ) );
+		}
+
+		return $value;
 	}
 }
