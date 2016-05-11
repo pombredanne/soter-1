@@ -35,7 +35,7 @@ $app = new Symfony\Component\Console\Application(
 $commands = [
     'SSNepenthe\Soter\Console\CacheClearCommand',
     'SSNepenthe\Soter\Console\CheckPluginCommand',
-    // 'SSNepenthe\Soter\Console\Command\CheckProjectCommand',
+    'SSNepenthe\Soter\Console\CheckProjectCommand',
     'SSNepenthe\Soter\Console\CheckThemeCommand',
     'SSNepenthe\Soter\Console\CheckWordPressCommand',
     'SSNepenthe\Soter\Console\ConfigSetCommand',
