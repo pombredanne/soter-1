@@ -2,40 +2,74 @@
 
 namespace SSNepenthe\Soter\Http;
 
-use RuntimeException;
 use SSNepenthe\Soter\Contracts\Http;
 
 class CurlClient implements Http {
 	protected $url_root = null;
+	protected $user_agent = null;
 
-	public function __construct( $user_agent = null ) {
+	public function __construct() {
 		if ( ! function_exists( 'curl_init' ) ) {
-			throw new RuntimeException( 'cURL is required to use the cURL client' );
+			throw new \RuntimeException(
+				'cURL is required to use the cURL client'
+			);
+		}
+	}
+
+	public function set_user_agent( $user_agent ) {
+		if ( ! is_string( $user_agent ) ) {
+			throw new \InvalidArgumentException( sprintf(
+				'The user_agent parameter is required to be string, was: %s',
+				gettype( $user_agent )
+			) );
 		}
 
-		$this->user_agent = is_null( $user_agent ) ?
-			'Soter Security Checker - v0.1.0 - https://github.com/ssnepenthe/soter' :
-			$user_agent;
+		return $this->user_agent = $user_agent;
 	}
 
 	public function set_url_root( $url_root ) {
-		// @todo Validation?
-		$this->url_root = $url_root;
+		if ( ! is_string( $url_root ) ) {
+			throw new \InvalidArgumentException( sprintf(
+				'The url_root parameter is required to be string, was: %s',
+				gettype( $url_root )
+			) );
+		}
+
+		if ( ! $url_root = filter_var( $url_root, FILTER_VALIDATE_URL ) ) {
+			throw new \RuntimeException(
+				'The provided URL root does not appear to be valid'
+			);
+		}
+
+		return $this->url_root = rtrim( $url_root, '/\\' );
 	}
 
 	public function get( $endpoint = '' ) {
 		if ( is_null( $this->url_root ) ) {
-			throw new RuntimeException( sprintf(
-				'You must set the URL root before calling %s',
-				__METHOD__
+			throw new \RuntimeException(
+				'You must call set_url_root() before making a GET request'
+			);
+		}
+
+		if ( is_null( $this->user_agent ) ) {
+			throw new \RuntimeException(
+				'You must call set_user_agent() before making a GET request'
+			);
+		}
+
+		if ( ! is_string( $endpoint ) ) {
+			throw new \InvalidArgumentException( sprintf(
+				'The endpoint parameter is required to be string, was: %s',
+				gettype( $endpoint )
 			) );
 		}
 
-		// @todo Check for trailing slash before concat???
-		$url = $this->url_root . $endpoint;
+		$endpoint = ltrim( $endpoint, '/\\' );
 
-		if ( false === $curl = curl_init() ) {
-			throw new RuntimeException( 'Unable to create a cURL handle.' );
+		$url = sprintf( '%s/%s', $this->url_root, $endpoint );
+
+		if ( ! $curl = curl_init() ) {
+			throw new \RuntimeException( 'Unable to create a cURL handle' );
 		}
 
 		curl_setopt( $curl, CURLOPT_FAILONERROR, false );
@@ -45,7 +79,11 @@ class CurlClient implements Http {
 		curl_setopt( $curl, CURLOPT_TIMEOUT, 10 );
 		curl_setopt( $curl, CURLOPT_URL, $url );
 		curl_setopt( $curl, CURLOPT_USERAGENT, $this->user_agent );
-		curl_setopt( $curl, CURLOPT_HTTPHEADER, [ 'Accept: application/json' ] );
+		curl_setopt(
+			$curl,
+			CURLOPT_HTTPHEADER,
+			[ 'Accept: application/json' ]
+		);
 
 		$response = curl_exec( $curl );
 
@@ -53,24 +91,15 @@ class CurlClient implements Http {
 			$error = curl_error( $curl );
 			curl_close( $curl );
 
-			throw new RuntimeException( sprintf( 'cURL Error: %s', $error ) );
+			throw new \RuntimeException( sprintf( 'cURL Error: %s', $error ) );
 		}
 
 		$headers_size = curl_getinfo( $curl, CURLINFO_HEADER_SIZE );
-		$headers = substr( $response, 0, $headers_size );
 		$body = substr( $response, $headers_size );
 		$status_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 
 		curl_close( $curl );
 
-		if ( 404 === $status_code ) {
-			throw new RuntimeException( sprintf( 'The specified package/version does not exist at %s (HTTP 404)', $url ) );
-		}
-
-		if ( 200 !== $status_code ) {
-			throw new RuntimeException( sprintf( 'Unknown error (HTTP %s)', $status_code ) );
-		}
-
-		return $body;
+		return [ $status_code, $body ];
 	}
 }
