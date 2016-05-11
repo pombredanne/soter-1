@@ -10,7 +10,8 @@ class Config {
 	protected static $instance = null;
 
 	protected $addable = [ 'package.ignored' ];
-	protected $config;
+	protected $defaults;
+	protected $user = [];
 	protected $json;
 	protected $path;
 	protected $settable = [ 'cache.directory', 'cache.ttl', 'http.useragent' ];
@@ -23,7 +24,7 @@ class Config {
 			) );
 		}
 
-		$this->config = [
+		$this->defaults = [
 			'cache' => [
 				'directory' => sprintf( '%s/.cache', dirname( __DIR__ ) ),
 				'ttl' => 60 * 60 * 12,
@@ -43,15 +44,6 @@ class Config {
 
 		$this->path = $path;
 		$this->load();
-	}
-
-	public static function save() {
-		static::instance()->json = json_encode(
-			static::instance()->config,
-			JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-		);
-
-		file_put_contents( static::instance()->path, static::instance()->json );
 	}
 
 	private function __clone() { /* No diggity. */ }
@@ -77,7 +69,7 @@ class Config {
 			) );
 		}
 
-		if ( ! in_array( $key, static::instance()->addable ) ) {
+		if ( ! static::is_addable( $key ) ) {
 			throw new \OutOfBoundsException( sprintf(
 				'%s is not an addable config property',
 				$key
@@ -86,15 +78,41 @@ class Config {
 
 		list( $namespace, $property ) = explode( '.', $key );
 
+		if ( ! isset( static::instance()->user[ $namespace ][ $property ] ) ) {
+			static::instance()->user[ $namespace ][ $property ] = [];
+		}
+
 		// @todo Some sort of validation.
 		if ( ! in_array(
 			$value,
-			static::instance()->config[ $namespace ][ $property ]
+			static::instance()->user[ $namespace ][ $property ]
 		) ) {
-			static::instance()->config[ $namespace ][ $property ][] = $value;
+			static::instance()->user[ $namespace ][ $property ][] = $value;
 		}
 
-		return static::instance()->get( $key );
+		return static::get( $key );
+	}
+
+	public static function add_many( $key, array $values ) {
+		if ( ! is_string( $key ) ) {
+			throw new \InvalidArgumentException( sprintf(
+				'The key parameter is required to be string, was: %s',
+				gettype( $key )
+			) );
+		}
+
+		if ( ! static::is_addable( $key ) ) {
+			throw new \OutOfBoundsException( sprintf(
+				'%s is not an addable config property',
+				$key
+			) );
+		}
+
+		foreach ( $values as $value ) {
+			static::add( $key, $value );
+		}
+
+		return static::get( $key );
 	}
 
 	public static function get( $key ) {
@@ -106,8 +124,8 @@ class Config {
 		}
 
 		if (
-			! in_array( $key, static::instance()->settable ) &&
-			! in_array( $key, static::instance()->addable )
+			! static::is_addable( $key ) &&
+			! static::is_settable( $key )
 		) {
 			throw new \OutOfBoundsException( sprintf(
 				'%s is not a valid config property',
@@ -117,7 +135,19 @@ class Config {
 
 		list( $namespace, $property ) = explode( '.', $key );
 
-		return static::instance()->config[ $namespace ][ $property ];
+		if ( isset( static::instance()->user[ $namespace ][ $property ] ) ) {
+			return static::instance()->user[ $namespace ][ $property ];
+		}
+
+		return static::instance()->defaults[ $namespace ][ $property ];
+	}
+
+	public static function is_addable( $key ) {
+		return in_array( $key, static::instance()->addable );
+	}
+
+	public static function is_settable( $key ) {
+		return in_array( $key, static::instance()->settable );
 	}
 
 	public static function remove( $key, $value ) {
@@ -128,7 +158,7 @@ class Config {
 			) );
 		}
 
-		if ( ! in_array( $key, static::instance()->addable ) ) {
+		if ( ! static::is_addable( $key ) ) {
 			throw new \OutOfBoundsException( sprintf(
 				'%s is not an addable config property',
 				$key
@@ -139,21 +169,21 @@ class Config {
 
 		$index = array_search(
 			$value,
-			static::instance()->config[ $namespace ][ $property ]
+			static::instance()->user[ $namespace ][ $property ]
 		);
 
 		if ( false !== $index ) {
 			unset(
-				static::instance()->config[ $namespace ][ $property ][ $index ]
+				static::instance()->user[ $namespace ][ $property ][ $index ]
 			);
 
 			// Re-index the array.
-			static::instance()->config[ $namespace ][ $property ] = array_values(
-				static::instance()->config[ $namespace ][ $property ]
+			static::instance()->user[ $namespace ][ $property ] = array_values(
+				static::instance()->user[ $namespace ][ $property ]
 			);
 		}
 
-		return static::instance()->get( $key );
+		return static::get( $key );
 	}
 
 	public static function reset( $key ) {
@@ -164,18 +194,40 @@ class Config {
 			) );
 		}
 
-		if ( ! in_array( $key, static::instance()->addable ) ) {
+		if (
+			! static::is_addable( $key ) &&
+			! static::is_settable( $key )
+		) {
 			throw new \OutOfBoundsException( sprintf(
-				'%s is not an addable config property',
+				'%s is not a valid config property',
 				$key
 			) );
 		}
 
 		list( $namespace, $property ) = explode( '.', $key );
 
-		static::instance()->config[ $namespace ][ $property ] = [];
+		unset( static::instance()->user[ $namespace ][ $property ] );
 
-		return static::instance()->get( $key );
+		if ( empty( static::instance()->user[ $namespace ] ) ) {
+			unset( static::instance()->user[ $namespace ] );
+		}
+
+		return static::get( $key );
+	}
+
+	public static function save() {
+		if ( empty( static::instance()->user ) ) {
+			static::instance()->maybe_delete_config();
+
+			return;
+		}
+
+		static::instance()->json = json_encode(
+			static::instance()->user,
+			JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+		);
+
+		file_put_contents( static::instance()->path, static::instance()->json );
 	}
 
 	public static function set( $key, $value ) {
@@ -186,7 +238,7 @@ class Config {
 			) );
 		}
 
-		if ( ! in_array( $key, static::instance()->settable ) ) {
+		if ( ! static::is_settable( $key ) ) {
 			throw new \OutOfBoundsException( sprintf(
 				'%s is not a settable config property',
 				$key
@@ -196,9 +248,9 @@ class Config {
 		list( $namespace, $property ) = explode( '.', $key );
 
 		// @todo Some sort of validation.
-		static::instance()->config[ $namespace ][ $property ] = $value;
+		static::instance()->user[ $namespace ][ $property ] = $value;
 
-		return static::instance()->get( $key );
+		return static::get( $key );
 	}
 
 	protected function load() {
@@ -228,9 +280,15 @@ class Config {
 			list ( $namespace, $property ) = explode( '.', $key );
 
 			if ( isset( $object[ $namespace ][ $property ] ) ) {
-				$this->config[ $namespace ][ $property ] =
+				$this->user[ $namespace ][ $property ] =
 					$object[ $namespace ][ $property ];
 			}
+		}
+	}
+
+	protected function maybe_delete_config() {
+		if ( is_file( $this->path ) ) {
+			unlink( $this->path );
 		}
 	}
 }
