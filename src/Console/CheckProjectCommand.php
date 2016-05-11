@@ -52,6 +52,7 @@ class CheckProjectCommand extends Command {
 			list( $vendor, $name ) = explode( '/', $package->name() );
 
 			if ( in_array( $name, Config::get( 'package.ignored' ) ) ) {
+				$io->progressAdvance();
 				continue;
 			}
 
