@@ -1,40 +1,68 @@
 # soter
-Check your Composer dependencies for security vulnerabilities against the WPVulnDB API.
+Check your Composer dependencies for security vulnerabilities against the [WPVulnDB](https://wpvulndb.com/) API.
 
-Original inspiration comes from the [Sensio Labs Security Checker](https://github.com/sensiolabs/security-checker).
+Inspired by the [Sensio Labs Security Checker](https://github.com/sensiolabs/security-checker), which unfortunately does not check against known WordPress vulnerabilities.
+
+A less intrusive alternative to the [WPScan](http://wpscan.org/) vulnerability scanner.
+
+## Installation
+Install as a dev-dependency using Composer:
+
+```
+composer require ssnepenthe/soter --dev
+```
 
 ## Usage
-```
-./vendor/bin/soter check:project /path/to/composer.lock
-```
-
-This will check your WordPress packages against the WPVulnDB API and provide a listing of potential vulnerabilities.
-
-You can also check individual plugins, themes and version of WordPress:
+Before using the project checker you should set any custom themes and plugins as ignored packages:
 
 ```
-./vendor/bin/soter check:plugin eshop 6.3.13
-./vendor/bin/soter check:theme pagelines 1.4.6
+./vendor/bin/soter config:set package.ignored your-theme-slug your-plugin-slug
 ```
 
-Note that the version argument is optional for both commands.
+Next check your Composer dependencies by feeding the path of your `composer.lock` file to the `check:project` command.
 
 ```
-./vendor/bin/soter check:wordpress 4.3
+./vendor/bin/soter check:project [<path>]
 ```
 
-## Config
-You can configure this tool using the following commands:
+`<path>` default is `<pwd>/composer.lock`.
+
+Alternatively, you can check individual plugins, themes and versions of WordPress:
 
 ```
-./vendor/bin/soter config:set <property> <value>
+./vendor/bin/soter check:plugin <slug> [<version>]
+./vendor/bin/soter check:theme <slug> [<version>]
+./vendor/bin/soter check:wordpress <version>
+```
+
+## Configuration
+Remove an entry from an `addable` config property with the `config:remove` command. `package.ignored` is the only `addable` property at the moment.
+
+```
 ./vendor/bin/soter config:remove <property> <value>
+```
+
+Reset a config property to the package default with the `config:reset` command.
+
+```
 ./vendor/bin/soter config:reset <property>
 ```
 
-Valid properties are:
+Change a config value with the `config:set` command. Multiple values are accepted for `addable` properties (`package.ignored`).
 
-`cache.directory` - default is `[package dir]/.cache`
+```
+./vendor/bin/soter config:set <property> <value> (<value>)...
+```
+
+Show the full config with the `config:show` command.
+
+```
+./vendor/bin/soter config:show
+```
+
+Valid config properties are:
+
+`cache.directory` - default is `<package dir>/.cache`
 
 `cache.ttl` - in seconds, default is 43200 (12 hours)
 
@@ -42,14 +70,8 @@ Valid properties are:
 
 `package.ignored` - default is an empty array - should be used for custom themes/plugins that aren't tracked by WPVulnDB.
 
-Example:
-
-```
-./vendor/bin/soter config:set package.ignored my-custom-plugin my-custom-theme
-```
-
 ## Cache
-HTTP responses are cached locally in the package directory. To clear the cache:
+By default, HTTP responses are cached locally in `<package dir>/.cache` for 12 hours. To manually clear the cache:
 
 ```
 ./vendor/bin/soter cache:clear
