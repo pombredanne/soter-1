@@ -19,16 +19,16 @@ class ConfigShowCommand extends Command {
 	public function execute( InputInterface $input, OutputInterface $output ) {
 		$io = new SymfonyStyle( $input, $output );
 
-		$io->title( 'Cache Directory' );
+		$io->title( 'Cache Directory (cache.directory)' );
 		$io->block( Config::get( 'cache.directory' ) );
 
-		$io->title( 'Cache TTL' );
+		$io->title( 'Cache TTL (cache.ttl)' );
 		$io->block( Config::get( 'cache.ttl' ) );
 
-		$io->title( 'User Agent' );
+		$io->title( 'User Agent (http.useragent)' );
 		$io->block( Config::get( 'http.useragent' ) );
 
-		$io->title( 'Ignored Packages' );
+		$io->title( 'Ignored Packages (package.ignored)' );
 		$io->listing( Config::get( 'package.ignored' ) );
 	}
 }
