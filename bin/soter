@@ -14,15 +14,17 @@ function ssn_require_once_if_exists( $file ) {
     return false;
 }
 
-$soter_autoload = sprintf( '%s/vendor/autoload.php', dirname( __DIR__ ) );
-$project_autoload = sprintf(
-    '%s/vendor/autoload.php',
+$standalone_autoload = sprintf( '%s/vendor/autoload.php', dirname( __DIR__ ) );
+$project_bin_autoload = sprintf( '%s/autoload.php', dirname( __DIR__ ) );
+$project_ssn_autoload = sprintf(
+    '%s/autoload.php',
     dirname( dirname( dirname( __DIR__ ) ) )
 );
 
 if (
-    ! ssn_require_once_if_exists( $soter_autoload ) &&
-    ! ssn_require_once_if_exists( $project_autoload )
+    ! ssn_require_once_if_exists( $standalone_autoload ) &&
+    ! ssn_require_once_if_exists( $project_bin_autoload ) &&
+    ! ssn_require_once_if_exists( $project_ssn_autoload )
 ) {
     die( 'Unable to find the Composer autoloader.' );
 }
