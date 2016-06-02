@@ -1,28 +1,27 @@
 {
     "name": "ssnepenthe/soter",
-    "description": "Check your Composer dependencies for security vulnerabilities against the WPVulnDB API.",
+    "description": "Check your full site for vulnerabilities against the WPVulnDB API.",
+    "type": "wordpress-plugin",
     "homepage": "https://github.com/ssnepenthe/soter",
     "license": "GPL-2.0",
     "require": {
-        "php": ">=5.5",
-        "doctrine/cache": "^1.6",
-        "league/container": "^2.2",
-        "ssnepenthe/composer-utilities": "^0.2",
-        "symfony/console": "~2.7|~3.0"
+        "php": ">=5.5"
     },
     "require-dev": {
-        "codegyre/robo": "^0.7.2",
+        "codegyre/robo": "^0.7",
         "psy/psysh": "^0.7",
         "wp-coding-standards/wpcs": "0.9.0"
     },
     "autoload": {
-        "psr-4": { "SSNepenthe\\Soter\\": "src/" }
+        "files": ["command.php"],
+        "psr-4": {
+            "SSNepenthe\\Soter\\": "src/"
+        }
     },
     "scripts": {
         "phpcbf": "phpcbf --ignore=vendor/ --standard=WordPress",
         "phpcs": "phpcs --ignore=vendor/ --standard=WordPress",
         "post-install-cmd": "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs/",
         "post-update-cmd": "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs/"
-    },
-    "bin": ["bin/soter"]
+    }
 }
