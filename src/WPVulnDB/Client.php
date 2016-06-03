@@ -1,57 +1,82 @@
 <?php
 /**
- * WPVulnDB v2 API client.
+ * WPVulnDB client.
  *
- * @package soter.
+ * @package soter
  */
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
-use Doctrine\Common\Cache\CacheProvider;
-use SSNepenthe\Soter\Config;
-use SSNepenthe\Soter\Contracts\Http;
-
 /**
- * This class defines a simple client for interacting with WPVulnDB (v2) API.
+ * The actual WPVulnDB client implementation.
  */
 class Client {
-	/**
-	 * HTTP client instance.
-	 *
-	 * @var Http
-	 */
-	protected $http_client;
+	const HTTP_URL_ROOT = 'https://wpvulndb.com/api/v2';
+	const PACKAGE_NAME = 'WPVulnDB PHP Client';
+	const PACKAGE_URL = 'https://github.com/ssnepenthe/wpvulndb-client';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
-	 * Doctrine cache provider instance.
+	 * Cache provider.
 	 *
-	 * @var CacheProvider
+	 * @var CacheInterface
 	 */
-	protected $cache_provider;
+	protected $cache;
 
 	/**
-	 * Client constructor.
+	 * Cache lifetime in seconds.
 	 *
-	 * @param Http          $client   HTTP client.
-	 * @param CacheProvider $provider Cache provider.
+	 * @var int
 	 */
-	public function __construct( Http $client, CacheProvider $provider ) {
-		$this->cache_provider = $provider;
-		$this->http_client = $client;
-		$this->http_client->set_url_root( 'https://wpvulndb.com/api/v2/' );
-		$this->http_client->set_user_agent( Config::get( 'http.useragent' ) );
+	protected $cache_lifetime;
+
+	/**
+	 * Http client.
+	 *
+	 * @var HttpInterface
+	 */
+	protected $http;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param HttpInterface  $http           Http client.
+	 * @param CacheInterface $cache          Cache provider.
+	 * @param int            $cache_lifetime Cache entry lifetime.
+	 */
+	public function __construct(
+		HttpInterface $http,
+		CacheInterface $cache,
+		$cache_lifetime = 60 * 60 * 24
+	) {
+		$this->cache = $cache;
+		$this->cache_lifetime = $cache_lifetime;
+		$this->http = $http;
+
+		if ( ! $this->http->get_url_root() ) {
+			$this->http->set_url_root( self::HTTP_URL_ROOT );
+		}
+
+		if ( ! $this->http->get_user_agent() ) {
+			$this->http->set_user_agent( sprintf(
+				'%s - %s - %s',
+				self::PACKAGE_NAME,
+				self::PACKAGE_VERSION,
+				self::PACKAGE_URL
+			) );
+		}
 	}
 
 	/**
-	 * Make a GET request to the plugin endpoint.
+	 * Make a request to the plugin endpoint.
 	 *
 	 * @param  string $slug Plugin slug.
 	 *
-	 * @return Response     HTTP response object.
+	 * @return Response
 	 *
-	 * @throws \InvalidArgumentException When $slug is not a string.
+	 * @throws  \InvalidArgumentException When slug is not a string.
 	 */
-	public function check_plugin( $slug ) {
+	public function plugin( $slug ) {
 		if ( ! is_string( $slug ) ) {
 			throw new \InvalidArgumentException( sprintf(
 				'The slug parameter is required to be string, was: %s',
@@ -59,21 +84,19 @@ class Client {
 			) );
 		}
 
-		$response = $this->get_and_cache( sprintf( 'plugins/%s', $slug ) );
-
-		return new Response( $response, $slug );
+		return $this->get_and_cache( sprintf( 'plugins/%s', $slug ), $slug );
 	}
 
 	/**
-	 * Make a GET request to the theme endpoint.
+	 * Make a request to the theme endpoint.
 	 *
 	 * @param  string $slug Theme slug.
 	 *
-	 * @return Response     HTTP response object.
+	 * @return Response
 	 *
-	 * @throws \InvalidArgumentException When $slug is not a string.
+	 * @throws  \InvalidArgumentException When slug is not a string.
 	 */
-	public function check_theme( $slug ) {
+	public function theme( $slug ) {
 		if ( ! is_string( $slug ) ) {
 			throw new \InvalidArgumentException( sprintf(
 				'The slug parameter is required to be string, was: %s',
@@ -81,21 +104,19 @@ class Client {
 			) );
 		}
 
-		$response = $this->get_and_cache( sprintf( 'themes/%s', $slug ) );
-
-		return new Response( $response, $slug );
+		return $this->get_and_cache( sprintf( 'themes/%s', $slug ), $slug );
 	}
 
 	/**
-	 * Make a GET request to the wordpresses endpoint.
+	 * Make a request to the WordPress endpoint.
 	 *
 	 * @param  string $version WordPress version.
 	 *
-	 * @return Response        HTTP response object.
+	 * @return Response
 	 *
-	 * @throws \InvalidArgumentException When $slug is not a string.
+	 * @throws  \InvalidArgumentException When version is not a string.
 	 */
-	public function check_wordpress( $version ) {
+	public function wordpress( $version ) {
 		if ( ! is_string( $version ) ) {
 			throw new \InvalidArgumentException( sprintf(
 				'The version parameter is required to be string, was: %s',
@@ -104,41 +125,30 @@ class Client {
 		}
 
 		$slug = str_replace( '.', '', $version );
-		$response = $this->get_and_cache(
-			sprintf( 'wordpresses/%s', $slug )
-		);
 
-		return new Response( $response, $version );
+		return $this->get_and_cache(
+			sprintf( 'wordpresses/%s', $slug ),
+			$version
+		);
 	}
 
 	/**
-	 * Send a GET request and cache the response.
+	 * Retrieve response from cache if it exists otherwise make a GET request.
 	 *
-	 * @param  string $endpoint Endpoint for request to be sent to.
+	 * @param  string $endpoint      Request endpoint.
+	 * @param  string $root_property The theme/plugin slug or WordPress version.
 	 *
-	 * @return array            Response code at index 0, body at index 1.
-	 *
-	 * @throws \InvalidArgumentException When $endpoint is not a string.
+	 * @return Response
 	 */
-	protected function get_and_cache( $endpoint ) {
-		if ( ! is_string( $endpoint ) ) {
-			throw new \InvalidArgumentException( sprintf(
-				'The endpoint parameter is required to be string, was: %s',
-				gettype( $endpoint )
-			) );
+	protected function get_and_cache( $endpoint, $root_property ) {
+		if ( $this->cache->contains( $endpoint ) ) {
+			$response = $this->cache->fetch( $endpoint );
+		} else {
+			$response = $this->http->get( $endpoint );
+
+			$this->cache->save( $endpoint, $response, $this->cache_lifetime );
 		}
 
-		if ( $this->cache_provider->contains( $endpoint ) ) {
-			return $this->cache_provider->fetch( $endpoint );
-		}
-
-		$response = $this->http_client->get( $endpoint );
-		$this->cache_provider->save(
-			$endpoint,
-			$response,
-			Config::get( 'cache.ttl' )
-		);
-
-		return $response;
+		return new Response( $response, $root_property );
 	}
 }

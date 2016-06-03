@@ -1,6 +1,6 @@
 <?php
 /**
- * Response wrapper.
+ * WPVulnDB response wrapper.
  *
  * @package soter
  */
@@ -8,7 +8,7 @@
 namespace SSNepenthe\Soter\WPVulnDB;
 
 /**
- * This class defines a wrapper for a response from WPVulnDB.
+ * This class provides a simple wrapper for responses from WPVulnDB.
  */
 class Response {
 	/**
@@ -19,6 +19,13 @@ class Response {
 	protected $body;
 
 	/**
+	 * Response headers.
+	 *
+	 * @var array
+	 */
+	protected $headers;
+
+	/**
 	 * JSON decoded response.
 	 *
 	 * @var \stdClass
@@ -26,35 +33,50 @@ class Response {
 	protected $object;
 
 	/**
-	 * Status code.
+	 * Response status code.
 	 *
 	 * @var int
 	 */
-	protected $status_code;
+	protected $status;
 
 	/**
-	 * Response constructor.
+	 * Cache of vulnerabilities by version.
 	 *
-	 * @param array  $response HTTP response, status code at index 0, body at 1.
-	 * @param string $slug     Package slug.
+	 * @var array
+	 */
+	protected $version_cache = [];
+
+	/**
+	 * Constructor.
 	 *
-	 * @throws \InvalidArgumentException When $slug is not a string.
-	 * @throws \RuntimeException When there is an error decoding the response.
+	 * @param array  $response API response array:
+	 *                         [0] status code,
+	 *                         [1] headers array,
+	 *                         [2] response body.
+	 *
+	 * @param string $slug     Theme/plugin slug or WordPress version.
+	 *
+	 * @throws  \InvalidArgumentException When slug is not a string.
+	 * @throws  \RuntimeException When JSON response cannot be decoded.
+	 *
+	 * @todo Convert last_updated from response to object
 	 */
 	public function __construct( array $response, $slug ) {
 		if ( ! is_string( $slug ) ) {
-			throw new \InvalidArgumentException( sprintf(
-				'The slug parameter is required to be string, was: %s',
-				gettype( $slug )
-			) );
+			throw new \InvalidArgumentException(
+				sprintf(
+					'The slug parameter is required to be string, was: %s',
+					gettype( $slug )
+				)
+			);
 		}
 
-		list( $this->status_code, $this->body ) = $response;
+		list($this->status, $this->headers, $this->body) = $response;
 
-		if ( 200 !== $this->status_code ) {
+		if ( 200 !== $this->status ) {
 			$this->object = new \stdClass;
 			$this->object->error = new \stdClass;
-			$this->object->error->status_code = $this->status_code;
+			$this->object->error->status_code = $this->status;
 		} else {
 			$object = json_decode( $this->body );
 
@@ -66,6 +88,12 @@ class Response {
 
 			$this->object = $object->{$slug};
 
+			if ( isset( $this->object->last_updated ) ) {
+				$this->object->last_updated = new \DateTime(
+					$this->object->last_updated
+				);
+			}
+
 			$this->object->vulnerabilities = array_map(
 				[ $this, 'instantiate_vulnerability' ],
 				$this->object->vulnerabilities
@@ -74,9 +102,9 @@ class Response {
 	}
 
 	/**
-	 * __get magic method.
+	 * Magic __get method.
 	 *
-	 * @param  string $key Property key.
+	 * @param  string $key Response key.
 	 *
 	 * @return mixed
 	 */
@@ -89,38 +117,16 @@ class Response {
 	}
 
 	/**
-	 * Retrieve formatted advisories for a given package version.
+	 * Headers getter.
 	 *
-	 * @param  null|string $version Package version.
-	 *
-	 * @return array                Formatted advisories.
-	 *
-	 * @throws \InvalidArgumentException When $version is not string or null.
+	 * @return array
 	 */
-	public function advisories_by_version( $version = null ) {
-		if ( ! is_null( $version ) && ! is_string( $version ) ) {
-			throw new \InvalidArgumentException(
-				'The version parameter is required to be string|null, was: %s',
-				gettype( $version )
-			);
-		}
-
-		$vulnerabilities = $this->vulnerabilities_by_version( $version );
-
-		if ( empty( $vulnerabilities ) ) {
-			return $vulnerabilities;
-		}
-
-		$advisories = array_map(
-			[ $this, 'build_advisories' ],
-			$vulnerabilities
-		);
-
-		return $advisories;
+	public function headers() {
+		return $this->headers;
 	}
 
 	/**
-	 * Determine whether this instance represents a non-200 status response.
+	 * Determine whether this instance represents a non-200 response.
 	 *
 	 * @return boolean
 	 */
@@ -133,18 +139,18 @@ class Response {
 	 *
 	 * @return int
 	 */
-	public function status_code() {
-		return $this->status_code;
+	public function status() {
+		return $this->status;
 	}
 
 	/**
-	 * Retrieve a list of all vulnerabilities affecting a given package version.
+	 * Get all vulnerabilities that affect a particular package version.
 	 *
-	 * @param  null|string $version Package version.
+	 * @param  string|null $version Version string.
 	 *
-	 * @return array                List of vulnerability objects.
+	 * @return array
 	 *
-	 * @throws \InvalidArgumentException When $version is not string or null.
+	 * @throws \InvalidArgumentException When version is not string|null.
 	 */
 	public function vulnerabilities_by_version( $version = null ) {
 		if ( ! is_null( $version ) && ! is_string( $version ) ) {
@@ -154,8 +160,16 @@ class Response {
 			);
 		}
 
-		if ( is_null( $version ) || empty( $this->object->vulnerabilities ) ) {
+		if ( $this->is_error() || empty( $this->object->vulnerabilities ) ) {
+			return [];
+		}
+
+		if ( is_null( $version ) ) {
 			return $this->object->vulnerabilities;
+		}
+
+		if ( isset( $this->version_cache[ $version ] ) ) {
+			return $this->version_cache[ $version ];
 		}
 
 		$vulnerabilities = [];
@@ -166,37 +180,13 @@ class Response {
 			}
 		}
 
-		return $vulnerabilities;
+		return $this->version_cache[ $version ] = $vulnerabilities;
 	}
 
 	/**
-	 * Formats an advisory string from a vulnerability object.
+	 * Instantiate a vulnerability object from a JSON decoded vulnerability.
 	 *
-	 * @param  Vulnerability $vulnerability Package vulnerability.
-	 *
-	 * @return string                       Formatted advisory.
-	 */
-	protected function build_advisories( Vulnerability $vulnerability ) {
-		$urls = isset( $vulnerability->references->url ) ?
-			implode( "\n", $vulnerability->references->url ) :
-			'';
-
-		$fixed = is_null( $vulnerability->fixed_in ) ?
-			'Not fixed yet' :
-			sprintf( 'Fixed in v%s', $vulnerability->fixed_in );
-
-		return sprintf(
-			"%s\n%s\n%s",
-			$vulnerability->title,
-			$urls,
-			$fixed
-		);
-	}
-
-	/**
-	 * Instantiates a Vulnerability object from a given \stdClass vulnerability.
-	 *
-	 * @param  \stdClass $vulnerability JSON decoded vulnerability.
+	 * @param  \stdClass $vulnerability Package vulnerability.
 	 *
 	 * @return Vulnerability
 	 */
