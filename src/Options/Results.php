@@ -1,24 +1,56 @@
 <?php
+/**
+ * Wrapper for the results entry in the options table.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Options;
 
+/**
+ * This class provides convenience methods for setting and saving the results of
+ * a security check to the options table.
+ */
 class Results {
 	const OPTION_KEY = 'soter_results';
 
+	/**
+	 * Security messages.
+	 *
+	 * @var array
+	 */
 	protected $messages;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->messages = get_option( self::OPTION_KEY, [] );
 	}
 
+	/**
+	 * Messages getter.
+	 *
+	 * @return array
+	 */
 	public function messages() {
 		return $this->messages;
 	}
 
+	/**
+	 * Save the message array to DB.
+	 *
+	 * @return bool
+	 */
 	public function save() {
 		return update_option( self::OPTION_KEY, $this->messages );
 	}
 
+	/**
+	 * Set the messages array from a vulnerabilities array.
+	 *
+	 * @param array $vulnerabilities Array of vulnerability objects.
+	 */
 	public function set_from_vulnerabilities_array( array $vulnerabilities ) {
 		$this->messages = [];
 
@@ -30,12 +62,13 @@ class Results {
 			$message = [
 				'title' => $vulnerability->title,
 				'meta' => [],
+				'links' => [],
 			];
 
 			if ( ! is_null( $vulnerability->published_date ) ) {
 				$message['meta'][] = sprintf(
 					'Published %s',
-					esc_html( $vulnerability->published_date->format( 'd M Y' ) )
+					$vulnerability->published_date->format( 'd M Y' )
 				);
 			}
 
@@ -43,25 +76,21 @@ class Results {
 				foreach ( $vulnerability->references->url as $url ) {
 					$parsed = wp_parse_url( $url );
 
-					$link_text = isset( $parsed['host'] ) ?
+					$host = isset( $parsed['host'] ) ?
 						$parsed['host'] :
-						'Link';
+						$url;
 
-					$message['meta'][] = sprintf(
-						'<a href="%s" target="_blank">%s</a>',
-						esc_url( $url ),
-						esc_html( $link_text )
-					);
+					$message['links'][ $url ] = $host;
 				}
 			}
 
-			$message['meta'][] = sprintf(
-				'<a href="https://wpvulndb.com/vulnerabilities/%s" target="_blank">wpvulndb.com</a>',
+			$message['links'][ sprintf(
+				'https://wpvulndb.com/vulnerabilities/%s',
 				$vulnerability->id
-			);
+			) ] = 'wpvulndb.com';
 
 			if ( is_null( $vulnerability->fixed_in ) ) {
-				$message['meta'][] = '<span style="color: #a00;">Not fixed yet</span>';
+				$message['meta'][] = 'Not fixed yet';
 			} else {
 				$message['meta'][] = sprintf(
 					'Fixed in v%s',

@@ -1,11 +1,24 @@
 <?php
+/**
+ * Text formatter for WP-CLI.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Formatters;
 
 use WP_CLI;
 use SSNepenthe\Soter\Interfaces\Formatter;
 
+/**
+ * Text formatter.
+ */
 class Text implements Formatter {
+	/**
+	 * Displays the results to screen.
+	 *
+	 * @param  array $vulnerabilities Array of vulnerability objects.
+	 */
 	public function display_results( array $vulnerabilities ) {
 		if ( empty( $vulnerabilities ) ) {
 			WP_CLI::log( $this->success( $this->banner(
@@ -19,7 +32,7 @@ class Text implements Formatter {
 		$count = count( $vulnerabilities );
 
 		WP_CLI::log( $this->warning( $this->banner( sprintf(
-			"%s %s detected",
+			'%s %s detected',
 			$count,
 			1 < $count ? 'vulnerabilities' : 'vulnerability'
 		), 'WARNING' ) ) );
@@ -58,6 +71,14 @@ class Text implements Formatter {
 		}
 	}
 
+	/**
+	 * Creates a multi-line banner for given string.
+	 *
+	 * @param  string $text   String to bannerify.
+	 * @param  string $prefix Text to prefix to $text.
+	 *
+	 * @return string
+	 */
 	protected function banner( $text, $prefix = null ) {
 		if ( ! is_null( $prefix ) ) {
 			$text = sprintf( '%s: %s', $prefix, $text );
@@ -66,16 +87,37 @@ class Text implements Formatter {
 		return sprintf( "\n\n  %s\n", $text );
 	}
 
+	/**
+	 * Colorize a string with a green background.
+	 *
+	 * @param  string $text Text to colorize.
+	 *
+	 * @return string
+	 */
 	protected function success( $text ) {
 		return WP_CLI::colorize(
 			'%2' . $text . '%n' . "\n"
 		);
 	}
 
+	/**
+	 * Colorize a string blue.
+	 *
+	 * @param  string $text Text to colorize.
+	 *
+	 * @return string
+	 */
 	protected function title( $text ) {
 		return WP_CLI::colorize( '%B' . $text . '%n' );
 	}
 
+	/**
+	 * Colorize a string with a red background.
+	 *
+	 * @param  string $text Text to colorize.
+	 *
+	 * @return string
+	 */
 	protected function warning( $text ) {
 		return WP_CLI::colorize(
 			'%1' . $text . '%n' . "\n"

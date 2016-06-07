@@ -1,15 +1,46 @@
 <?php
+/**
+ * Checks all plugins, themes and core against WPVulnDB.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter;
 
 use SSNepenthe\Soter\WPVulnDB\Client;
 use SSNepenthe\Soter\Options\Settings;
 
+/**
+ * Check all plugins themes and core.
+ */
 class Checker {
+	/**
+	 * WPVulnDB Client.
+	 *
+	 * @var Client
+	 */
 	protected $client;
+
+	/**
+	 * Plugin settings object
+	 *
+	 * @var Settings
+	 */
 	protected $settings;
+
+	/**
+	 * Array of vulnerability objects.
+	 *
+	 * @var array
+	 */
 	protected $vulnerabilities;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param Client|null   $client   WPVulnDB Client.
+	 * @param Settings|null $settings Plugin settings object.
+	 */
 	public function __construct(
 		Client $client = null,
 		Settings $settings = null
@@ -18,6 +49,11 @@ class Checker {
 		$this->settings = is_null( $settings ) ? new Settings : $settings;
 	}
 
+	/**
+	 * Check all plugins, themes and core.
+	 *
+	 * @return array
+	 */
 	public function check() {
 		$this->vulnerabilities = [];
 
@@ -28,6 +64,9 @@ class Checker {
 		return $this->vulnerabilities;
 	}
 
+	/**
+	 * Check plugins.
+	 */
 	protected function check_installed_plugins() {
 		$plugins = array_filter(
 			get_plugins(),
@@ -55,6 +94,9 @@ class Checker {
 		}
 	}
 
+	/**
+	 * Check themes.
+	 */
 	protected function check_installed_themes() {
 		$themes = array_filter( wp_get_themes(), [ $this, 'theme_filter' ] );
 
@@ -76,6 +118,9 @@ class Checker {
 		}
 	}
 
+	/**
+	 * Check core.
+	 */
 	protected function check_current_wordpress_version() {
 		$response = $this->client->wordpresses( get_bloginfo( 'version' ) );
 
@@ -89,16 +134,31 @@ class Checker {
 		}
 	}
 
+	/**
+	 * Filter out ignored plugins from plugin array.
+	 *
+	 * @param  string $key Plugin file.
+	 *
+	 * @return bool
+	 */
 	protected function plugin_filter( $key ) {
 		list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $key );
 
-		return ! in_array( $slug, $this->settings->ignored_plugins );
+		return ! in_array( $slug, $this->settings->ignored_plugins, true );
 	}
 
+	/**
+	 * Filter out ignored themes from themes array.
+	 *
+	 * @param  WP_Theme $theme Theme object.
+	 *
+	 * @return bool
+	 */
 	protected function theme_filter( $theme ) {
 		return ! in_array(
 			$theme->stylesheet,
-			$this->settings->ignored_themes
+			$this->settings->ignored_themes,
+			true
 		);
 	}
 }

@@ -141,6 +141,11 @@ class Response {
 		return $this->status;
 	}
 
+	/**
+	 * Vulnerabilities getter.
+	 *
+	 * @return array
+	 */
 	public function vulnerabilities() {
 		if ( $this->is_error() ) {
 			return [];

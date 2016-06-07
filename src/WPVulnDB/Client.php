@@ -33,8 +33,8 @@ class Client {
 	/**
 	 * Constructor.
 	 *
-	 * @param HttpInterface  $http  Http client.
-	 * @param CacheInterface $cache Cache provider.
+	 * @param HTTP  $http  Http client.
+	 * @param Cache $cache Cache provider.
 	 */
 	public function __construct( HTTP $http = null, Cache $cache = null ) {
 		$this->cache = is_null( $cache ) ? new WPObjectCache : $cache;
@@ -88,7 +88,7 @@ class Client {
 	 * @return SSNepenthe\Soter\WPVulnDB\Response
 	 *
 	 * @throws \InvalidArgumentException When endpoint is not a string.
-	 * @throws \InvalidArgumentException when root_property is not a string.
+	 * @throws \InvalidArgumentException When root_property is not a string.
 	 */
 	protected function get_and_cache( $endpoint, $root_property ) {
 		if ( ! is_string( $endpoint ) ) {

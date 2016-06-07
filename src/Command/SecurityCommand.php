@@ -1,4 +1,9 @@
 <?php
+/**
+ * Adds the security command to WP-CLI.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Command;
 
@@ -25,6 +30,8 @@ class SecurityCommand {
 	 * ---
 	 *
 	 * @subcommand check-plugin
+	 *
+	 * @param array $args Positional args.
 	 */
 	public function check_plugin( $args ) {
 		$plugin = $args[0];
@@ -53,6 +60,8 @@ class SecurityCommand {
 	 * ---
 	 *
 	 * @subcommand check-theme
+	 *
+	 * @param array $args Positional args.
 	 */
 	public function check_theme( $args ) {
 		$theme = $args[0];
@@ -76,6 +85,8 @@ class SecurityCommand {
 	 *
 	 * @alias check-wp
 	 * @subcommand check-wordpress
+	 *
+	 * @param array $args Positional args.
 	 */
 	public function check_wordpress( $args ) {
 		$version = $args[0];

@@ -1,21 +1,45 @@
 <?php
+/**
+ * Create the options page in wp-admin at settings > security.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Options;
 
+/**
+ * This class registers/renders everything on the plugin options page.
+ */
 class Page {
+	/**
+	 * Settings object.
+	 *
+	 * @var SSNepenthe\Soter\Options\Settings
+	 */
 	protected $settings;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param Settings|null $settings SPlugin settings object.
+	 */
 	public function __construct( Settings $settings = null ) {
 		$this->settings = is_null( $settings ) ?
 			new Settings :
 			$settings;
 	}
 
+	/**
+	 * Hooks the class in to WordPress.
+	 */
 	public function init() {
 		add_action( 'admin_init', [ $this, 'admin_init' ] );
 		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
 	}
 
+	/**
+	 * Registers settings, sections and fields.
+	 */
 	public function admin_init() {
 		register_setting(
 			'soter_settings_group',
@@ -63,6 +87,9 @@ class Page {
 		);
 	}
 
+	/**
+	 * Registers the options page.
+	 */
 	public function admin_menu() {
 		add_options_page(
 			'Soter Page Title',
@@ -73,6 +100,9 @@ class Page {
 		);
 	}
 
+	/**
+	 * Renders the email address field.
+	 */
 	public function render_email_address() {
 		printf(
 			'<input class="something" id="soter_settings_email_address" name="soter_settings[email_address]" placeholder="%s" type="email" value="%s">',
@@ -81,6 +111,9 @@ class Page {
 		);
 	}
 
+	/**
+	 * Renders the enable email field.
+	 */
 	public function render_enable_email() {
 		$output = [
 			'<fieldset>',
@@ -95,6 +128,9 @@ class Page {
 		echo implode( '', $output );
 	}
 
+	/**
+	 * Renders the ignored plugins field.
+	 */
 	public function render_ignored_plugins() {
 		$plugins = get_plugins();
 		$plugin_count = count( $plugins );
@@ -113,7 +149,7 @@ class Page {
 
 			$output[] = sprintf(
 				'<input%1$s class="something" id="soter_settings_%2$s" name="soter_settings[ignored_plugins][]" type="checkbox" value="%2$s">',
-				checked( in_array( $slug, $this->settings->ignored_plugins ), true, false ),
+				checked( in_array( $slug, $this->settings->ignored_plugins, true ), true, false ),
 				esc_attr( $slug )
 			);
 
@@ -133,6 +169,9 @@ class Page {
 		echo implode( '', $output );
 	}
 
+	/**
+	 * Renders the ignored themes field.
+	 */
 	public function render_ignored_themes() {
 		$themes = wp_get_themes();
 		$theme_count = count( $themes );
@@ -149,7 +188,7 @@ class Page {
 
 			$output[] = sprintf(
 				'<input%1$s class="something" id="soter_settings_%2$s" name="soter_settings[ignored_themes][]" type="checkbox" value="%2$s">',
-				checked( in_array( $object->stylesheet, $this->settings->ignored_themes ), true, false ),
+				checked( in_array( $object->stylesheet, $this->settings->ignored_themes, true ), true, false ),
 				esc_attr( $object->stylesheet )
 			);
 
@@ -169,6 +208,9 @@ class Page {
 		echo implode( '', $output );
 	}
 
+	/**
+	 * Renders the full settigns page.
+	 */
 	public function render_page_soter() {
 		echo '<div class="wrap">';
 		echo '<h1>Soter Configuration</h1>';
@@ -185,6 +227,9 @@ class Page {
 		echo '</div>';
 	}
 
+	/**
+	 * Renders the main page section.
+	 */
 	public function render_section_main() {
 		echo '<p>The main settings for the Soter Security Checker plugin.</p>';
 	}

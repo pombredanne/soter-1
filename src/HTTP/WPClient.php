@@ -9,6 +9,9 @@ namespace SSNepenthe\Soter\HTTP;
 
 use SSNepenthe\Soter\Interfaces\HTTP;
 
+/**
+ * Simple HTTP client using WP HTTP API.
+ */
 class WPClient implements HTTP {
 	/**
 	 * Constructor.
@@ -30,6 +33,7 @@ class WPClient implements HTTP {
 	 *
 	 * @return array
 	 *
+	 * @throws \InvalidArgumentException When endpoint is not a string.
 	 * @throws \RuntimeException When $response is a WP_Error.
 	 */
 	public function get( $endpoint ) {
@@ -54,7 +58,7 @@ class WPClient implements HTTP {
 				$name,
 				$version,
 				$soter_url
-			)
+			),
 		];
 
 		$response = wp_safe_remote_get( $url, $args );

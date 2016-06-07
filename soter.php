@@ -31,6 +31,9 @@ if ( defined( 'WP_CLI' ) ) {
 	);
 }
 
+/**
+ * Verify PHP version and disable plugin if not sufficient.
+ */
 function soter_php_version_check() {
 	$php_version = phpversion();
 
@@ -51,12 +54,18 @@ function soter_php_version_check() {
 }
 add_action( 'plugins_loaded', 'soter_php_version_check' );
 
+/**
+ * Initialize the plugins settings page.
+ */
 function soter_settings_init() {
 	$settings = new SSNepenthe\Soter\Options\Page;
 	$settings->init();
 }
 add_action( 'admin_menu', 'soter_settings_init', 9 );
 
+/**
+ * Display checker results via admin notices.
+ */
 function soter_admin_notices() {
 	if ( ! current_user_can( 'update_plugins' ) ) {
 		return;
@@ -81,10 +90,46 @@ function soter_admin_notices() {
 			esc_url( admin_url( 'options-general.php?page=soter' ) )
 		);
 	} else {
-		printf( '<h2>%s %s detected!</h2>', $count, $count_text );
+		printf(
+			'<h2>%s %s detected!</h2>',
+			esc_html( $count ),
+			esc_html( $count_text )
+		);
 
 		foreach ( $results->messages() as $message ) {
-			printf( '<p><strong>%s</strong></p>', $message['title'] );
+			$message['links'] = array_map( function( $key, $value ) {
+				return sprintf(
+					'<a href="%s" target="_blank">%s</a>',
+					esc_url( $key ),
+					esc_html( $value )
+				);
+			}, array_keys( $message['links'] ), $message['links'] );
+
+			$message['meta'] = array_map( function( $value ) {
+				$value = esc_html( $value );
+
+				if ( false !== strpos( $value, 'Not fixed' ) ) {
+					// @todo
+					$value = sprintf(
+						'<span style="color: #a00;">%s</span>',
+						$value
+					);
+				}
+
+				return $value;
+			}, $message['meta'] );
+
+			$message['meta'] = array_merge(
+				$message['meta'],
+				$message['links']
+			);
+
+			printf(
+				'<p><strong>%s</strong></p>',
+				esc_html( $message['title'] )
+			);
+
+			// Already escaped.
 			printf( '<p>%s</p>', implode( ' | ', $message['meta'] ) );
 		}
 	}
@@ -93,9 +138,16 @@ function soter_admin_notices() {
 }
 add_action( 'admin_notices', 'soter_admin_notices' );
 
+/**
+ * Check site via cron task.
+ */
 function soter_cron_init() {
 	if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON ) {
 		return;
+	}
+
+	if ( ! function_exists( 'get_plugin_data' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
 
 	$results = new SSNepenthe\Soter\Options\Results;
@@ -107,33 +159,33 @@ function soter_cron_init() {
 	$results->set_from_vulnerabilities_array( $vulnerabilities );
 	$results->save();
 
-	/**
-	 * @todo MAILER!
-	 */
-
-	// $mailer = new Mailer( $vulnerabilities, $settings );
-	// $mailer->maybe_send_notification();
-
-	// if ( $settings->enable_email ) {
-	// 	$email = empty( $settings->email_address ) ?
-	// 		get_bloginfo( 'admin_email' ) :
-	// 		$settings->email_address;
-
-	// 	wp_mail( $email, 'Vulnerabilities Detected!', '' );
-	// }
+	$mailer = new SSNepenthe\Soter\Mailers\WPMail(
+		$vulnerabilities,
+		$settings
+	);
+	$mailer->maybe_send();
 }
 add_action( 'SSNepenthe\\Soter\\run_check', 'soter_cron_init' );
 
+/**
+ * Schedule cron event on plugin activation.
+ */
 function soter_activation() {
 	wp_schedule_event( time(), 'twicedaily', 'SSNepenthe\\Soter\\run_check' );
 }
 register_activation_hook( __FILE__, 'soter_activation' );
 
+/**
+ * Clear scheduled cron event on plugin deactivation.
+ */
 function soter_deactivation() {
 	wp_clear_scheduled_hook( 'SSNepenthe\\Soter\\run_check' );
 }
 register_deactivation_hook( __FILE__, 'soter_deactivation' );
 
+/**
+ * Delete plugin options entries on plugin uninstallation.
+ */
 function soter_uninstall() {
 	delete_option( 'soter_settings' );
 	delete_option( 'soter_results' );
