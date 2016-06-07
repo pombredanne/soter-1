@@ -22,32 +22,4 @@ interface HTTP {
 	 *                          [2] response body.
 	 */
 	public function get( $endpoint );
-
-	/**
-	 * URL root getter.
-	 *
-	 * @return string
-	 */
-	public function get_url_root();
-
-	/**
-	 * User agent string getter.
-	 *
-	 * @return string
-	 */
-	public function get_user_agent();
-
-	/**
-	 * Set the API URL root.
-	 *
-	 * @param string $url URL root.
-	 */
-	public function set_url_root( $url );
-
-	/**
-	 * Set the user agent.
-	 *
-	 * @param string $ua User agent.
-	 */
-	public function set_user_agent( $ua );
 }

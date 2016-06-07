@@ -7,26 +7,20 @@
 
 namespace SSNepenthe\Soter\HTTP;
 
-/**
- * WP HTTP API implementation for use within WordPress.
- */
-class WPClient extends BaseHTTPClient {
+use SSNepenthe\Soter\Interfaces\HTTP;
+
+class WPClient implements HTTP {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $url_root   API URL root.
-	 * @param string $user_agent Client user agent.
-	 *
 	 * @throws  \RuntimeException When used outside of a WordPress context.
 	 */
-	public function __construct( $url_root = null, $user_agent = null ) {
+	public function __construct() {
 		if ( ! function_exists( 'wp_remote_get' ) ) {
 			throw new \RuntimeException(
 				'WPHttpClient can only be used within WordPress'
 			);
 		}
-
-		parent::__construct( $url_root, $user_agent );
 	}
 
 	/**
@@ -39,13 +33,29 @@ class WPClient extends BaseHTTPClient {
 	 * @throws \RuntimeException When $response is a WP_Error.
 	 */
 	public function get( $endpoint ) {
-		$this->validate_get_args( $endpoint );
+		if ( ! is_string( $endpoint ) ) {
+			throw new \InvalidArgumentException( sprintf(
+				'The endpoint parameter is required to be string, was: %s',
+				gettype( $endpoint )
+			) );
+		}
 
 		$endpoint = ltrim( $endpoint, '/\\' );
 
-		$url = sprintf( '%s/%s', $this->url_root, $endpoint );
+		$url = sprintf( 'https://wpvulndb.com/api/v2/%s', $endpoint );
 
-		$args = [ 'user-agent' => $this->user_agent ];
+		$name = 'Soter Security Checker';
+		$version = '0.3.0';
+		$soter_url = 'https://github.com/ssnepenthe/soter';
+
+		$args = [
+			'user-agent' => sprintf(
+				'%s | v%s | %s',
+				$name,
+				$version,
+				$soter_url
+			)
+		];
 
 		$response = wp_safe_remote_get( $url, $args );
 
