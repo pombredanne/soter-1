@@ -64,9 +64,13 @@ function soter_settings_init() {
 add_action( 'admin_menu', 'soter_settings_init', 9 );
 
 /**
- * Display checker results via admin notices.
+ * Displays the abbreviated admin notice on all pages except plugin settings.
  */
-function soter_admin_notices() {
+function soter_abbreviated_admin_notice() {
+	if ( 'settings_page_soter' === get_current_screen()->id ) {
+		return;
+	}
+
 	if ( ! current_user_can( 'update_plugins' ) ) {
 		return;
 	}
@@ -82,61 +86,85 @@ function soter_admin_notices() {
 
 	echo '<div class="notice notice-warning">';
 
+	printf(
+		'<p>%s %s detected. <a href="%s">Click here for the full report.</a></p>',
+		esc_html( $count ),
+		esc_html( $count_text ),
+		esc_url( admin_url( 'options-general.php?page=soter' ) )
+	);
+
+	echo '</div>';
+}
+add_action( 'admin_notices', 'soter_abbreviated_admin_notice' );
+
+/**
+ * Displays the full admin notice on the plugin settings page.
+ */
+function soter_full_admin_notice() {
 	if ( 'settings_page_soter' !== get_current_screen()->id ) {
-		printf(
-			'<p>%s %s detected. <a href="%s">Click here for the full report.</a></p>',
-			esc_html( $count ),
-			esc_html( $count_text ),
-			esc_url( admin_url( 'options-general.php?page=soter' ) )
-		);
-	} else {
-		printf(
-			'<h2>%s %s detected!</h2>',
-			esc_html( $count ),
-			esc_html( $count_text )
-		);
+		return;
+	}
 
-		foreach ( $results->messages() as $message ) {
-			$message['links'] = array_map( function( $key, $value ) {
-				return sprintf(
-					'<a href="%s" target="_blank">%s</a>',
-					esc_url( $key ),
-					esc_html( $value )
+	if ( ! current_user_can( 'update_plugins' ) ) {
+		return;
+	}
+
+	$results = new SSNepenthe\Soter\Options\Results;
+
+	if ( empty( $results->messages() ) ) {
+		return;
+	}
+
+	$count = count( $results->messages() );
+	$count_text = 1 < $count ? 'vulnerabilities' : 'vulnerability';
+
+	echo '<div class="notice notice-warning">';
+
+	printf(
+		'<h2>%s %s detected!</h2>',
+		esc_html( $count ),
+		esc_html( $count_text )
+	);
+
+	foreach ( $results->messages() as $message ) {
+		$message['links'] = array_map( function( $key, $value ) {
+			return sprintf(
+				'<a href="%s" target="_blank">%s</a>',
+				esc_url( $key ),
+				esc_html( $value )
+			);
+		}, array_keys( $message['links'] ), $message['links'] );
+
+		$message['meta'] = array_map( function( $value ) {
+			$value = esc_html( $value );
+
+			if ( false !== strpos( $value, 'Not fixed' ) ) {
+				// @todo No inline styles.
+				$value = sprintf(
+					'<span style="color: #a00;">%s</span>',
+					$value
 				);
-			}, array_keys( $message['links'] ), $message['links'] );
+			}
 
-			$message['meta'] = array_map( function( $value ) {
-				$value = esc_html( $value );
+			return $value;
+		}, $message['meta'] );
 
-				if ( false !== strpos( $value, 'Not fixed' ) ) {
-					// @todo
-					$value = sprintf(
-						'<span style="color: #a00;">%s</span>',
-						$value
-					);
-				}
+		$message['meta'] = array_merge(
+			$message['meta'],
+			$message['links']
+		);
 
-				return $value;
-			}, $message['meta'] );
+		printf(
+			'<p><strong>%s</strong></p>',
+			esc_html( $message['title'] )
+		);
 
-			$message['meta'] = array_merge(
-				$message['meta'],
-				$message['links']
-			);
-
-			printf(
-				'<p><strong>%s</strong></p>',
-				esc_html( $message['title'] )
-			);
-
-			// Already escaped.
-			printf( '<p>%s</p>', implode( ' | ', $message['meta'] ) ); // WPCS: XSS ok.
-		}
+		printf( '<p>%s</p>', implode( ' | ', $message['meta'] ) ); // WPCS: XSS ok.
 	}
 
 	echo '</div>';
 }
-add_action( 'admin_notices', 'soter_admin_notices' );
+add_action( 'admin_notices', 'soter_full_admin_notice' );
 
 /**
  * Check site via cron task.
