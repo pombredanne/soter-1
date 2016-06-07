@@ -56,9 +56,9 @@ class Checker {
 	}
 
 	protected function check_installed_themes() {
-		$themes = array_filter( wp_get_themes(), [ $this, 'filter_themes' ] );
+		$themes = array_filter( wp_get_themes(), [ $this, 'theme_filter' ] );
 
-		foreach ( soter_get_themes() as $name => $object ) {
+		foreach ( $themes as $name => $object ) {
 			$response = $this->client->themes( $object->stylesheet );
 
 			$vulnerabilities = $response->vulnerabilities_by_version(
