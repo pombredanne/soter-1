@@ -58,8 +58,6 @@ class Response {
 	 *
 	 * @throws  \InvalidArgumentException When slug is not a string.
 	 * @throws  \RuntimeException When JSON response cannot be decoded.
-	 *
-	 * @todo Convert last_updated from response to object
 	 */
 	public function __construct( array $response, $slug ) {
 		if ( ! is_string( $slug ) ) {
@@ -102,9 +100,9 @@ class Response {
 	}
 
 	/**
-	 * Magic __get method.
+	 * Access all preoperties on the response.
 	 *
-	 * @param  string $key Response key.
+	 * @param  string $key Response property key.
 	 *
 	 * @return mixed
 	 */

@@ -7,28 +7,21 @@
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
+use SSNepenthe\Soter\HTTP\WPClient;
+use SSNepenthe\Soter\Interfaces\HTTP;
+use SSNepenthe\Soter\Interfaces\Cache;
+use SSNepenthe\Soter\Cache\WPObjectCache;
+
 /**
  * The actual WPVulnDB client implementation.
  */
 class Client {
-	const HTTP_URL_ROOT = 'https://wpvulndb.com/api/v2';
-	const PACKAGE_NAME = 'WPVulnDB PHP Client';
-	const PACKAGE_URL = 'https://github.com/ssnepenthe/wpvulndb-client';
-	const PACKAGE_VERSION = '0.1.0';
-
 	/**
 	 * Cache provider.
 	 *
 	 * @var CacheInterface
 	 */
 	protected $cache;
-
-	/**
-	 * Cache lifetime in seconds.
-	 *
-	 * @var int
-	 */
-	protected $cache_lifetime;
 
 	/**
 	 * Http client.
@@ -40,90 +33,44 @@ class Client {
 	/**
 	 * Constructor.
 	 *
-	 * @param HttpInterface  $http           Http client.
-	 * @param CacheInterface $cache          Cache provider.
-	 * @param int            $cache_lifetime Cache entry lifetime.
+	 * @param HttpInterface  $http  Http client.
+	 * @param CacheInterface $cache Cache provider.
 	 */
-	public function __construct(
-		HttpInterface $http,
-		CacheInterface $cache,
-		$cache_lifetime = 60 * 60 * 24
-	) {
-		$this->cache = $cache;
-		$this->cache_lifetime = $cache_lifetime;
-		$this->http = $http;
-
-		if ( ! $this->http->get_url_root() ) {
-			$this->http->set_url_root( self::HTTP_URL_ROOT );
-		}
-
-		if ( ! $this->http->get_user_agent() ) {
-			$this->http->set_user_agent( sprintf(
-				'%s - %s - %s',
-				self::PACKAGE_NAME,
-				self::PACKAGE_VERSION,
-				self::PACKAGE_URL
-			) );
-		}
+	public function __construct( HTTP $http = null, Cache $cache = null ) {
+		$this->cache = is_null( $cache ) ? new WPObjectCache : $cache;
+		$this->http = is_null( $http ) ? new WPClient : $http;
 	}
 
 	/**
-	 * Make a request to the plugin endpoint.
+	 * Make a request to the plugins endpoint.
 	 *
 	 * @param  string $slug Plugin slug.
 	 *
-	 * @return Response
-	 *
-	 * @throws  \InvalidArgumentException When slug is not a string.
+	 * @return SSNepenthe\Soter\WPVulnDB\Response
 	 */
-	public function plugin( $slug ) {
-		if ( ! is_string( $slug ) ) {
-			throw new \InvalidArgumentException( sprintf(
-				'The slug parameter is required to be string, was: %s',
-				gettype( $slug )
-			) );
-		}
-
+	public function plugins( $slug ) {
 		return $this->get_and_cache( sprintf( 'plugins/%s', $slug ), $slug );
 	}
 
 	/**
-	 * Make a request to the theme endpoint.
+	 * Make a request to the themes endpoint.
 	 *
 	 * @param  string $slug Theme slug.
 	 *
-	 * @return Response
-	 *
-	 * @throws  \InvalidArgumentException When slug is not a string.
+	 * @return SSNepenthe\Soter\WPVulnDB\Response
 	 */
-	public function theme( $slug ) {
-		if ( ! is_string( $slug ) ) {
-			throw new \InvalidArgumentException( sprintf(
-				'The slug parameter is required to be string, was: %s',
-				gettype( $slug )
-			) );
-		}
-
+	public function themes( $slug ) {
 		return $this->get_and_cache( sprintf( 'themes/%s', $slug ), $slug );
 	}
 
 	/**
-	 * Make a request to the WordPress endpoint.
+	 * Make a request to the WordPresses endpoint.
 	 *
 	 * @param  string $version WordPress version.
 	 *
-	 * @return Response
-	 *
-	 * @throws  \InvalidArgumentException When version is not a string.
+	 * @return SSNepenthe\Soter\WPVulnDB\Response
 	 */
-	public function wordpress( $version ) {
-		if ( ! is_string( $version ) ) {
-			throw new \InvalidArgumentException( sprintf(
-				'The version parameter is required to be string, was: %s',
-				gettype( $version )
-			) );
-		}
-
+	public function wordpresses( $version ) {
 		$slug = str_replace( '.', '', $version );
 
 		return $this->get_and_cache(
@@ -138,16 +85,37 @@ class Client {
 	 * @param  string $endpoint      Request endpoint.
 	 * @param  string $root_property The theme/plugin slug or WordPress version.
 	 *
-	 * @return Response
+	 * @return SSNepenthe\Soter\WPVulnDB\Response
+	 *
+	 * @throws \InvalidArgumentException When endpoint is not a string.
+	 * @throws \InvalidArgumentException when root_property is not a string.
 	 */
 	protected function get_and_cache( $endpoint, $root_property ) {
-		if ( $this->cache->contains( $endpoint ) ) {
-			$response = $this->cache->fetch( $endpoint );
-		} else {
-			$response = $this->http->get( $endpoint );
-
-			$this->cache->save( $endpoint, $response, $this->cache_lifetime );
+		if ( ! is_string( $endpoint ) ) {
+			throw new \InvalidArgumentException( sprintf(
+				'The endpoint parameter is required to be string, was: %s',
+				gettype( $endpoint )
+			) );
 		}
+
+		if ( ! is_string( $root_property ) ) {
+			throw new \InvalidArgumentException( sprintf(
+				'The root_property parameter is required to be string, was: %s',
+				gettype( $root_property )
+			) );
+		}
+
+		if ( $this->cache->contains( $endpoint ) ) {
+			return new Response(
+				$this->cache->fetch( $endpoint ),
+				$root_property
+			);
+		}
+
+		$response = $this->http->get( $endpoint );
+
+		// @todo Filterable cache lifetime?
+		$this->cache->save( $endpoint, $response, 60 * 60 * 12 );
 
 		return new Response( $response, $root_property );
 	}
