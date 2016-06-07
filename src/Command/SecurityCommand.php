@@ -3,11 +3,11 @@
 namespace SSNepenthe\Soter\Command;
 
 use SSNepenthe\Soter\Checker;
+use SSNepenthe\Soter\Formatters\Text;
 use SSNepenthe\Soter\WPVulnDB\Client;
-use SSNepenthe\Soter\Formatters\WPCLI\Text;
 
 /**
- *
+ * Check core, plugins and themes for security vulnerabilities against the WPVulnDB API.
  */
 class SecurityCommand {
 	/**
@@ -96,33 +96,11 @@ class SecurityCommand {
 	 * @todo Add progress bar.
 	 */
 	public function check_site() {
-		$client = new Client;
-
-		$checker = new Checker( $client );
+		$checker = new Checker;
 
 		$vulnerabilities = $checker->check();
 
 		$formatter = new Text;
 		$formatter->display_results( $vulnerabilities );
 	}
-
-	/**
-	 * @subcommand ignore-plugin
-	 */
-	public function ignore_plugin() {}
-
-	/**
-	 * @subcommand ignore-theme
-	 */
-	public function ignore_theme() {}
-
-	/**
-	 * @subcommand unignore-plugin
-	 */
-	public function unignore_plugin() {}
-
-	/**
-	 * @subcommand unignore-theme
-	 */
-	public function unignore_theme() {}
 }

@@ -32,15 +32,7 @@ Once activated, this plugin makes the `security` command available in WP-CLI.
 
 `wp security check-site`
 
-These commands will honor the ignored themes and plugins that you have configured on the plugin settings page. Additionally, you can configure ignored packages using the following commands in WP-CLI:
-
-`wp security ignore-plugin <slug>`
-
-`wp security ignore-theme <slug>`
-
-`wp security unignore-plugin <slug>`
-
-`wp security unignore-theme <slug>`
+These commands will honor the ignored themes and plugins that you have configured on the plugin settings page.
 
 ## Manual Usage
 Use `SSNepenthe\Soter\WPVulnDB\Client` to manually make requests to the WPVulnDB API.
