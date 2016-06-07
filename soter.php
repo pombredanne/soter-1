@@ -130,7 +130,7 @@ function soter_admin_notices() {
 			);
 
 			// Already escaped.
-			printf( '<p>%s</p>', implode( ' | ', $message['meta'] ) );
+			printf( '<p>%s</p>', implode( ' | ', $message['meta'] ) ); // WPCS: XSS ok.
 		}
 	}
 

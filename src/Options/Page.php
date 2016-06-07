@@ -125,7 +125,7 @@ class Page {
 			'</fieldset>',
 		];
 
-		echo implode( '', $output );
+		echo implode( '', $output ); // WPCS: XSS ok.
 	}
 
 	/**
@@ -166,7 +166,7 @@ class Page {
 
 		$output[] = '</fieldset>';
 
-		echo implode( '', $output );
+		echo implode( '', $output ); // WPCS: XSS ok.
 	}
 
 	/**
@@ -205,7 +205,7 @@ class Page {
 
 		$output[] = '</fieldset>';
 
-		echo implode( '', $output );
+		echo implode( '', $output ); // WPCS: XSS ok.
 	}
 
 	/**
