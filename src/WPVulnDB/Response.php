@@ -141,6 +141,14 @@ class Response {
 		return $this->status;
 	}
 
+	public function vulnerabilities() {
+		if ( $this->is_error() ) {
+			return [];
+		}
+
+		return $this->object->vulnerabilities;
+	}
+
 	/**
 	 * Get all vulnerabilities that affect a particular package version.
 	 *
