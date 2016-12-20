@@ -7,10 +7,10 @@
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
-use SSNepenthe\Soter\HTTP\WPClient;
+use SSNepenthe\Soter\HTTP\WP_Client;
 use SSNepenthe\Soter\Interfaces\HTTP;
 use SSNepenthe\Soter\Interfaces\Cache;
-use SSNepenthe\Soter\Cache\WPObjectCache;
+use SSNepenthe\Soter\Cache\WP_Object_Cache;
 
 /**
  * The actual WPVulnDB client implementation.
@@ -37,8 +37,8 @@ class Client {
 	 * @param Cache $cache Cache provider.
 	 */
 	public function __construct( HTTP $http = null, Cache $cache = null ) {
-		$this->cache = is_null( $cache ) ? new WPObjectCache : $cache;
-		$this->http = is_null( $http ) ? new WPClient : $http;
+		$this->cache = is_null( $cache ) ? new WP_Object_Cache : $cache;
+		$this->http = is_null( $http ) ? new WP_Client : $http;
 	}
 
 	/**

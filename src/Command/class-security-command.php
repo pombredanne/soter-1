@@ -14,7 +14,7 @@ use SSNepenthe\Soter\WPVulnDB\Client;
 /**
  * Check core, plugins and themes for security vulnerabilities against the WPVulnDB API.
  */
-class SecurityCommand {
+class Security_Command {
 	/**
 	 * Check a plugin for vulnerabilities.
 	 *

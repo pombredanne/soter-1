@@ -16,7 +16,7 @@ use SSNepenthe\Soter\Interfaces\Mailer;
  * @todo The use of esc_html() throughout this class really is not appropriate.
  *       Need to revisit escaping and sanitizing in general for email.
  */
-class WPMail implements Mailer {
+class WP_Mail implements Mailer {
 	/**
 	 * Plugin settings object.
 	 *

@@ -13,7 +13,7 @@ use SSNepenthe\Soter\Interfaces\Cache;
  * WP object cache implementation for the Soter plugin. Meant for use with a
  * persistent object cache backend configured.
  */
-class WPObjectCache implements Cache {
+class WP_Object_Cache implements Cache {
 	const GROUP_KEY = 'ssn:wpvulndb';
 
 	/**
@@ -24,7 +24,7 @@ class WPObjectCache implements Cache {
 	public function __construct() {
 		if ( ! function_exists( 'wp_cache_get' ) ) {
 			throw new \RuntimeException(
-				'WPObjectCache can only be used within WordPress'
+				'WP_Object_Cache can only be used within WordPress'
 			);
 		}
 	}

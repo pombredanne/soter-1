@@ -27,7 +27,7 @@ if ( file_exists( $soter_autoloader ) ) {
 if ( defined( 'WP_CLI' ) ) {
 	WP_CLI::add_command(
 		'security',
-		'SSNepenthe\\Soter\\Command\\SecurityCommand'
+		'SSNepenthe\\Soter\\Command\\Security_Command'
 	);
 }
 
@@ -187,7 +187,7 @@ function soter_cron_init() {
 	$results->set_from_vulnerabilities_array( $vulnerabilities );
 	$results->save();
 
-	$mailer = new SSNepenthe\Soter\Mailers\WPMail(
+	$mailer = new SSNepenthe\Soter\Mailers\WP_Mail(
 		$vulnerabilities,
 		$settings
 	);

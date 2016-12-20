@@ -12,7 +12,7 @@ use SSNepenthe\Soter\Interfaces\HTTP;
 /**
  * Simple HTTP client using WP HTTP API.
  */
-class WPClient implements HTTP {
+class WP_Client implements HTTP {
 	/**
 	 * Constructor.
 	 *
