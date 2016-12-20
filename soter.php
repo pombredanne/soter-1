@@ -18,7 +18,9 @@
  * Domain Path:
  */
 
-$soter_autoloader = plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
+$soter_dir = plugin_dir_path( __FILE__ );
+$soter_basename = plugin_basename( __FILE__ );
+$soter_autoloader = $soter_dir . 'vendor/autoload.php';
 
 if ( file_exists( $soter_autoloader ) ) {
 	require_once $soter_autoloader;
@@ -31,28 +33,29 @@ if ( defined( 'WP_CLI' ) ) {
 	);
 }
 
-/**
- * Verify PHP version and disable plugin if not sufficient.
- */
-function soter_php_version_check() {
-	$php_version = phpversion();
+// The checker class itself requires PHP 5.3 for namespace support. Since Composer
+// requires 5.3.2 I plan on leaving this as-is.
+$soter_checker = new SSNepenthe\Soter\Requirements_Checker(
+	'Soter',
+	$soter_basename
+);
 
-	if ( version_compare( $php_version, '5.4', '>=' ) ) {
-		return;
-	}
+// For use of short array syntax.
+$soter_checker->set_min_php( '5.4' );
 
-	add_action( 'admin_notices', function() use ( $php_version ) {
-		deactivate_plugins( plugin_basename( __FILE__ ) );
+if ( $soter_checker->requirements_met() ) {
+	add_action( 'admin_menu', 'soter_settings_init', 9 );
+	add_action( 'admin_notices', 'soter_abbreviated_admin_notice' );
+	add_action( 'admin_notices', 'soter_full_admin_notice' );
+	add_action( 'SSNepenthe\\Soter\\run_check', 'soter_cron_init' );
 
-		echo '<div class="notice notice-error">';
-		printf(
-			'<p>The Soter plugin requires PHP version 5.4 or greater. You are currently running PHP version %s.</p>',
-			esc_html( $php_version )
-		);
-		echo '</div>';
-	} );
+	register_activation_hook( __FILE__, 'soter_activation' );
+	register_deactivation_hook( __FILE__, 'soter_deactivation' );
+	register_uninstall_hook( __FILE__, 'soter_uninstall' );
+} else {
+	add_action( 'admin_init', [ $soter_checker, 'deactivate' ] );
+	add_action( 'admin_notices', [ $soter_checker, 'notify' ] );
 }
-add_action( 'plugins_loaded', 'soter_php_version_check' );
 
 /**
  * Initialize the plugins settings page.
@@ -61,7 +64,6 @@ function soter_settings_init() {
 	$settings = new SSNepenthe\Soter\Options\Page;
 	$settings->init();
 }
-add_action( 'admin_menu', 'soter_settings_init', 9 );
 
 /**
  * Displays the abbreviated admin notice on all pages except plugin settings.
@@ -95,7 +97,6 @@ function soter_abbreviated_admin_notice() {
 
 	echo '</div>';
 }
-add_action( 'admin_notices', 'soter_abbreviated_admin_notice' );
 
 /**
  * Displays the full admin notice on the plugin settings page.
@@ -164,7 +165,6 @@ function soter_full_admin_notice() {
 
 	echo '</div>';
 }
-add_action( 'admin_notices', 'soter_full_admin_notice' );
 
 /**
  * Check site via cron task.
@@ -193,7 +193,6 @@ function soter_cron_init() {
 	);
 	$mailer->maybe_send();
 }
-add_action( 'SSNepenthe\\Soter\\run_check', 'soter_cron_init' );
 
 /**
  * Schedule cron event on plugin activation.
@@ -201,7 +200,6 @@ add_action( 'SSNepenthe\\Soter\\run_check', 'soter_cron_init' );
 function soter_activation() {
 	wp_schedule_event( time(), 'twicedaily', 'SSNepenthe\\Soter\\run_check' );
 }
-register_activation_hook( __FILE__, 'soter_activation' );
 
 /**
  * Clear scheduled cron event on plugin deactivation.
@@ -209,7 +207,6 @@ register_activation_hook( __FILE__, 'soter_activation' );
 function soter_deactivation() {
 	wp_clear_scheduled_hook( 'SSNepenthe\\Soter\\run_check' );
 }
-register_deactivation_hook( __FILE__, 'soter_deactivation' );
 
 /**
  * Delete plugin options entries on plugin uninstallation.
@@ -218,6 +215,5 @@ function soter_uninstall() {
 	delete_option( 'soter_settings' );
 	delete_option( 'soter_results' );
 }
-register_uninstall_hook( __FILE__, 'soter_uninstall' );
 
-unset( $soter_autoloader );
+unset( $soter_autoloader, $soter_basename, $soter_checker, $soter_dir );
