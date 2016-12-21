@@ -47,6 +47,20 @@ if ( $soter_checker->requirements_met() ) {
 	add_action( 'admin_notices', [ $soter_checker, 'notify' ] );
 }
 
+function soter_template( $overridable = true ) {
+	$stack = new SSNepenthe\Soter\Template_Locator_Stack;
+
+	if ( $overridable ) {
+		$stack->push( new SSNepenthe\Soter\Core_Template_Locator );
+	}
+
+	$stack->push(
+		new SSNepenthe\Soter\Dir_Template_Locator( plugin_dir_path(  __FILE__ ) )
+	);
+
+	return new SSNepenthe\Soter\Template( $stack );
+}
+
 unset(
 	$soter_autoloader,
 	$soter_basename,
