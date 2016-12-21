@@ -7,6 +7,8 @@
 
 namespace SSNepenthe\Soter\Options;
 
+use SSNepenthe\Soter\Template;
+
 /**
  * This class registers/renders everything on the plugin options page.
  */
@@ -18,13 +20,16 @@ class Page {
 	 */
 	protected $settings;
 
+	protected $template;
+
 	/**
 	 * Constructor.
 	 *
 	 * @param Settings $settings Plugin settings object.
 	 */
-	public function __construct( Settings $settings ) {
+	public function __construct( Settings $settings, Template $template ) {
 		$this->settings = $settings;
+		$this->template = $template;
 	}
 
 	/**
@@ -90,7 +95,7 @@ class Page {
 	 */
 	public function admin_menu() {
 		add_options_page(
-			'Soter Page Title',
+			'Soter Configuration',
 			'Security',
 			'manage_options',
 			'soter',
@@ -102,28 +107,19 @@ class Page {
 	 * Renders the email address field.
 	 */
 	public function render_email_address() {
-		printf(
-			'<input class="something" id="soter_settings_email_address" name="soter_settings[email_address]" placeholder="%s" type="email" value="%s">',
-			esc_attr( get_bloginfo( 'admin_email' ) ),
-			esc_attr( $this->settings->email_address )
-		);
+		$this->template->output( 'options/email-address', [
+			'current' => $this->settings->email_address,
+			'default' => get_bloginfo( 'admin_email' ),
+		] );
 	}
 
 	/**
 	 * Renders the enable email field.
 	 */
 	public function render_enable_email() {
-		$output = [
-			'<fieldset>',
-				'<label>',
-					sprintf( '<input%s class="something" id="soter_settings_enable_email" name="soter_settings[enable_email]" type="checkbox" value="1">', checked( $this->settings->enable_email, true, false ) ),
-					'Enable email notifications?',
-				'</label>',
-				'<p class="description">By default, an admin notice is shown when a vulnerability has been detected. Check this box to also receive an email notification.</p>',
-			'</fieldset>',
-		];
-
-		echo implode( '', $output ); // WPCS: XSS ok.
+		$this->template->output( 'options/enable-email', [
+			'enabled' => $this->settings->enable_email,
+		] );
 	}
 
 	/**
@@ -131,79 +127,36 @@ class Page {
 	 */
 	public function render_ignored_plugins() {
 		$plugins = get_plugins();
-		$plugin_count = count( $plugins );
-		$counter = 0;
+		$plugins = array_map( function( $k, $v ) {
+			// @todo Does WordPress store file with DIRECTORY_SEPARATOR or always /?
+			list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $k );
 
-		$output = [];
+			return [ 'name' => $v['Name'], 'slug' => $slug ];
+		}, array_keys( $plugins ), $plugins );
 
-		$output[] = '<fieldset>';
-
-		foreach ( $plugins as $file => $data ) {
-			$counter++;
-
-			list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $file );
-
-			$output[] = '<label>';
-
-			$output[] = sprintf(
-				'<input%1$s class="something" id="soter_settings_%2$s" name="soter_settings[ignored_plugins][]" type="checkbox" value="%2$s">',
-				checked( in_array( $slug, $this->settings->ignored_plugins, true ), true, false ),
-				esc_attr( $slug )
-			);
-
-			$output[] = esc_html( $data['Name'] );
-
-			$output[] = '</label>';
-
-			if ( $counter < $plugin_count ) {
-				$output[] = '<br>';
-			}
-		}
-
-		$output[] = '<p class="description">Select any plugins that should be ignored by the security checker (i.e. custom plugins).</p>';
-
-		$output[] = '</fieldset>';
-
-		echo implode( '', $output ); // WPCS: XSS ok.
+		$this->template->output( 'options/ignored-packages', [
+			'ignored_packages' => $this->settings->ignored_plugins,
+			'packages' => $plugins,
+			'type' => 'plugins',
+		] );
 	}
 
 	/**
 	 * Renders the ignored themes field.
 	 */
 	public function render_ignored_themes() {
-		$themes = wp_get_themes();
-		$theme_count = count( $themes );
-		$counter = 0;
+		$themes = array_map( function( $v ) {
+			return [
+				'name' => $v->display( 'Name' ),
+				'slug' => $v->get_stylesheet(),
+			];
+		}, wp_get_themes() );
 
-		$output = [];
-
-		$output[] = '<fieldset>';
-
-		foreach ( $themes as $name => $object ) {
-			$counter++;
-
-			$output[] = '<label>';
-
-			$output[] = sprintf(
-				'<input%1$s class="something" id="soter_settings_%2$s" name="soter_settings[ignored_themes][]" type="checkbox" value="%2$s">',
-				checked( in_array( $object->stylesheet, $this->settings->ignored_themes, true ), true, false ),
-				esc_attr( $object->stylesheet )
-			);
-
-			$output[] = esc_html( $name );
-
-			$output[] = '</label>';
-
-			if ( $counter < $theme_count ) {
-				$output[] = '<br>';
-			}
-		}
-
-		$output[] = '<p class="description">Select any themes that should be ignored by the security checker (i.e. custom themes).</p>';
-
-		$output[] = '</fieldset>';
-
-		echo implode( '', $output ); // WPCS: XSS ok.
+		$this->template->output( 'options/ignored-packages', [
+			'ignored_packages' => $this->settings->ignored_themes,
+			'packages' => $themes,
+			'type' => 'themes',
+		] );
 	}
 
 	/**
@@ -211,16 +164,13 @@ class Page {
 	 */
 	public function render_page_soter() {
 		echo '<div class="wrap">';
-		echo '<h1>Soter Configuration</h1>';
-		echo '<form action="options.php" method="post">';
+		echo '<h1>' . get_admin_page_title() . '</h1>';
+		echo '<form action="options.php" method="POST">';
 
 		settings_fields( 'soter_settings_group' );
-
 		do_settings_sections( 'soter' );
+		submit_button();
 
-		echo '<p class="submit">';
-		echo '<input class="button button-primary" id="submit" name="submit" type="submit" value="Save Changes">';
-		echo '</p>';
 		echo '</form>';
 		echo '</div>';
 	}

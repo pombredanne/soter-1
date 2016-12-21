@@ -58,9 +58,9 @@ class Plugin {
 		$template = soter_template( false );
 
 		$features = [
-			new Page( $this->settings ),
 			new Abbreviated_Admin_Notice_Notification( $this->results, $template ),
 			new Full_Admin_Notice_Notification( $this->results, $template ),
+			new Page( $this->settings, $template ),
 		];
 
 		foreach ( $features as $feature ) {
