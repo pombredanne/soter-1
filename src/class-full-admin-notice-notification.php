@@ -5,6 +5,12 @@ namespace SSNepenthe\Soter;
 use SSNepenthe\Soter\Options\Results;
 
 class Full_Admin_Notice_Notification {
+	protected $results;
+
+	public function __construct( Results $results ) {
+		$this->results = $results;
+	}
+
 	public function init() {
 		add_action( 'admin_notices', [ $this, 'notify' ] );
 	}
@@ -18,13 +24,11 @@ class Full_Admin_Notice_Notification {
 			return;
 		}
 
-		$results = new Results;
-
-		if ( empty( $results->messages() ) ) {
+		if ( empty( $this->results->messages() ) ) {
 			return;
 		}
 
-		$count = count( $results->messages() );
+		$count = count( $this->results->messages() );
 		$count_text = 1 < $count ? 'vulnerabilities' : 'vulnerability';
 
 		echo '<div class="notice notice-warning">';
@@ -35,7 +39,7 @@ class Full_Admin_Notice_Notification {
 			esc_html( $count_text )
 		);
 
-		foreach ( $results->messages() as $message ) {
+		foreach ( $this->results->messages() as $message ) {
 			$message['links'] = array_map( function( $key, $value ) {
 				return sprintf(
 					'<a href="%s" target="_blank">%s</a>',

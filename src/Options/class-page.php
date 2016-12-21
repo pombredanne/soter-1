@@ -21,12 +21,10 @@ class Page {
 	/**
 	 * Constructor.
 	 *
-	 * @param Settings|null $settings SPlugin settings object.
+	 * @param Settings $settings Plugin settings object.
 	 */
-	public function __construct( Settings $settings = null ) {
-		$this->settings = is_null( $settings ) ?
-			new Settings :
-			$settings;
+	public function __construct( Settings $settings ) {
+		$this->settings = $settings;
 	}
 
 	/**

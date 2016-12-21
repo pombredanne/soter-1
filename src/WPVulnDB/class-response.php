@@ -7,6 +7,11 @@
 
 namespace SSNepenthe\Soter\WPVulnDB;
 
+use DateTime;
+use stdClass;
+use RuntimeException;
+use InvalidArgumentException;
+
 /**
  * This class provides a simple wrapper for responses from WPVulnDB.
  */
@@ -28,7 +33,7 @@ class Response {
 	/**
 	 * JSON decoded response.
 	 *
-	 * @var \stdClass
+	 * @var stdClass
 	 */
 	protected $object;
 
@@ -56,12 +61,12 @@ class Response {
 	 *
 	 * @param string $slug     Theme/plugin slug or WordPress version.
 	 *
-	 * @throws  \InvalidArgumentException When slug is not a string.
-	 * @throws  \RuntimeException When JSON response cannot be decoded.
+	 * @throws  InvalidArgumentException When slug is not a string.
+	 * @throws  RuntimeException When JSON response cannot be decoded.
 	 */
 	public function __construct( array $response, $slug ) {
 		if ( ! is_string( $slug ) ) {
-			throw new \InvalidArgumentException(
+			throw new InvalidArgumentException(
 				sprintf(
 					'The slug parameter is required to be string, was: %s',
 					gettype( $slug )
@@ -72,14 +77,14 @@ class Response {
 		list($this->status, $this->headers, $this->body) = $response;
 
 		if ( 200 !== $this->status ) {
-			$this->object = new \stdClass;
-			$this->object->error = new \stdClass;
+			$this->object = new stdClass;
+			$this->object->error = new stdClass;
 			$this->object->error->status_code = $this->status;
 		} else {
 			$object = json_decode( $this->body );
 
 			if ( null === $object || JSON_ERROR_NONE !== json_last_error() ) {
-				throw new \RuntimeException(
+				throw new RuntimeException(
 					'Response does not appear to be valid JSON'
 				);
 			}
@@ -87,7 +92,7 @@ class Response {
 			$this->object = $object->{$slug};
 
 			if ( isset( $this->object->last_updated ) ) {
-				$this->object->last_updated = new \DateTime(
+				$this->object->last_updated = new DateTime(
 					$this->object->last_updated
 				);
 			}
@@ -161,11 +166,11 @@ class Response {
 	 *
 	 * @return array
 	 *
-	 * @throws \InvalidArgumentException When version is not string|null.
+	 * @throws InvalidArgumentException When version is not string|null.
 	 */
 	public function vulnerabilities_by_version( $version = null ) {
 		if ( ! is_null( $version ) && ! is_string( $version ) ) {
-			throw new \InvalidArgumentException(
+			throw new InvalidArgumentException(
 				'The version parameter is required to be string|null, was: %s',
 				gettype( $version )
 			);
@@ -197,11 +202,11 @@ class Response {
 	/**
 	 * Instantiate a vulnerability object from a JSON decoded vulnerability.
 	 *
-	 * @param  \stdClass $vulnerability Package vulnerability.
+	 * @param  stdClass $vulnerability Package vulnerability.
 	 *
 	 * @return Vulnerability
 	 */
-	protected function instantiate_vulnerability( \stdClass $vulnerability ) {
+	protected function instantiate_vulnerability( stdClass $vulnerability ) {
 		return new Vulnerability( $vulnerability );
 	}
 }

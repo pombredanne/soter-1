@@ -8,13 +8,20 @@
 namespace SSNepenthe\Soter\Command;
 
 use SSNepenthe\Soter\Checker;
-use SSNepenthe\Soter\Formatters\Text;
-use SSNepenthe\Soter\WPVulnDB\Client;
+use SSNepenthe\Soter\Interfaces\Formatter;
 
 /**
  * Check core, plugins and themes for security vulnerabilities against the WPVulnDB API.
  */
 class Security_Command {
+	protected $checker;
+	protected $formatter;
+
+	public function __construct( Checker $checker, Formatter $formatter ) {
+		$this->checker = $checker;
+		$this->formatter = $formatter;
+	}
+
 	/**
 	 * Check a plugin for vulnerabilities.
 	 *
@@ -37,12 +44,10 @@ class Security_Command {
 		$plugin = $args[0];
 		$version = isset( $args[1] ) ? $args[1] : null;
 
-		$client = new Client;
-		$response = $client->plugins( $plugin );
+		$response = $this->checker->get_client()->plugins( $plugin );
 		$vulnerabilities = $response->vulnerabilities_by_version( $version );
 
-		$formatter = new Text;
-		$formatter->display_results( $vulnerabilities );
+		$this->formatter->display_results( $vulnerabilities );
 	}
 
 	/**
@@ -67,12 +72,10 @@ class Security_Command {
 		$theme = $args[0];
 		$version = isset( $args[1] ) ? $args[1] : null;
 
-		$client = new Client;
-		$response = $client->themes( $theme );
+		$response = $this->checker->get_client()->themes( $theme );
 		$vulnerabilities = $response->vulnerabilities_by_version( $version );
 
-		$formatter = new Text;
-		$formatter->display_results( $vulnerabilities );
+		$this->formatter->display_results( $vulnerabilities );
 	}
 
 	/**
@@ -91,12 +94,10 @@ class Security_Command {
 	public function check_wordpress( $args ) {
 		$version = $args[0];
 
-		$client = new Client;
-		$response = $client->wordpresses( $version );
+		$response = $this->checker->get_client()->wordpresses( $version );
 		$vulnerabilities = $response->vulnerabilities_by_version();
 
-		$formatter = new Text;
-		$formatter->display_results( $vulnerabilities );
+		$this->formatter->display_results( $vulnerabilities );
 	}
 
 	/**
@@ -107,11 +108,8 @@ class Security_Command {
 	 * @todo Add progress bar.
 	 */
 	public function check_site() {
-		$checker = new Checker;
+		$vulnerabilities = $this->checker->check();
 
-		$vulnerabilities = $checker->check();
-
-		$formatter = new Text;
-		$formatter->display_results( $vulnerabilities );
+		$this->formatter->display_results( $vulnerabilities );
 	}
 }

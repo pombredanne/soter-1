@@ -7,6 +7,8 @@
 
 namespace SSNepenthe\Soter\HTTP;
 
+use RuntimeException;
+use InvalidArgumentException;
 use SSNepenthe\Soter\Interfaces\HTTP;
 
 /**
@@ -16,12 +18,12 @@ class WP_Client implements HTTP {
 	/**
 	 * Constructor.
 	 *
-	 * @throws  \RuntimeException When used outside of a WordPress context.
+	 * @throws  RuntimeException When used outside of a WordPress context.
 	 */
 	public function __construct() {
 		if ( ! function_exists( 'wp_remote_get' ) ) {
-			throw new \RuntimeException(
-				'WPHttpClient can only be used within WordPress'
+			throw new RuntimeException(
+				'WP_Client can only be used within WordPress'
 			);
 		}
 	}
@@ -33,12 +35,12 @@ class WP_Client implements HTTP {
 	 *
 	 * @return array
 	 *
-	 * @throws \InvalidArgumentException When endpoint is not a string.
-	 * @throws \RuntimeException When $response is a WP_Error.
+	 * @throws InvalidArgumentException When endpoint is not a string.
+	 * @throws RuntimeException When $response is a WP_Error.
 	 */
 	public function get( $endpoint ) {
 		if ( ! is_string( $endpoint ) ) {
-			throw new \InvalidArgumentException( sprintf(
+			throw new InvalidArgumentException( sprintf(
 				'The endpoint parameter is required to be string, was: %s',
 				gettype( $endpoint )
 			) );
@@ -64,7 +66,7 @@ class WP_Client implements HTTP {
 		$response = wp_safe_remote_get( $url, $args );
 
 		if ( is_wp_error( $response ) ) {
-			throw new \RuntimeException( sprintf(
+			throw new RuntimeException( sprintf(
 				'WP Error: %s',
 				$response->get_error_message()
 			) );

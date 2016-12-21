@@ -10,6 +10,20 @@ use SSNepenthe\Soter\Options\Settings;
 class Run_Check_Task {
 	const HOOK = 'SSNepenthe\\Soter\\run_check';
 
+	protected $checker;
+	protected $results;
+	protected $settings;
+
+	public function __construct(
+		Checker $checker,
+		Results $results,
+		Settings $settings
+	) {
+		$this->checker = $checker;
+		$this->results = $results;
+		$this->settings = $settings;
+	}
+
 	public function init() {
 		add_action( self::HOOK, [ $this, 'run_task' ] );
 	}
@@ -23,18 +37,14 @@ class Run_Check_Task {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$results = new Results;
-		$settings = new Settings;
+		$vulnerabilities = $this->checker->check();
 
-		$checker = new Checker;
-		$vulnerabilities = $checker->check();
-
-		$results->set_from_vulnerabilities_array( $vulnerabilities );
-		$results->save();
+		$this->results->set_from_vulnerabilities_array( $vulnerabilities );
+		$this->results->save();
 
 		$mailer = new WP_Mail(
 			$vulnerabilities,
-			$settings
+			$this->settings
 		);
 		$mailer->maybe_send();
 	}

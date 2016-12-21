@@ -2,13 +2,31 @@
 
 namespace SSNepenthe\Soter;
 
+use WP_CLI;
 use SSNepenthe\Soter\Options\Page;
+use SSNepenthe\Soter\HTTP\WP_Client;
+use SSNepenthe\Soter\Formatters\Text;
+use SSNepenthe\Soter\Options\Results;
+use SSNepenthe\Soter\WPVulnDB\Client;
+use SSNepenthe\Soter\Options\Settings;
+use SSNepenthe\Soter\Cache\WP_Object_Cache;
+use SSNepenthe\Soter\Command\Security_Command;
 
 class Plugin {
+	protected $checker;
+	protected $client;
 	protected $file;
+	protected $results;
+	protected $settings;
 
 	public function __construct( $file ) {
 		$this->file = $file;
+
+		$this->results = new Results;
+		$this->settings = new Settings;
+
+		$this->client = new Client( new WP_Client, new WP_Object_Cache );
+		$this->checker = new Checker( $this->client, $this->settings );
 	}
 
 	public function init() {
@@ -22,22 +40,25 @@ class Plugin {
 			return;
 		}
 
-		\WP_CLI::add_command(
-			'security',
-			'SSNepenthe\\Soter\\Command\\Security_Command'
-		);
+		$command = new Security_Command( $this->checker, new Text );
+
+		WP_CLI::add_command( 'security', $command );
 	}
 
 	protected function cron_init() {
-		$task = new Run_Check_Task;
+		$task = new Run_Check_Task(
+			$this->checker,
+			$this->results,
+			$this->settings
+		);
 		$task->init();
 	}
 
 	protected function plugin_init() {
 		$features = [
-			new Abbreviated_Admin_Notice_Notification,
-			new Full_Admin_Notice_Notification,
-			new Page,
+			new Abbreviated_Admin_Notice_Notification( $this->results ),
+			new Full_Admin_Notice_Notification( $this->results ),
+			new Page( $this->settings ),
 		];
 
 		foreach ( $features as $feature ) {

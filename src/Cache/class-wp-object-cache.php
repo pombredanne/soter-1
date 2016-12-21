@@ -7,6 +7,7 @@
 
 namespace SSNepenthe\Soter\Cache;
 
+use RuntimeException;
 use SSNepenthe\Soter\Interfaces\Cache;
 
 /**
@@ -19,11 +20,11 @@ class WP_Object_Cache implements Cache {
 	/**
 	 * Constructor
 	 *
-	 * @throws  \RuntimeException When used outside of a WordPress context.
+	 * @throws  RuntimeException When used outside of a WordPress context.
 	 */
 	public function __construct() {
 		if ( ! function_exists( 'wp_cache_get' ) ) {
-			throw new \RuntimeException(
+			throw new RuntimeException(
 				'WP_Object_Cache can only be used within WordPress'
 			);
 		}

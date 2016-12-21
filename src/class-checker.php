@@ -38,15 +38,12 @@ class Checker {
 	/**
 	 * Constructor.
 	 *
-	 * @param Client|null   $client   WPVulnDB Client.
-	 * @param Settings|null $settings Plugin settings object.
+	 * @param Client   $client   WPVulnDB Client.
+	 * @param Settings $settings Plugin settings object.
 	 */
-	public function __construct(
-		Client $client = null,
-		Settings $settings = null
-	) {
-		$this->client = is_null( $client ) ? new Client : $client;
-		$this->settings = is_null( $settings ) ? new Settings : $settings;
+	public function __construct( Client $client, Settings $settings ) {
+		$this->client = $client;
+		$this->settings = $settings;
 	}
 
 	/**
@@ -62,6 +59,10 @@ class Checker {
 		$this->check_current_wordpress_version();
 
 		return $this->vulnerabilities;
+	}
+
+	public function get_client() {
+		return $this->client;
 	}
 
 	/**
