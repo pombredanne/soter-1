@@ -55,10 +55,12 @@ class Plugin {
 	}
 
 	protected function plugin_init() {
+		$template = soter_template( false );
+
 		$features = [
-			new Abbreviated_Admin_Notice_Notification( $this->results ),
-			new Full_Admin_Notice_Notification( $this->results ),
 			new Page( $this->settings ),
+			new Abbreviated_Admin_Notice_Notification( $this->results, $template ),
+			new Full_Admin_Notice_Notification( $this->results, $template ),
 		];
 
 		foreach ( $features as $feature ) {

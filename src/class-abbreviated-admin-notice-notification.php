@@ -6,9 +6,11 @@ use SSNepenthe\Soter\Options\Results;
 
 class Abbreviated_Admin_Notice_Notification {
 	protected $results;
+	protected $template;
 
-	public function __construct( Results $results ) {
+	public function __construct( Results $results, Template $template ) {
 		$this->results = $results;
+		$this->template = $template;
 	}
 
 	public function init() {
@@ -28,18 +30,12 @@ class Abbreviated_Admin_Notice_Notification {
 			return;
 		}
 
-		$count = count( $this->results->messages() );
-		$count_text = 1 < $count ? 'vulnerabilities' : 'vulnerability';
+		$data = [
+			'count' => count( $this->results->messages() ),
+		];
 
-		echo '<div class="notice notice-warning">';
+		$data['label'] = 1 < $data['count'] ? 'vulnerabilities' : 'vulnerability';
 
-		printf(
-			'<p>%s %s detected. <a href="%s">Click here for the full report.</a></p>',
-			esc_html( $count ),
-			esc_html( $count_text ),
-			esc_url( admin_url( 'options-general.php?page=soter' ) )
-		);
-
-		echo '</div>';
+		$this->template->output( 'notifications/abbreviated-admin-notice', $data );
 	}
 }
