@@ -9,7 +9,6 @@ use SSNepenthe\Soter\Formatters\Text;
 use SSNepenthe\Soter\Options\Results;
 use SSNepenthe\Soter\WPVulnDB\Client;
 use SSNepenthe\Soter\Options\Settings;
-use SSNepenthe\Soter\Cache\WP_Object_Cache;
 use SSNepenthe\Soter\Command\Security_Command;
 
 class Plugin {
@@ -25,7 +24,10 @@ class Plugin {
 		$this->results = new Results;
 		$this->settings = new Settings;
 
-		$this->client = new Client( new WP_Client, new WP_Object_Cache );
+		$this->client = new Client(
+			new WP_Client,
+			new WP_Transient_Cache( 'soter' )
+		);
 		$this->checker = new Checker( $this->client, $this->settings );
 	}
 
@@ -46,12 +48,14 @@ class Plugin {
 	}
 
 	protected function cron_init() {
-		$task = new Run_Check_Task(
-			$this->checker,
-			$this->results,
-			$this->settings
-		);
-		$task->init();
+		$tasks = [
+			new Run_Check_Task( $this->checker, $this->results, $this->settings ),
+			new Garbage_Collection_Task,
+		];
+
+		foreach ( $tasks as $task ) {
+			$task->init();
+		}
 	}
 
 	protected function plugin_init() {

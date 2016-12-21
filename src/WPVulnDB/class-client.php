@@ -114,7 +114,7 @@ class Client {
 		$response = $this->http->get( $endpoint );
 
 		// @todo Filterable cache lifetime?
-		$this->cache->save( $endpoint, $response, 60 * 60 * 12 );
+		$this->cache->save( $endpoint, $response, HOUR_IN_SECONDS );
 
 		return new Response( $response, $root_property );
 	}
