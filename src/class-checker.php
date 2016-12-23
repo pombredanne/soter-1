@@ -24,7 +24,7 @@ class Checker {
 	/**
 	 * Plugin settings object
 	 *
-	 * @var Settings
+	 * @var Map_Option
 	 */
 	protected $settings;
 
@@ -38,10 +38,10 @@ class Checker {
 	/**
 	 * Constructor.
 	 *
-	 * @param Client   $client   WPVulnDB Client.
-	 * @param Settings $settings Plugin settings object.
+	 * @param Client     $client   WPVulnDB Client.
+	 * @param Map_Option $settings Plugin settings object.
 	 */
-	public function __construct( Client $client, Settings $settings ) {
+	public function __construct( Client $client, Map_Option $settings ) {
 		$this->client = $client;
 		$this->settings = $settings;
 	}
@@ -145,7 +145,11 @@ class Checker {
 	protected function plugin_filter( $key ) {
 		list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $key );
 
-		return ! in_array( $slug, $this->settings->ignored_plugins, true );
+		return ! in_array(
+			$slug,
+			$this->settings->get( 'ignored_plugins', [] ),
+			true
+		);
 	}
 
 	/**
@@ -158,7 +162,7 @@ class Checker {
 	protected function theme_filter( $theme ) {
 		return ! in_array(
 			$theme->stylesheet,
-			$this->settings->ignored_themes,
+			$this->settings->get( 'ignored_themes', [] ),
 			true
 		);
 	}

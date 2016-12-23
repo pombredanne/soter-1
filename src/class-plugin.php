@@ -22,13 +22,14 @@ class Plugin {
 		$this->file = $file;
 
 		$this->results = new Results;
-		$this->settings = new Settings;
+		$this->settings = new Map_Option( 'soter_settings' );
+		$this->settings->init();
 
-		$this->client = new Client(
+		$client = new Client(
 			new WP_Client,
 			new WP_Transient_Cache( 'soter' )
 		);
-		$this->checker = new Checker( $this->client, $this->settings );
+		$this->checker = new Checker( $client, $this->settings );
 	}
 
 	public function init() {

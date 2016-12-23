@@ -17,7 +17,7 @@ class Run_Check_Task {
 	public function __construct(
 		Checker $checker,
 		Results $results,
-		Settings $settings
+		Map_Option $settings
 	) {
 		$this->checker = $checker;
 		$this->results = $results;

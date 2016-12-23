@@ -8,6 +8,7 @@
 namespace SSNepenthe\Soter\Options;
 
 use SSNepenthe\Soter\Template;
+use SSNepenthe\Soter\Map_Option;
 
 /**
  * This class registers/renders everything on the plugin options page.
@@ -16,7 +17,7 @@ class Page {
 	/**
 	 * Settings object.
 	 *
-	 * @var SSNepenthe\Soter\Options\Settings
+	 * @var SSNepenthe\Soter\Map_Option
 	 */
 	protected $settings;
 
@@ -25,9 +26,10 @@ class Page {
 	/**
 	 * Constructor.
 	 *
-	 * @param Settings $settings Plugin settings object.
+	 * @param Map_Option $settings Plugin settings object.
+	 * @param Template   $template Template object for rendering views.
 	 */
-	public function __construct( Settings $settings, Template $template ) {
+	public function __construct( Map_Option $settings, Template $template ) {
 		$this->settings = $settings;
 		$this->template = $template;
 	}
@@ -47,7 +49,7 @@ class Page {
 		register_setting(
 			'soter_settings_group',
 			'soter_settings',
-			[ $this->settings, 'sanitize' ]
+			[ $this, 'sanitize' ]
 		);
 
 		add_settings_section(
@@ -107,8 +109,10 @@ class Page {
 	 * Renders the email address field.
 	 */
 	public function render_email_address() {
+		$current = $this->settings->get( 'email_address', '' );
+
 		$this->template->output( 'options/email-address', [
-			'current' => $this->settings->email_address,
+			'current' => $current,
 			'default' => get_bloginfo( 'admin_email' ),
 		] );
 	}
@@ -117,9 +121,9 @@ class Page {
 	 * Renders the enable email field.
 	 */
 	public function render_enable_email() {
-		$this->template->output( 'options/enable-email', [
-			'enabled' => $this->settings->enable_email,
-		] );
+		$enabled = $this->settings->get( 'enable_email', false );
+
+		$this->template->output( 'options/enable-email', compact( 'enabled' ) );
 	}
 
 	/**
@@ -134,8 +138,10 @@ class Page {
 			return [ 'name' => $v['Name'], 'slug' => $slug ];
 		}, array_keys( $plugins ), $plugins );
 
+		$ignored = $this->settings->get( 'ignored_plugins', [] );
+
 		$this->template->output( 'options/ignored-packages', [
-			'ignored_packages' => $this->settings->ignored_plugins,
+			'ignored_packages' => $ignored,
 			'packages' => $plugins,
 			'type' => 'plugins',
 		] );
@@ -152,19 +158,21 @@ class Page {
 			];
 		}, wp_get_themes() );
 
+		$ignored = $this->settings->get( 'ignored_themes', [] );
+
 		$this->template->output( 'options/ignored-packages', [
-			'ignored_packages' => $this->settings->ignored_themes,
+			'ignored_packages' => $ignored,
 			'packages' => $themes,
 			'type' => 'themes',
 		] );
 	}
 
 	/**
-	 * Renders the full settigns page.
+	 * Renders the full settings page.
 	 */
 	public function render_page_soter() {
 		echo '<div class="wrap">';
-		echo '<h1>' . get_admin_page_title() . '</h1>';
+		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
 		echo '<form action="options.php" method="POST">';
 
 		settings_fields( 'soter_settings_group' );
@@ -180,5 +188,41 @@ class Page {
 	 */
 	public function render_section_main() {
 		echo '<p>The main settings for the Soter Security Checker plugin.</p>';
+	}
+
+	public function sanitize( array $values ) {
+		$sanitized = [];
+
+		// Array of installed plugin slugs.
+		$valid_plugins = array_map( function( $value ) {
+			// Does WP use DIRECTORY_SEPARATOR or is it always /?
+			list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $value );
+
+			return $slug;
+		}, array_keys( get_plugins() ) );
+
+		// Array of installed theme slugs.
+		$valid_themes = array_values( wp_list_pluck(
+			wp_get_themes(),
+			'stylesheet'
+		) );
+
+		$sanitized['enable_email'] = filter_var(
+			isset( $values['enable_email'] ) ? $values['enable_email'] : false,
+			FILTER_VALIDATE_BOOLEAN
+		);
+		$sanitized['email_address'] = sanitize_email(
+			isset( $values['email_address'] ) ? $values['email_address'] : ''
+		);
+		$sanitized['ignored_plugins'] = array_intersect(
+			$valid_plugins,
+			isset( $values['ignored_plugins'] ) ? $values['ignored_plugins'] : []
+		);
+		$sanitized['ignored_themes'] = array_intersect(
+			$valid_themes,
+			isset( $values['ignored_themes'] ) ? $values['ignored_themes'] : []
+		);
+
+		return $sanitized;
 	}
 }

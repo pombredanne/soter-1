@@ -7,7 +7,7 @@
 
 namespace SSNepenthe\Soter\Mailers;
 
-use SSNepenthe\Soter\Options\Settings;
+use SSNepenthe\Soter\Map_Option;
 use SSNepenthe\Soter\Interfaces\Mailer;
 
 /**
@@ -20,7 +20,7 @@ class WP_Mail implements Mailer {
 	/**
 	 * Plugin settings object.
 	 *
-	 * @var Settings
+	 * @var Map_Option
 	 */
 	protected $settings;
 
@@ -34,10 +34,13 @@ class WP_Mail implements Mailer {
 	/**
 	 * Constructor.
 	 *
-	 * @param array    $vulnerabilities Array of vulnerability objects.
-	 * @param Settings $settings        Plugin settings object.
+	 * @param array      $vulnerabilities Array of vulnerability objects.
+	 * @param Map_Option $settings        Plugin settings object.
 	 */
-	public function __construct( array $vulnerabilities, Settings $settings ) {
+	public function __construct(
+		array $vulnerabilities,
+		Map_Option $settings
+	) {
 		$this->settings = $settings;
 		$this->vulnerabilities = $vulnerabilities;
 	}
@@ -50,7 +53,7 @@ class WP_Mail implements Mailer {
 			return;
 		}
 
-		if ( $this->settings->enable_email ) {
+		if ( $this->settings->get( 'enable_email', false ) ) {
 			$this->send();
 		}
 	}
@@ -59,7 +62,7 @@ class WP_Mail implements Mailer {
 	 * Send the notification.
 	 */
 	protected function send() {
-		$email = $this->settings->email_address;
+		$email = $this->settings->get( 'email_address', '' );
 
 		$to = empty( $email ) ? get_bloginfo( 'admin_email' ) : $email;
 
