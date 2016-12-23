@@ -4,9 +4,7 @@ namespace SSNepenthe\Soter;
 
 use WP_CLI;
 use SSNepenthe\Soter\Options\Page;
-use SSNepenthe\Soter\Formatters\Text;
 use SSNepenthe\Soter\WPVulnDB\Client;
-use SSNepenthe\Soter\Command\Security_Command;
 
 class Plugin {
 	protected $checker;
@@ -41,7 +39,7 @@ class Plugin {
 			return;
 		}
 
-		$command = new Security_Command( $this->checker, new Text );
+		$command = new Security_Command( $this->checker );
 
 		WP_CLI::add_command( 'security', $command );
 	}
