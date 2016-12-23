@@ -5,15 +5,12 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Options;
-
-use SSNepenthe\Soter\Template;
-use SSNepenthe\Soter\Map_Option;
+namespace SSNepenthe\Soter;
 
 /**
  * This class registers/renders everything on the plugin options page.
  */
-class Page {
+class Options_Page {
 	/**
 	 * Settings object.
 	 *

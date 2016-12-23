@@ -3,7 +3,6 @@
 namespace SSNepenthe\Soter;
 
 use WP_CLI;
-use SSNepenthe\Soter\Options\Page;
 use SSNepenthe\Soter\WPVulnDB\Client;
 
 class Plugin {
@@ -72,7 +71,7 @@ class Plugin {
 		$features = [
 			$short_notice,
 			$full_notice,
-			new Page( $this->settings, $template ),
+			new Options_Page( $this->settings, $template ),
 		];
 
 		foreach ( $features as $feature ) {
