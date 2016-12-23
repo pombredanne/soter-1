@@ -21,7 +21,9 @@ class Plugin {
 	public function __construct( $file ) {
 		$this->file = $file;
 
-		$this->results = new Results;
+		$this->results = new List_Option( 'soter_results' );
+		$this->results->init();
+
 		$this->settings = new Map_Option( 'soter_settings' );
 		$this->settings->init();
 

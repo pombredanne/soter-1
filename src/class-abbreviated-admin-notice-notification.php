@@ -8,7 +8,7 @@ class Abbreviated_Admin_Notice_Notification {
 	protected $results;
 	protected $template;
 
-	public function __construct( Results $results, Template $template ) {
+	public function __construct( List_Option $results, Template $template ) {
 		$this->results = $results;
 		$this->template = $template;
 	}
@@ -26,12 +26,12 @@ class Abbreviated_Admin_Notice_Notification {
 			return;
 		}
 
-		if ( empty( $this->results->messages() ) ) {
+		if ( $this->results->is_empty() ) {
 			return;
 		}
 
 		$data = [
-			'count' => count( $this->results->messages() ),
+			'count' => count( $this->results->all() ),
 		];
 
 		$data['label'] = 1 < $data['count'] ? 'vulnerabilities' : 'vulnerability';

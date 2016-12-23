@@ -8,7 +8,7 @@ class Full_Admin_Notice_Notification {
 	protected $results;
 	protected $template;
 
-	public function __construct( Results $results, Template $template ) {
+	public function __construct( List_Option $results, Template $template ) {
 		$this->results = $results;
 		$this->template = $template;
 	}
@@ -26,11 +26,11 @@ class Full_Admin_Notice_Notification {
 			return;
 		}
 
-		if ( empty( $this->results->messages() ) ) {
+		if ( $this->results->is_empty() ) {
 			return;
 		}
 
-		$data = [ 'messages' => $this->results->messages() ];
+		$data = [ 'messages' => $this->results->all() ];
 		$data['count'] = count( $data['messages'] );
 		$data['label'] = 1 < $data['count'] ? 'vulnerabilities' : 'vulnerability';
 
