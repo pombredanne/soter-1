@@ -5,19 +5,19 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Interfaces;
+namespace SSNepenthe\Soter;
 
 /**
  * Simple HTTP GET client interface.
  */
-interface HTTP {
+interface Http_Interface {
 	/**
 	 * Send a GET request to a given endpoint.
 	 *
 	 * @param  string $endpoint Appended to $url_root to create the URL.
 	 *
 	 * @return array            API response array:
-	 *         					[0] status code,
+	 *                          [0] status code,
 	 *                          [1] response body.
 	 */
 	public function get( $endpoint );

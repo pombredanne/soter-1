@@ -4,7 +4,6 @@ namespace SSNepenthe\Soter;
 
 use WP_CLI;
 use SSNepenthe\Soter\Options\Page;
-use SSNepenthe\Soter\HTTP\WP_Client;
 use SSNepenthe\Soter\Formatters\Text;
 use SSNepenthe\Soter\WPVulnDB\Client;
 use SSNepenthe\Soter\Command\Security_Command;
@@ -25,7 +24,7 @@ class Plugin {
 		$this->settings->init();
 
 		$client = new Client(
-			new WP_Client,
+			new WP_Http_Client,
 			new WP_Transient_Cache( 'soter' )
 		);
 		$this->checker = new Checker( $client, $this->settings );

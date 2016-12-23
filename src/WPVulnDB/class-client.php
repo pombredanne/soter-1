@@ -8,8 +8,8 @@
 namespace SSNepenthe\Soter\WPVulnDB;
 
 use InvalidArgumentException;
-use SSNepenthe\Soter\Interfaces\HTTP;
-use SSNepenthe\Soter\Interfaces\Cache;
+use SSNepenthe\Soter\Http_Interface;
+use SSNepenthe\Soter\Cache_Interface;
 
 /**
  * The actual WPVulnDB client implementation.
@@ -18,24 +18,24 @@ class Client {
 	/**
 	 * Cache provider.
 	 *
-	 * @var CacheInterface
+	 * @var Cache_Interface
 	 */
 	protected $cache;
 
 	/**
 	 * Http client.
 	 *
-	 * @var HttpInterface
+	 * @var Http_Interface
 	 */
 	protected $http;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param HTTP  $http  Http client.
-	 * @param Cache $cache Cache provider.
+	 * @param Http_Interface  $http  Http client.
+	 * @param Cache_Interface $cache Cache provider.
 	 */
-	public function __construct( HTTP $http, Cache $cache ) {
+	public function __construct( Http_Interface $http, Cache_Interface $cache ) {
 		$this->http = $http;
 		$this->cache = $cache;
 	}

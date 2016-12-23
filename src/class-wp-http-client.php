@@ -5,16 +5,15 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\HTTP;
+namespace SSNepenthe\Soter;
 
 use RuntimeException;
 use InvalidArgumentException;
-use SSNepenthe\Soter\Interfaces\HTTP;
 
 /**
  * Simple HTTP client using WP HTTP API.
  */
-class WP_Client implements HTTP {
+class WP_Http_Client implements Http_Interface {
 	/**
 	 * Constructor.
 	 *

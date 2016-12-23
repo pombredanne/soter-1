@@ -5,12 +5,12 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Interfaces;
+namespace SSNepenthe\Soter;
 
 /**
  * Simple cache provider interface.
  */
-interface Cache {
+interface Cache_Interface {
 	/**
 	 * Determine whether a given key exists in the cache.
 	 *

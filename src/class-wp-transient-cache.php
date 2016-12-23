@@ -2,9 +2,7 @@
 
 namespace SSNepenthe\Soter;
 
-use SSNepenthe\Soter\Interfaces\Cache;
-
-class WP_Transient_Cache implements Cache {
+class WP_Transient_Cache implements Cache_Interface {
 	protected $prefix;
 
 	/**
