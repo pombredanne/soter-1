@@ -24,13 +24,6 @@ class Response {
 	protected $body;
 
 	/**
-	 * Response headers.
-	 *
-	 * @var array
-	 */
-	protected $headers;
-
-	/**
 	 * JSON decoded response.
 	 *
 	 * @var stdClass
@@ -54,27 +47,16 @@ class Response {
 	/**
 	 * Constructor.
 	 *
-	 * @param array  $response API response array:
-	 *                         [0] status code,
-	 *                         [1] headers array,
-	 *                         [2] response body.
+	 * @param int    $status Response status code.
+	 * @param string $body   Response body.
+	 * @param string $slug   Theme/plugin slug or WordPress version.
 	 *
-	 * @param string $slug     Theme/plugin slug or WordPress version.
-	 *
-	 * @throws  InvalidArgumentException When slug is not a string.
 	 * @throws  RuntimeException When JSON response cannot be decoded.
 	 */
-	public function __construct( array $response, $slug ) {
-		if ( ! is_string( $slug ) ) {
-			throw new InvalidArgumentException(
-				sprintf(
-					'The slug parameter is required to be string, was: %s',
-					gettype( $slug )
-				)
-			);
-		}
-
-		list($this->status, $this->headers, $this->body) = $response;
+	public function __construct( $status, $body, $slug ) {
+		$this->status = intval( $status );
+		$this->body = (string) $body;
+		$slug = (string) $slug;
 
 		if ( 200 !== $this->status ) {
 			$this->object = new stdClass;
@@ -87,6 +69,10 @@ class Response {
 				throw new RuntimeException(
 					'Response does not appear to be valid JSON'
 				);
+			}
+
+			if ( ! isset( $object->{$slug} ) ) {
+				throw new InvalidArgumentException( 'Invalid slug provided' );
 			}
 
 			$this->object = $object->{$slug};

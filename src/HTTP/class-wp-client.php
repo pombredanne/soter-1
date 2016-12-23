@@ -39,14 +39,7 @@ class WP_Client implements HTTP {
 	 * @throws RuntimeException When $response is a WP_Error.
 	 */
 	public function get( $endpoint ) {
-		if ( ! is_string( $endpoint ) ) {
-			throw new InvalidArgumentException( sprintf(
-				'The endpoint parameter is required to be string, was: %s',
-				gettype( $endpoint )
-			) );
-		}
-
-		$endpoint = ltrim( $endpoint, '/\\' );
+		$endpoint = ltrim( (string) $endpoint, '/\\' );
 
 		$url = sprintf( 'https://wpvulndb.com/api/v2/%s', $endpoint );
 
@@ -74,7 +67,6 @@ class WP_Client implements HTTP {
 
 		return [
 			wp_remote_retrieve_response_code( $response ),
-			wp_remote_retrieve_headers( $response ),
 			wp_remote_retrieve_body( $response ),
 		];
 	}

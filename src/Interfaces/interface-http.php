@@ -18,8 +18,7 @@ interface HTTP {
 	 *
 	 * @return array            API response array:
 	 *         					[0] status code,
-	 *                          [1] headers array,
-	 *                          [2] response body.
+	 *                          [1] response body.
 	 */
 	public function get( $endpoint );
 }

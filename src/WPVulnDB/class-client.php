@@ -105,10 +105,16 @@ class Client {
 		}
 
 		if ( $this->cache->contains( $endpoint ) ) {
-			return new Response(
-				$this->cache->fetch( $endpoint ),
-				$root_property
-			);
+			$response = $this->cache->fetch( $endpoint );
+
+			// Older versions had status, headers and body. We don't need headers.
+			if ( 3 === count( $response ) ) {
+				$response = [ $response[0], $response[2] ];
+			}
+
+			list( $status, $body ) = $response;
+
+			return new Response( $status, $body, $root_property );
 		}
 
 		$response = $this->http->get( $endpoint );
@@ -116,6 +122,8 @@ class Client {
 		// @todo Filterable cache lifetime?
 		$this->cache->save( $endpoint, $response, HOUR_IN_SECONDS );
 
-		return new Response( $response, $root_property );
+		list( $status, $body ) = $response;
+
+		return new Response( $status, $body, $root_property );
 	}
 }
