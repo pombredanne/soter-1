@@ -4,12 +4,11 @@ namespace SSNepenthe\Soter;
 
 use SSNepenthe\Soter\Options\Results;
 
-class Full_Admin_Notice_Notification {
-	protected $results;
+class Vulnerable_Full_Admin_Notice_Notifier implements Notifier_Interface {
+	protected $data = [];
 	protected $template;
 
-	public function __construct( List_Option $results, Template $template ) {
-		$this->results = $results;
+	public function __construct( Template $template ) {
 		$this->template = $template;
 	}
 
@@ -26,14 +25,18 @@ class Full_Admin_Notice_Notification {
 			return;
 		}
 
-		if ( $this->results->is_empty() ) {
+		if ( empty( $this->data ) ) {
 			return;
 		}
 
-		$data = [ 'messages' => $this->results->all() ];
+		$data = [ 'messages' => $this->data ];
 		$data['count'] = count( $data['messages'] );
 		$data['label'] = 1 < $data['count'] ? 'vulnerabilities' : 'vulnerability';
 
 		$this->template->output( 'notifications/full-admin-notice', $data );
+	}
+
+	public function set_data( array $data ) {
+		$this->data = $data;
 	}
 }

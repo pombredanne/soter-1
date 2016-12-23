@@ -76,6 +76,14 @@ class Page {
 		);
 
 		add_settings_field(
+			'soter_html_email',
+			'Html Email',
+			[ $this, 'render_html_email' ],
+			'soter',
+			'soter_main'
+		);
+
+		add_settings_field(
 			'soter_ignored_plugins',
 			'Ignored Plugins',
 			[ $this, 'render_ignored_plugins' ],
@@ -115,6 +123,12 @@ class Page {
 			'current' => $current,
 			'default' => get_bloginfo( 'admin_email' ),
 		] );
+	}
+
+	public function render_html_email() {
+		$enabled = $this->settings->get( 'html_email', false );
+
+		$this->template->output( 'options/html-email', compact( 'enabled' ) );
 	}
 
 	/**
@@ -213,6 +227,10 @@ class Page {
 		);
 		$sanitized['email_address'] = sanitize_email(
 			isset( $values['email_address'] ) ? $values['email_address'] : ''
+		);
+		$sanitized['html_email'] = filter_var(
+			isset( $values['html_email'] ) ? $values['html_email'] : false,
+			FILTER_VALIDATE_BOOLEAN
 		);
 		$sanitized['ignored_plugins'] = array_intersect(
 			$valid_plugins,

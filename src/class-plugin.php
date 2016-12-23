@@ -6,14 +6,11 @@ use WP_CLI;
 use SSNepenthe\Soter\Options\Page;
 use SSNepenthe\Soter\HTTP\WP_Client;
 use SSNepenthe\Soter\Formatters\Text;
-use SSNepenthe\Soter\Options\Results;
 use SSNepenthe\Soter\WPVulnDB\Client;
-use SSNepenthe\Soter\Options\Settings;
 use SSNepenthe\Soter\Command\Security_Command;
 
 class Plugin {
 	protected $checker;
-	protected $client;
 	protected $file;
 	protected $results;
 	protected $settings;
@@ -51,8 +48,13 @@ class Plugin {
 	}
 
 	protected function cron_init() {
+		$notifier = new Vulnerable_Email_Notifier(
+			$this->settings,
+			soter_template()
+		);
+
 		$tasks = [
-			new Run_Check_Task( $this->checker, $this->results, $this->settings ),
+			new Run_Check_Task( $this->checker, $notifier, $this->results ),
 			new Garbage_Collection_Task,
 		];
 
@@ -64,9 +66,15 @@ class Plugin {
 	protected function plugin_init() {
 		$template = soter_template( false );
 
+		$short_notice = new Vulnerable_Short_Admin_Notice_Notifier( $template );
+		$short_notice->set_data( $this->results->all() );
+
+		$full_notice = new Vulnerable_Full_Admin_Notice_Notifier( $template );
+		$full_notice->set_data( $this->results->all() );
+
 		$features = [
-			new Abbreviated_Admin_Notice_Notification( $this->results, $template ),
-			new Full_Admin_Notice_Notification( $this->results, $template ),
+			$short_notice,
+			$full_notice,
 			new Page( $this->settings, $template ),
 		];
 

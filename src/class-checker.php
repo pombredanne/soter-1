@@ -8,7 +8,6 @@
 namespace SSNepenthe\Soter;
 
 use SSNepenthe\Soter\WPVulnDB\Client;
-use SSNepenthe\Soter\Options\Settings;
 
 /**
  * Check all plugins themes and core.
@@ -20,6 +19,8 @@ class Checker {
 	 * @var Client
 	 */
 	protected $client;
+
+	protected $has_run = false;
 
 	/**
 	 * Plugin settings object
@@ -33,7 +34,7 @@ class Checker {
 	 *
 	 * @var array
 	 */
-	protected $vulnerabilities;
+	protected $vulnerabilities = [];
 
 	/**
 	 * Constructor.
@@ -53,6 +54,7 @@ class Checker {
 	 */
 	public function check() {
 		$this->vulnerabilities = [];
+		$this->has_run = true;
 
 		$this->check_installed_plugins();
 		$this->check_installed_themes();
@@ -65,15 +67,76 @@ class Checker {
 		return $this->client;
 	}
 
+	public function get_messages() {
+		if ( ! $this->has_run ) {
+			$this->check();
+		}
+
+		if ( empty( $this->vulnerabilities ) ) {
+			return [];
+		}
+
+		$messages = [];
+
+		foreach ( $this->vulnerabilities as $vulnerability ) {
+			$message = [
+				'title' => $vulnerability->title,
+				'meta' => [],
+				'links' => [],
+			];
+
+			if ( ! is_null( $vulnerability->published_date ) ) {
+				$message['meta'][] = sprintf(
+					'Published %s',
+					$vulnerability->published_date->format( 'd M Y' )
+				);
+			}
+
+			if ( isset( $vulnerability->references->url ) ) {
+				foreach ( $vulnerability->references->url as $url ) {
+					$parsed = wp_parse_url( $url );
+
+					$host = isset( $parsed['host'] ) ?
+						$parsed['host'] :
+						$url;
+
+					$message['links'][ $url ] = $host;
+				}
+			}
+
+			$message['links'][ sprintf(
+				'https://wpvulndb.com/vulnerabilities/%s',
+				$vulnerability->id
+			) ] = 'wpvulndb.com';
+
+			if ( is_null( $vulnerability->fixed_in ) ) {
+				$message['meta'][] = 'Not fixed yet';
+			} else {
+				$message['meta'][] = sprintf(
+					'Fixed in v%s',
+					$vulnerability->fixed_in
+				);
+			}
+
+			$messages[] = $message;
+		}
+
+		return $messages;
+	}
+
 	/**
 	 * Check plugins.
 	 */
 	protected function check_installed_plugins() {
-		$plugins = array_filter(
-			get_plugins(),
-			[ $this, 'plugin_filter' ],
-			ARRAY_FILTER_USE_KEY
-		);
+		$plugins = array_filter( get_plugins(), function( $key ) {
+			list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $key );
+
+			return ! in_array(
+				$slug,
+				$this->settings->get( 'ignored_plugins', [] ),
+				true
+			);
+		}, ARRAY_FILTER_USE_KEY );
 
 		foreach ( $plugins as $file => $headers ) {
 			list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $file );
@@ -99,7 +162,13 @@ class Checker {
 	 * Check themes.
 	 */
 	protected function check_installed_themes() {
-		$themes = array_filter( wp_get_themes(), [ $this, 'theme_filter' ] );
+		$themes = array_filter( wp_get_themes(), function( $theme ) {
+			return ! in_array(
+				$theme->stylesheet,
+				$this->settings->get( 'ignored_themes', [] ),
+				true
+			);
+		} );
 
 		foreach ( $themes as $name => $object ) {
 			$response = $this->client->themes( $object->stylesheet );
@@ -133,37 +202,5 @@ class Checker {
 				$vulnerabilities
 			);
 		}
-	}
-
-	/**
-	 * Filter out ignored plugins from plugin array.
-	 *
-	 * @param  string $key Plugin file.
-	 *
-	 * @return bool
-	 */
-	protected function plugin_filter( $key ) {
-		list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $key );
-
-		return ! in_array(
-			$slug,
-			$this->settings->get( 'ignored_plugins', [] ),
-			true
-		);
-	}
-
-	/**
-	 * Filter out ignored themes from themes array.
-	 *
-	 * @param  WP_Theme $theme Theme object.
-	 *
-	 * @return bool
-	 */
-	protected function theme_filter( $theme ) {
-		return ! in_array(
-			$theme->stylesheet,
-			$this->settings->get( 'ignored_themes', [] ),
-			true
-		);
 	}
 }

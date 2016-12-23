@@ -4,12 +4,11 @@ namespace SSNepenthe\Soter;
 
 use SSNepenthe\Soter\Options\Results;
 
-class Abbreviated_Admin_Notice_Notification {
-	protected $results;
+class Vulnerable_Short_Admin_Notice_Notifier implements Notifier_Interface {
+	protected $data = [];
 	protected $template;
 
-	public function __construct( List_Option $results, Template $template ) {
-		$this->results = $results;
+	public function __construct( Template $template ) {
 		$this->template = $template;
 	}
 
@@ -26,16 +25,20 @@ class Abbreviated_Admin_Notice_Notification {
 			return;
 		}
 
-		if ( $this->results->is_empty() ) {
+		if ( empty( $this->data ) ) {
 			return;
 		}
 
 		$data = [
-			'count' => count( $this->results->all() ),
+			'count' => count( $this->data ),
 		];
 
 		$data['label'] = 1 < $data['count'] ? 'vulnerabilities' : 'vulnerability';
 
 		$this->template->output( 'notifications/abbreviated-admin-notice', $data );
+	}
+
+	public function set_data( array $data ) {
+		$this->data = $data;
 	}
 }
