@@ -20,8 +20,23 @@ class Plugin {
 		$this->settings = new Map_Option( 'soter_settings' );
 		$this->settings->init();
 
+		$base_url = 'https://wpvulndb.com/api/v2';
+
+		$site_name = get_bloginfo( 'name' );
+		$plugin_name = 'Soter Vulnerability Scanner';
+		$plugin_version = '0.4.0';
+		$plugin_url = 'https://github.com/ssnepenthe/soter';
+
+		$user_agent = sprintf(
+			'%s | %s v%s | %s',
+			$site_name,
+			$plugin_name,
+			$plugin_version,
+			$plugin_url
+		);
+
 		$client = new Client(
-			new WP_Http_Client,
+			new WP_Http_Client( $base_url, $user_agent ),
 			new WP_Transient_Cache( 'soter' )
 		);
 		$this->checker = new Checker( $client, $this->settings );

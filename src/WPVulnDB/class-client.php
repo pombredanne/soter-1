@@ -108,6 +108,10 @@ class Client {
 
 		$response = $this->http->get( $endpoint );
 
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
 		// @todo Filterable cache lifetime?
 		$this->cache->save( $endpoint, $response, HOUR_IN_SECONDS );
 

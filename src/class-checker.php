@@ -143,6 +143,10 @@ class Checker {
 
 			$response = $this->client->plugins( $slug );
 
+			if ( is_wp_error( $response ) ) {
+				continue;
+			}
+
 			$vulnerabilities = $response->vulnerabilities_by_version(
 				$headers['Version']
 			);
@@ -173,6 +177,10 @@ class Checker {
 		foreach ( $themes as $name => $object ) {
 			$response = $this->client->themes( $object->stylesheet );
 
+			if ( is_wp_error( $response ) ) {
+				continue;
+			}
+
 			$vulnerabilities = $response->vulnerabilities_by_version(
 				$object->version
 			);
@@ -193,6 +201,10 @@ class Checker {
 	 */
 	protected function check_current_wordpress_version() {
 		$response = $this->client->wordpresses( get_bloginfo( 'version' ) );
+
+		if ( is_wp_error( $response ) ) {
+			return;
+		}
 
 		$vulnerabilities = $response->vulnerabilities_by_version();
 
