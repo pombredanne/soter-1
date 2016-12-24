@@ -155,11 +155,8 @@ class Response {
 	 * @throws InvalidArgumentException When version is not string|null.
 	 */
 	public function vulnerabilities_by_version( $version = null ) {
-		if ( ! is_null( $version ) && ! is_string( $version ) ) {
-			throw new InvalidArgumentException(
-				'The version parameter is required to be string|null, was: %s',
-				gettype( $version )
-			);
+		if ( ! is_null( $version ) ) {
+			$version = (string) $version;
 		}
 
 		if ( $this->is_error() || empty( $this->object->vulnerabilities ) ) {

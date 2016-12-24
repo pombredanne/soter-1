@@ -15,19 +15,6 @@ use InvalidArgumentException;
  */
 class WP_Http_Client implements Http_Interface {
 	/**
-	 * Constructor.
-	 *
-	 * @throws  RuntimeException When used outside of a WordPress context.
-	 */
-	public function __construct() {
-		if ( ! function_exists( 'wp_remote_get' ) ) {
-			throw new RuntimeException(
-				'WP_Client can only be used within WordPress'
-			);
-		}
-	}
-
-	/**
 	 * Send a GET request to the given endpoint.
 	 *
 	 * @param  string $endpoint Appended to $url_root to create the URL.

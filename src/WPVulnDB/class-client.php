@@ -90,19 +90,8 @@ class Client {
 	 * @throws InvalidArgumentException When root_property is not a string.
 	 */
 	protected function get_and_cache( $endpoint, $root_property ) {
-		if ( ! is_string( $endpoint ) ) {
-			throw new InvalidArgumentException( sprintf(
-				'The endpoint parameter is required to be string, was: %s',
-				gettype( $endpoint )
-			) );
-		}
-
-		if ( ! is_string( $root_property ) ) {
-			throw new InvalidArgumentException( sprintf(
-				'The root_property parameter is required to be string, was: %s',
-				gettype( $root_property )
-			) );
-		}
+		$endpoint = (string) $endpoint;
+		$root_property = (string) $root_property;
 
 		if ( $this->cache->contains( $endpoint ) ) {
 			$response = $this->cache->fetch( $endpoint );
