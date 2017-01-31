@@ -1,4 +1,10 @@
-<fieldset>
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
+?><fieldset>
 	<?php foreach ( $packages as $package ) : ?>
 		<label>
 			<input<?php checked( in_array( $package['slug'], $ignored_packages, true ), true ) ?>

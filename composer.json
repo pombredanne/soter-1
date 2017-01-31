@@ -1,6 +1,6 @@
 {
     "name": "ssnepenthe/soter",
-    "description": "Check your full site for vulnerabilities against the WPVulnDB API.",
+    "description": "Check your full site for vulnerabilities against the WPScan vulnerabilities database API.",
     "type": "wordpress-plugin",
     "homepage": "https://github.com/ssnepenthe/soter",
     "license": "GPL-2.0",
@@ -10,15 +10,9 @@
     },
     "require-dev": {
         "psy/psysh": "^0.8",
-        "wp-coding-standards/wpcs": "0.10.0"
+        "wp-coding-standards/wpcs": "^0.10"
     },
     "autoload": {
         "classmap": ["src/"]
-    },
-    "scripts": {
-        "phpcbf": "phpcbf --ignore=vendor/ --standard=WordPress",
-        "phpcs": "phpcs --ignore=vendor/ --standard=WordPress",
-        "post-install-cmd": "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs/",
-        "post-update-cmd": "phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs/"
     }
 }

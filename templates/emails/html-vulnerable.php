@@ -1,4 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,7 +42,7 @@
 						<tr>
 							<td class="email-masthead" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 25px 0;" align="center">
 								<a href="https://example.com" class="email-masthead_name" style="box-sizing: border-box; color: #bbbfc3; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 16px; font-weight: bold; text-decoration: none; text-shadow: 0 1px 0 white;">
-									[<?php echo esc_html( $site_name ) ?>] Security Digest
+									[<?php echo esc_html( $site_name ) ?>] Soter Security Digest
 								</a>
 							</td>
 						</tr>
@@ -53,7 +59,7 @@
 												A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ) ?> vulnerabilities on your WordPress site.
 											</p>
 											<p style="box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 16px; line-height: 1.5em; margin-top: 0;" align="left">
-												Please ensure your WordPress install as well as all plugins and themes are up-to-date from your dashboard:
+												Please ensure your WordPress install, plugins and themes are all up-to-date from your dashboard:
 											</p>
 											<table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; margin: 30px auto; padding: 0; text-align: center; width: 100%;">
 												<tr>
@@ -136,7 +142,7 @@
 										<td class="content-cell" align="center" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 35px;">
 											<p class="sub align-center" style="box-sizing: border-box; color: #AEAEAE; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.5em; margin-top: 0;" align="center">
 												Scan performed by the <a href="https://github.com/ssnepenthe/soter">Soter Vulnerability Scanner</a> plugin.
-												<br>Powered by the <a href="https://wpvulndb.com/">WPScan Vulnerability Database</a>.
+												<br>Powered by the <a href="https://wpvulndb.com/">WPScan Vulnerability Database</a> API.
 											</p>
 											<p class="sub align-center" style="box-sizing: border-box; color: #AEAEAE; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.5em; margin-top: 0;" align="center">
 												Soter checks your site against the WPScan Vulnerability Database.

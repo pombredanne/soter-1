@@ -1,6 +1,6 @@
 <?php
 /**
- * This plugin checks your site for vulnerabilities against the WPVulnDB API.
+ * This plugin checks your site for vulnerabilities against the WPScan vulnerabilities database API.
  *
  * @package soter
  */
@@ -8,15 +8,19 @@
 /**
  * Plugin Name: Soter
  * Plugin URI: https://github.com/ssnepenthe/soter
- * Description: This plugin checks your site for vulnerabilities against the WPVulnDB API.
- * Version: 0.3.0
- * Author: ssnepenthe
+ * Description: This plugin checks your site for vulnerabilities against the WPScan vulnerabilities database API.
+ * Version: 0.4.0
+ * Author: Ryan McLaughlin
  * Author URI: https://github.com/ssnepenthe
  * License: GPL-2.0
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:
  * Domain Path:
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
 
 $soter_dir = plugin_dir_path( __FILE__ );
 $soter_basename = plugin_basename( __FILE__ );
@@ -45,20 +49,6 @@ if ( $soter_checker->requirements_met() ) {
 } else {
 	add_action( 'admin_init', [ $soter_checker, 'deactivate' ] );
 	add_action( 'admin_notices', [ $soter_checker, 'notify' ] );
-}
-
-function soter_template( $overridable = true ) {
-	$stack = new SSNepenthe\Soter\Template_Locator_Stack;
-
-	if ( $overridable ) {
-		$stack->push( new SSNepenthe\Soter\Core_Template_Locator );
-	}
-
-	$stack->push(
-		new SSNepenthe\Soter\Dir_Template_Locator( plugin_dir_path(  __FILE__ ) )
-	);
-
-	return new SSNepenthe\Soter\Template( $stack );
 }
 
 unset(

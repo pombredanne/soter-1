@@ -8,6 +8,10 @@
  * this message has been sent with an HTML content type.
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 ?>Vulnerabilities were detected on <?php echo esc_html( $site_name ) ?>. We've included some details to help you fix the problem.
 
 [<?php echo esc_html( $site_name ) ?>] Security Digest
@@ -18,14 +22,14 @@
 
 A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ) ?> vulnerabilities on your WordPress site.
 
-Please ensure your WordPress install as well as all plugins and themes are up-to-date from your dashboard:
+Please ensure your WordPress install, plugins and themes are all up-to-date from your dashboard:
 
 Go To Dashboard ( <?php echo esc_url( $action_url ) ?> )
 
 For reference, here are the details of the flagged vulnerabilities:
 
 <?php foreach ( $messages as $message ) : ?>
-<?php // This feels so wrong... ?>
+<?php // @todo This feels so wrong... ?>
 <?php echo esc_html( str_replace(
 	[ '<', '>', '=' ],
 	[ 'less than', 'greater than', ' or equal to' ],

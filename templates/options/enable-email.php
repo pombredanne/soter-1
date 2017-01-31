@@ -1,4 +1,10 @@
-<fieldset>
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
+?><fieldset>
 	<label>
 		<input<?php checked( $enabled, true ) ?>
 			id="soter_settings_enable_email"

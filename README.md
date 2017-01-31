@@ -1,105 +1,136 @@
 # soter
-This plugin checks your site for security vulnerabilities against the [WPVulnDB](https://wpvulndb.com/) API.
+This plugin checks your site for security vulnerabilities against the [WPScan Vulnerability Database](https://wpvulndb.com/) API.
 
 Originally inspired by the [Sensio Labs Security Checker](https://github.com/sensiolabs/security-checker) and the [Friends of PHP Security Advisories](https://github.com/FriendsOfPHP/security-advisories), which unfortunately do not track WordPress vulnerabilities.
 
-A less intrusive alternative to the [WPScan](http://wpscan.org/) vulnerability scanner.
+A less intrusive alternative to the [WPScan vulnerability scanner](https://wpscan.org/).
+
+NOTE: This plugin does not verify the integrity of files on your server - it only checks installed packages by name/version against a list of known vulnerabilities provided by the WPScan API.
 
 ## Installation
 Install using Composer:
 
 ```
-composer require ssnepenthe/soter
+$ composer require ssnepenthe/soter
 ```
 
-This plugin has no dependencies, so you can also download the latest release from Github and extract it to your plugins directory or install it through the WordPress dashboard.
+*OR*
+
+```
+$ cd /path/to/project/wp-content/plugins
+$ git clone git@github.com:ssnepenthe/soter.git
+$ cd soter
+$ composer install
+```
 
 ## Usage
-Once activated, this plugin will check your site against the WPVulnDB API twice daily.
+Once activated, this plugin will check your site against the WPScan API twice daily.
 
-Make sure to visit `settings > security` in `wp-admin` and mark any custom themes and plugins (i.e. any packages that are not tracked by WPVulnDB) as ignored so your site does not generate unnecessary requests to the API.
+Make sure to visit `settings > soter` in `wp-admin` and mark any custom themes and plugins (i.e. any packages that are not tracked by WPScan) as ignored to prevent your site from making unnecessary API requests.
 
-If a vulnerability is detected, an admin notice will be shown to users with a role of `administrator`. If you would like to receive notifications by email as well, be sure to configure it in the settings.
+If a vulnerability is detected, an admin notice will be shown to users with a role of `administrator`. If you would like to receive notifications by email as well, this can also be configured in the plugin settings.
 
 ## WP-CLI
-Once activated, this plugin makes the `security` command available in WP-CLI.
-
-`wp security check-plugin <slug> [<version>]`
-
-`wp security check-theme <slug> [<version>]`
-
-`wp security check-wp <version>`
-
-`wp security check-site`
-
-These commands will honor the ignored themes and plugins that you have configured on the plugin settings page.
-
-## Manual Usage
-Use `SSNepenthe\Soter\WPVulnDB\Client` to manually make requests to the WPVulnDB API.
+Once activated, the following commands will be available in WP-CLI:
 
 ```
-$client = new SSNepenthe\Soter\WPVulnDB\Client;
-
-// Check a version of WordPress.
-$response = $client->wordpresses( '4.3' );
-$vulnerabilities = $response->vulnerabilities();
-
-// Check a single plugin.
-$response = $client->plugins( 'eshop' );
-$vulnerabilities = $response->vulnerabilities();
-
-if ( $vulnerabilities[0]->affects_version( '6.3.12' ) ) {
-    // Version 6.3.12 is affected by this vulnearbility.
-}
-
-$vulnerabilities = $response->vulnerabilities_by_version( '6.3.12' ); // All vulnerabilities that affect version 6.3.12.
-
-// Same for themes.
-$response = $client->themes( 'pagelines' );
-
-$vulnerabilities = $response->vulnerabilities();
-
-if ( $vulnerabilities[0]->affects_version( '1.4.6' ) ) {
-    // Version 1.4.6 is affected by this vulnearbility.
-}
-
-$vulnerabilities = $response->vulnerabilities_by_version( '1.4.6' ); // All vulnerabilities that affect version 1.4.6.
+$ wp security check-plugin <slug> [<version>] [--format=<format>] [--fields=<fields>]
+$ wp security check-theme <slug> [<version>] [--format=<format>] [--fields=<fields>]
+$ wp security check-wordpress <version> [--format=<format>] [--fields=<fields>]
+$ wp security check-site [--format=<format>] [--fields=<fields>]
 ```
 
-Non-200 responses can be identified using the `is_error()` method or by manually checking the status code:
+`<format>` can be any of `count`, `csv`, `ids`, `json`, `standard`, `table`, `yaml` or `yml`.
+
+`<fields>` should be a comma delimited list of fields. Valid fields are `id`, `title`, `created_at`, `updated_at`, `published_date`, `vuln_type` and `fixed_in`.
+
+The `check-site` command will honor the plugin settings as defined in `Settings > Security`.
+
+### Examples
+
+**Full site check with standard formatting**
 
 ```
-$response = $client->plugins( 'not-a-real-plugin-slug' );
-$response->is_error(); // true.
+$ wp security check-site
+Checking 18 packages  100% [=====================================] 0:01 / 0:01
 
-echo $response->status(); // 404.
 
-if ( isset( $response->error->status_code ) ) {
-    // You get the idea...
-}
+  WARNING: 5 vulnerabilities detected
+
+
+Contact Form 7 <= 3.7.1 - Security Bypass
+https://wpvulndb.com/vulnerabilities/7020
+Fixed in v3.7.2
+
+Contact Form 7 <= 3.5.2 - File Upload Remote Code Execution
+https://wpvulndb.com/vulnerabilities/7022
+Fixed in v3.5.3
+
+WordPress 4.2.0-4.7.1 - Press This UI Available to Unauthorised Users
+Published 26 January 2017
+https://wpvulndb.com/vulnerabilities/8729
+Fixed in v4.7.2
+
+WordPress 3.5-4.7.1 - WP_Query SQL Injection
+Published 26 January 2017
+https://wpvulndb.com/vulnerabilities/8730
+Fixed in v4.7.2
+
+WordPress 4.3.0-4.7.1 - Cross-Site Scripting (XSS) in posts list table
+Published 26 January 2017
+https://wpvulndb.com/vulnerabilities/8731
+Fixed in v4.7.2
 ```
 
-All properties returned by the API are publicly available on the `Vulnerability` object:
+**Check all versions of Contact Form 7 and format as CSV**
 
 ```
-$response = $client->plugins( 'eshop' );
-$vulnerability = $response->vulnerabilities()[0];
-
-echo $vulnerability->id; // 7004.
-echo $vulnerability->references->url[0] // http://seclists.org/bugtraq/2011/Aug/52.
+$ wp security check-plugin contact-form-7 --format=csv
+title,published_date,fixed_in
+"Contact Form 7 <= 3.7.1 - Security Bypass ",,3.7.2
+"Contact Form 7 <= 3.5.2 - File Upload Remote Code Execution",,3.5.3
 ```
 
-Use `SSNepenthe\Soter\Checker` to manually check a site.
+**Check version 1.1 of twentyfifteen, display only title, vulnerability type and fixed in version, format as JSON**
 
 ```
-// Checks current WP version + all installed plugins and themes. Honors ignored packages set by user.
-$checker = new SSNepenthe\Soter\Checker;
-$vulnerabilities = $checker->check(); // array of Vulnerability objects.
+$ wp security check-theme twentyfifteen 1.1 --format=json --fields=title,vuln_type,fixed_in
+[{"title":"Twenty Fifteen Theme <= 1.1 - DOM Cross-Site Scripting (XSS)","vuln_type":"XSS","fixed_in":"1.2"}]
 ```
 
-## Notes/To-do
-Untested in multi-site, but not likely to work.
+**Check WordPress version 4.7.1, display only title and fixed in version, format as YAML**
 
-Admin notices are not yet dismissable and the checker is not run after updates. The admin notice may be displayed for up to twelve hours after you update even if the site is no longer vulnerable.
+```
+$ wp security check-wordpress 4.7.1 --format=yaml --fields=title,fixed_in
+---
+-
+  title: 'WordPress 4.2.0-4.7.1 - Press This UI Available to Unauthorised Users'
+  fixed_in: 4.7.2
+-
+  title: 'WordPress 3.5-4.7.1 - WP_Query SQL Injection'
+  fixed_in: 4.7.2
+-
+  title: 'WordPress 4.3.0-4.7.1 - Cross-Site Scripting (XSS) in posts list table'
+  fixed_in: 4.7.2
+```
 
-HTTP responses are cached for twelve hours directly in the WP object cache rather than in the transient cache. This essentially means responses are uncached if you have not configured a persistent object cache backend such as [WP Redis](https://wordpress.org/plugins/wp-redis/) or [Memcached Object Cache](https://wordpress.org/plugins/memcached/).
+## Acknowledgements
+This plugin wouldn't be possible without the work of the [WPScan team](https://github.com/wpscanteam) and their amazing [WPScan Vulnerabilities Database](https://wpvulndb.com/).
+
+The email templates for this plugin are created from the [Postmark Transactional Email Templates](https://github.com/wildbit/postmark-templates) which are released under the MIT license.
+
+## Similar Projects
+If you are only interested in WP-CLI integration, one of the following projects may be of more interest to you:
+
+* [WP Vulnerability Scanner](https://github.com/10up/wp-vulnerability-scanner) by 10up
+* [WP-sec](https://github.com/markri/wp-sec) by Marco de Krijger
+
+There are also a number of [plugins on the WordPress.org plugin repo](https://wordpress.org/plugins/search.php?q=wpscan) that can check a site against the WPScan API.
+
+The following are some of the reasons that I created Soter rather than using any of these plugins:
+
+* Portability - some of these plugins use cURL directly rather than the WP HTTP API.
+* Scheduled scans - some of these plugins offer on-demand scanning only.
+* WP-CLI integration - none of the plugins I found offer WP-CLI integration.
+* Caching - Most of these plugins employ no form of caching - since the WPScan Vulnerabilities Database is an free service, measures should be taken to minimize load generated against their servers.
+* Completeness - many of these plugins only check plugins, themes or WordPress, but not all three.
