@@ -72,18 +72,18 @@ class Upgrader {
 		$this->results->save();
 
 		// Two new options were added from 0.3.0 to 0.4.0.
-		$this->settings->set( 'html_email', true );
+		$this->settings->set( 'html_email', false );
 		$this->settings->set( 'version', '0.4.0' );
 
 		// Re-index ignored plugins and themes arrays because it makes me feel good.
 		$this->settings->set(
 			'ignored_plugins',
-			array_values( $this->settings->get( 'ignored_plugins' ) )
+			array_values( $this->settings->get( 'ignored_plugins', [] ) )
 		);
 
 		$this->settings->set(
 			'ignored_themes',
-			array_values( $this->settings->get( 'ignored_themes' ) )
+			array_values( $this->settings->get( 'ignored_themes', [] ) )
 		);
 
 		$this->settings->save();
