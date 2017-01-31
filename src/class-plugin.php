@@ -92,6 +92,17 @@ class Plugin {
 	public static function uninstall() {
 		delete_option( 'soter_settings' );
 		delete_option( 'soter_results' );
+
+		$tasks = [
+			// Not perfect - only deletes transients that have already expired.
+			new Tasks\Transient_Garbage_Collection( 'soter' ),
+			// No param - defaults to empty array - all vulnerabilities are deleted.
+			new Tasks\Vulnerability_Garbage_Collection,
+		];
+
+		foreach ( $tasks as $task ) {
+			$task->run_task();
+		}
 	}
 
 	/**
