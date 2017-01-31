@@ -1,4 +1,9 @@
 <?php
+/**
+ * Sends email notifications when appropriate.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Listeners;
 
@@ -9,12 +14,47 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/**
+ * This class creates and sends email notifications after a site scan if the site is
+ * found to be vulnerable and the admin has enabled email notiications.
+ */
 class Send_Vulnerable_Packages_Email {
+	/**
+	 * To email address.
+	 *
+	 * @var string
+	 */
 	protected $email_address;
+
+	/**
+	 * Whether or not notifications are enabled.
+	 *
+	 * @var bool
+	 */
 	protected $enable_email;
+
+	/**
+	 * Whether or not the email type is set to html.
+	 *
+	 * @var bool
+	 */
 	protected $html_email;
+
+	/**
+	 * Template instance.
+	 *
+	 * @var Template
+	 */
 	protected $template;
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param Template $template      Template instance.
+	 * @param boolean  $enable_email  Whether or not notifications are enabled.
+	 * @param boolean  $html_email    Whether or not to send html-type emails.
+	 * @param string   $email_address The to email address.
+	 */
 	public function __construct(
 		Template $template,
 		$enable_email = false,
@@ -22,17 +62,25 @@ class Send_Vulnerable_Packages_Email {
 		$email_address = ''
 	) {
 		$this->template = $template;
-		$this->enable_email = $enable_email;
-		$this->html_email = $html_email;
+		$this->enable_email = (bool) $enable_email;
+		$this->html_email = (bool) $html_email;
 		$this->email_address = empty( $email_address )
 			? get_bloginfo( 'admin_email' )
-			: $email_address;
+			: (string) $email_address;
 	}
 
+	/**
+	 * Hooks the notification functionality in to WordPress.
+	 */
 	public function init() {
 		add_action( 'soter_check_packages_complete', [ $this, 'send_email' ] );
 	}
 
+	/**
+	 * Sends the actual email when appropriate.
+	 *
+	 * @param  Vulnerability[] $vulnerabilities List of vulnerabilities detected.
+	 */
 	public function send_email( array $vulnerabilities ) {
 		if ( empty( $vulnerabilities ) ) {
 			return;
@@ -75,6 +123,13 @@ class Send_Vulnerable_Packages_Email {
 		);
 	}
 
+	/**
+	 * Generates a summary of a vulnerability for use in the template data.
+	 *
+	 * @param  Vulnerability $vulnerability A vulnerability thats needs summarizing.
+	 *
+	 * @return array
+	 */
 	protected function generate_vuln_summary( Vulnerability $vulnerability ) {
 		$summary = [
 			'title' => $vulnerability->title,

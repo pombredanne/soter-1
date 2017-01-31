@@ -1,4 +1,9 @@
 <?php
+/**
+ * Template for the enable email setting input.
+ *
+ * @package soter
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

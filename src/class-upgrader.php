@@ -1,4 +1,9 @@
 <?php
+/**
+ * Performs upgrades between plugin versions.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter;
 
@@ -10,23 +15,53 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/**
+ * This class performs the operations necessary to adjust the state of a site as
+ * needed when moving to a new version of the plugin.
+ */
 class Upgrader {
+	/**
+	 * Scan results object.
+	 *
+	 * @var List_Option
+	 */
 	protected $results;
+
+	/**
+	 * Plugin settings object.
+	 *
+	 * @var Map_Option
+	 */
 	protected $settings;
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param List_Option $results  Scan results object.
+	 * @param Map_Option  $settings Plugin settings object.
+	 */
 	public function __construct( List_Option $results, Map_Option $settings ) {
 		$this->results = $results;
 		$this->settings = $settings;
 	}
 
+	/**
+	 * Hooks the class in to WordPress.
+	 */
 	public function init() {
 		add_action( 'plugins_loaded', [ $this, 'perform_upgrade' ] );
 	}
 
+	/**
+	 * Performs all necessary upgrade steps for current version.
+	 */
 	public function perform_upgrade() {
 		$this->upgrade_to_040();
 	}
 
+	/**
+	 * Performs all necessary upgrade steps up version 0.4.0.
+	 */
 	protected function upgrade_to_040() {
 		if ( $this->settings->get( 'version', false ) ) {
 			return;

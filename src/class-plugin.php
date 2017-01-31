@@ -1,37 +1,81 @@
 <?php
+/**
+ * The main plugin bootstrap.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter;
 
 use WP_CLI;
 use Closure;
-use SSNepenthe\Soter\Tasks\Check_Site;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/**
+ * This class acts as the plugin bootstrap, handling WordPress, WP-CLI and WP-Cron.
+ */
 class Plugin {
+	/**
+	 * Main plugin file path, used for (de)activation hooks.
+	 *
+	 * @var string
+	 */
 	protected $file;
+
+	/**
+	 * Container entries which are resolved on each call.
+	 *
+	 * @var Closure[]
+	 */
 	protected $entries = [];
+
+	/**
+	 * Container entries which are cached after first access.
+	 *
+	 * @var Closure[]
+	 */
 	protected $shared_entries = [];
+
+	/**
+	 * Cached values returned from $shared_entries.
+	 *
+	 * @var array
+	 */
 	protected $shared_cache = [];
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param string $file Main plugin file path.
+	 */
 	public function __construct( $file ) {
 		$this->file = (string) $file;
 
 		$this->register_components();
 	}
 
+	/**
+	 * Plugin activation hook - schedules WP-Cron event and registers uninstall hook.
+	 */
 	public function activate() {
-		wp_schedule_event( time(), 'twicedaily', Check_Site::HOOK );
+		wp_schedule_event( time(), 'twicedaily', Tasks\Check_Site::HOOK );
 
 		register_uninstall_hook( $this->file, [ __CLASS__, 'uninstall' ] );
 	}
 
+	/**
+	 * Deactivation hook - removes scheduled WP-Cron event.
+	 */
 	public function deactivate() {
-		wp_clear_scheduled_hook( Check_Site::HOOK );
+		wp_clear_scheduled_hook( Tasks\Check_Site::HOOK );
 	}
 
+	/**
+	 * Initializes/bootstraps the plugin.
+	 */
 	public function init() {
 		$this->upgrader_init();
 
@@ -42,31 +86,27 @@ class Plugin {
 		$this->plugin_init();
 	}
 
-	public function upgrader_init() {
-		if (
-			! $this->is_cli_request()
-			&& ! $this->is_cron_request()
-			&& ! is_admin()
-		) {
-			return;
-		}
-
-		$upgrader = new Upgrader(
-			$this->resolve( 'results' ),
-			$this->resolve( 'settings' )
-		);
-		$upgrader->init();
-	}
-
+	/**
+	 * Uninstall hook - deletes lingering options entries.
+	 */
 	public static function uninstall() {
 		delete_option( 'soter_settings' );
 		delete_option( 'soter_results' );
 	}
 
+	/**
+	 * Adds an container entry.
+	 *
+	 * @param string  $key     Identifier for a given entry.
+	 * @param Closure $closure Function to call to get the value of a given entry.
+	 */
 	protected function add( string $key, Closure $closure ) {
 		$this->entries[ $key ] = $closure;
 	}
 
+	/**
+	 * Initializes admin-specific plugin functionality.
+	 */
 	protected function admin_init() {
 		if ( ! is_admin() ) {
 			return;
@@ -90,6 +130,9 @@ class Plugin {
 		}
 	}
 
+	/**
+	 * Initializes CLI-specific plugin functionality.
+	 */
 	protected function cli_init() {
 		if ( ! $this->is_cli_request() ) {
 			return;
@@ -106,6 +149,9 @@ class Plugin {
 		}
 	}
 
+	/**
+	 * Initializes cron-specific plugin functionality.
+	 */
 	protected function cron_init() {
 		if ( ! $this->is_cron_request() ) {
 			return;
@@ -114,7 +160,9 @@ class Plugin {
 		$tasks = [
 			new Tasks\Check_Site( $this->resolve( 'checker' ) ),
 			new Tasks\Transient_Garbage_Collection( $this->resolve( 'prefix' ) ),
-			new Tasks\Vulnerability_Garbage_Collection,
+			new Tasks\Vulnerability_Garbage_Collection(
+				$this->resolve( 'results' )->all()
+			),
 		];
 
 		foreach ( $tasks as $task ) {
@@ -122,14 +170,27 @@ class Plugin {
 		}
 	}
 
+	/**
+	 * Determine if a given request comes from WP-CLI.
+	 *
+	 * @return boolean
+	 */
 	protected function is_cli_request() {
 		return defined( 'WP_CLI' ) && WP_CLI;
 	}
 
+	/**
+	 * Determine if a given request comes from WP-Cron.
+	 *
+	 * @return boolean
+	 */
 	protected function is_cron_request() {
 		return defined( 'DOING_CRON' ) && DOING_CRON;
 	}
 
+	/**
+	 * Initializes generic listener functionality.
+	 */
 	protected function listeners_init() {
 		if ( ! $this->is_cron_request() && ! $this->is_cli_request() ) {
 			return;
@@ -153,6 +214,9 @@ class Plugin {
 		}
 	}
 
+	/**
+	 * Initializes global plugin functionality.
+	 */
 	protected function plugin_init() {
 		$features = [
 			new Register_Vulnerability_Post_Type,
@@ -163,6 +227,9 @@ class Plugin {
 		}
 	}
 
+	/**
+	 * Registers all needed values.
+	 */
 	protected function register_components() {
 		// Can't share instances b/c each gets different post check callbacks.
 		$this->add( 'checker', function() {
@@ -242,6 +309,15 @@ class Plugin {
 		} );
 	}
 
+	/**
+	 * Resolves a given entry by first looking in the cache, then shared entries and
+	 * finally generic entries.
+	 *
+	 * @param  string $key     Entry key to resolve.
+	 * @param  mixed  ...$args Any args that should be passed to a given entry.
+	 *
+	 * @return mixed
+	 */
 	protected function resolve( string $key, ...$args ) {
 		if ( isset( $this->shared_cache[ $key ] ) ) {
 			return $this->shared_cache[ $key ];
@@ -260,7 +336,32 @@ class Plugin {
 		return null;
 	}
 
+	/**
+	 * Add an entry that should be cached.
+	 *
+	 * @param  string  $key     The key for a given entry.
+	 * @param  Closure $closure The function to call to get the value of an entry.
+	 */
 	protected function share( string $key, Closure $closure ) {
 		$this->shared_entries[ $key ] = $closure;
+	}
+
+	/**
+	 * Initializes the plugin upgrader functionality.
+	 */
+	protected function upgrader_init() {
+		if (
+			! $this->is_cli_request()
+			&& ! $this->is_cron_request()
+			&& ! is_admin()
+		) {
+			return;
+		}
+
+		$upgrader = new Upgrader(
+			$this->resolve( 'results' ),
+			$this->resolve( 'settings' )
+		);
+		$upgrader->init();
 	}
 }

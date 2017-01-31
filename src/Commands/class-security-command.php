@@ -21,8 +21,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Vulnerability Database API.
  */
 class Security_Command {
+	/**
+	 * Checker instance.
+	 *
+	 * @var Checker
+	 */
 	protected $checker;
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param Checker $checker Checker instance.
+	 */
 	public function __construct( Checker $checker ) {
 		$this->checker = $checker;
 	}
@@ -60,6 +70,9 @@ class Security_Command {
 	 * : Comma separated list of fields to show. Valid fields include id, title, created_at, updated_at, published_date, vuln_type, fixed_in.
 	 *
 	 * @subcommand check-plugin
+	 *
+	 * @param  array $args       Positional args.
+	 * @param  array $assoc_args Associative args.
 	 */
 	public function check_plugin( $args, $assoc_args ) {
 		$plugin = $args[0];
@@ -104,6 +117,9 @@ class Security_Command {
 	 * : Comma separated list of fields to show. Valid fields include id, title, created_at, updated_at, published_date, vuln_type, fixed_in.
 	 *
 	 * @subcommand check-theme
+	 *
+	 * @param  array $args       Positional args.
+	 * @param  array $assoc_args Associative args.
 	 */
 	public function check_theme( $args, $assoc_args ) {
 		$theme = $args[0];
@@ -143,6 +159,9 @@ class Security_Command {
 	 *
 	 * @alias check-wp
 	 * @subcommand check-wordpress
+	 *
+	 * @param  array $args       Positional args.
+	 * @param  array $assoc_args Associative args.
 	 */
 	public function check_wordpress( $args, $assoc_args ) {
 		$version = str_replace( '.', '', $args[0] );
@@ -177,6 +196,9 @@ class Security_Command {
 	 * : Comma separated list of fields to show. Valid fields include id, title, created_at, updated_at, published_date, vuln_type, fixed_in.
 	 *
 	 * @subcommand check-site
+	 *
+	 * @param  array $_          Unused positional args.
+	 * @param  array $assoc_args Associative args.
 	 */
 	public function check_site( array $_, array $assoc_args ) {
 		$package_count = $this->checker->get_package_count();
@@ -199,6 +221,12 @@ class Security_Command {
 		$this->display_results( $vulnerabilities, $assoc_args );
 	}
 
+	/**
+	 * Display the results of an individual check.
+	 *
+	 * @param  SSNepenthe\Soter\WPScan\Vulnerability[] $vulnerabilities List of vulnerabilities.
+	 * @param  array                                   $assoc_args      Associative args.
+	 */
 	protected function display_results( array $vulnerabilities, array $assoc_args ) {
 		$format = isset( $assoc_args['format'] ) ?
 			$assoc_args['format'] :
@@ -256,6 +284,11 @@ class Security_Command {
 		}
 	}
 
+	/**
+	 * Display the results when --format=standard.
+	 *
+	 * @param  SSNepenthe\Soter\WPScan\Vulnerability[] $vulnerabilities List of vulnerabilities.
+	 */
 	protected function display_standard_results( array $vulnerabilities ) {
 		if ( empty( $vulnerabilities ) ) {
 			WP_CLI::log( $this->success( $this->banner(

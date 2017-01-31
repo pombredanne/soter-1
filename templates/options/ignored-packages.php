@@ -1,4 +1,9 @@
 <?php
+/**
+ * Template for the ignored plugins/themes setting input.
+ *
+ * @package soter
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

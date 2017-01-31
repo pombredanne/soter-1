@@ -1,4 +1,9 @@
 <?php
+/**
+ * Run scheduled transient cleanups.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Tasks;
 
@@ -11,25 +16,40 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * This *may* not be necessary. Sources of orphaned transients include uninstalling
  * plugins or themes, upgrading WordPress and the query which produces the vulnerable
- * site report in wp-admin. WordPress already cleans out expired transients on DB
- * upgrade which is more than likely sufficient.
+ * site report in wp-admin.
+ *
+ * WordPress already cleans out expired transients on DB upgrade which is more than
+ * likely sufficient.
  */
 class Transient_Garbage_Collection {
+	/**
+	 * Transient prefix.
+	 *
+	 * @var string
+	 */
 	protected $prefix;
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param string $prefix Transient prefix.
+	 */
 	public function __construct( $prefix ) {
 		$this->prefix = (string) $prefix . '_';
 	}
 
 	/**
-	 * Piggybacks on the daily wp_scheduled_delete task to ensure any orphaned
-	 * transients are properly cleaned up.
+	 * Hooks the task functionality in to WordPress.
+	 *
+	 * Specifically, this piggybacks on the daily wp_scheduled_delete task.
 	 */
 	public function init() {
 		add_action( 'wp_scheduled_delete', [ $this, 'run_task' ] );
 	}
 
 	/**
+	 * Deletes all transients from the database with the specified prefix.
+	 *
 	 * Mostly swiped from populate_options() in wp-admin/includes/schema.php.
 	 */
 	public function run_task() {

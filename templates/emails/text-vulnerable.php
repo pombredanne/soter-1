@@ -1,11 +1,15 @@
 <?php
 /**
+ * Template for vulnerable site text email notification.
+ *
  * Don't mess with the spacing/indentation!
  *
  * Note: Since any site can filter an email's content type before sending, it seems
  * that we can never be certain that a text email is actually being sent with a text
  * content type. With that in mind, all values are escaped under the assumption that
  * this message has been sent with an HTML content type.
+ *
+ * @package soter
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

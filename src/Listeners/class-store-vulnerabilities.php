@@ -1,4 +1,9 @@
 <?php
+/**
+ * Saves/updates vulnerabilities to the database after a site scan.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Listeners;
 
@@ -11,7 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/**
+ * This class adds all vulnerabilities detected in a site scan to the database as
+ * posts of type soter_vulnerability. If a vulnerability already exists, it is
+ * updated to ensure the database stays in sync with the API.
+ */
 class Store_Vulnerabilities {
+	/**
+	 * Hooks the recording functionality in to WordPress.
+	 */
 	public function init() {
 		add_action(
 			'soter_check_packages_complete',
@@ -19,6 +32,11 @@ class Store_Vulnerabilities {
 		);
 	}
 
+	/**
+	 * Inserts individual posts into the database.
+	 *
+	 * @param  Vulnerability[] $vulnerabilities A list of detected vulnerabilities.
+	 */
 	public function store_vulnerabilities( array $vulnerabilities ) {
 		if ( empty( $vulnerabilities ) ) {
 			return;
@@ -46,6 +64,13 @@ class Store_Vulnerabilities {
 		}
 	}
 
+	/**
+	 * Create a WordPress compatible post array from a given vulnerability.
+	 *
+	 * @param  Vulnerability $vulnerability The vulnerability to create a post from.
+	 *
+	 * @return array
+	 */
 	protected function create_post_array_from_vuln( Vulnerability $vulnerability ) {
 		$array = [
 			'comment_status' => 'closed',
@@ -72,6 +97,13 @@ class Store_Vulnerabilities {
 		return $array;
 	}
 
+	/**
+	 * Get all existing vulnerabilities based on the WPScan ID saved in post meta.
+	 *
+	 * @param  int[] $vuln_ids List of vulnerability IDs.
+	 *
+	 * @return WP_Post[]
+	 */
 	protected function get_existing_vuln_posts_from_api_ids( array $vuln_ids ) {
 		$vuln_ids = array_map( 'absint', $vuln_ids );
 
@@ -94,6 +126,15 @@ class Store_Vulnerabilities {
 		return $query->posts;
 	}
 
+	/**
+	 * Determine if a given vulnerability has a corresponding post object in a given
+	 * array of WP_Post objects.
+	 *
+	 * @param  Vulnerability $vulnerability The vulnerability to check for.
+	 * @param  WP_Post[]     $posts         The list of posts to check in.
+	 *
+	 * @return WP_Post|false
+	 */
 	protected function vulnerability_in_post_array(
 		Vulnerability $vulnerability,
 		array $posts
@@ -107,6 +148,14 @@ class Store_Vulnerabilities {
 		return false;
 	}
 
+	/**
+	 * Check whether a vulnerability matches a post by comparing the WPScan ID.
+	 *
+	 * @param  Vulnerability $vulnerability The vulnerability to compare.
+	 * @param  WP_Post       $post          The post to compare.
+	 *
+	 * @return bool
+	 */
 	protected function vulnerability_matches_post(
 		Vulnerability $vulnerability,
 		WP_Post $post

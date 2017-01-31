@@ -1,4 +1,9 @@
 <?php
+/**
+ * Template for the abbreviated vulnerable site admin notice.
+ *
+ * @package soter
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

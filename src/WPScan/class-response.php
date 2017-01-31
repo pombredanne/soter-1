@@ -20,26 +20,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Response {
 	/**
 	 * Response body.
+	 *
+	 * @var  string
 	 */
 	protected $body;
 
 	/**
 	 * JSON decoded response.
+	 *
+	 * @var  array
 	 */
 	protected $data;
 
+	/**
+	 * List of response headers.
+	 *
+	 * @var string[]
+	 */
 	protected $headers;
 
 	/**
 	 * Response status code.
+	 *
+	 * @var int
 	 */
 	protected $status;
 
 	/**
 	 * Cache of vulnerabilities by version.
+	 *
+	 * @var array
 	 */
 	protected $version_cache = [];
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param int      $status  Response status code.
+	 * @param string[] $headers List of response headers.
+	 * @param string   $body    Response body.
+	 */
 	public function __construct( $status, array $headers, $body ) {
 		$this->status = intval( $status );
 		$this->headers = $headers;
@@ -48,7 +68,11 @@ class Response {
 	}
 
 	/**
-	 * Magic getter, proxies all requests to the data array.
+	 * Magic getter, proxies all property requests to the data array.
+	 *
+	 * @param  string $key Property name.
+	 *
+	 * @return mixed
 	 */
 	public function __get( $key ) {
 		if ( isset( $this->data[ $key ] ) ) {
@@ -59,7 +83,9 @@ class Response {
 	}
 
 	/**
-	 * Determine whether this instance represents a non-200 response.
+	 * Check whether this instance represents a non-200 response.
+	 *
+	 * @return boolean
 	 */
 	public function is_error() {
 		return isset( $this->data['error'] );
@@ -67,6 +93,8 @@ class Response {
 
 	/**
 	 * Vulnerabilities getter.
+	 *
+	 * @return Vulnerability[]
 	 */
 	public function vulnerabilities() {
 		if ( $this->is_error() ) {
@@ -78,6 +106,10 @@ class Response {
 
 	/**
 	 * Get all vulnerabilities that affect a particular package version.
+	 *
+	 * @param  string|null $version Package version.
+	 *
+	 * @return Vulnerability[]
 	 */
 	public function vulnerabilities_by_version( $version = null ) {
 		if ( $this->is_error() || empty( $this->data['vulnerabilities'] ) ) {
@@ -105,11 +137,19 @@ class Response {
 		return $this->version_cache[ $version ] = $vulnerabilities;
 	}
 
+	/**
+	 * Generates the data array based on status code and whether response is JSON.
+	 *
+	 * @return array
+	 */
 	protected function generate_data_array() {
 		// May want to revisit - Non-200 does not automatically mean error.
 		$response_ok = 200 === $this->status;
 		$is_json = isset( $this->headers['content-type'] )
-			&& false !== strpos( $this->headers['content-type'], 'application/json' );
+			&& false !== strpos(
+				$this->headers['content-type'],
+				'application/json'
+			);
 
 		if ( $response_ok && $is_json ) {
 			try {
@@ -122,6 +162,14 @@ class Response {
 		return $this->generate_error_data_array();
 	}
 
+	/**
+	 * Generates a data array representing an error.
+	 *
+	 * @param  int|null    $code    Error code.
+	 * @param  string|null $message Error message.
+	 *
+	 * @return array
+	 */
 	protected function generate_error_data_array( $code = null, $message = null ) {
 		$code = is_null( $code ) ? $this->status : intval( $code );
 		// Consider using status message as default message here?
@@ -132,6 +180,13 @@ class Response {
 		];
 	}
 
+	/**
+	 * Generates a data array representing a valid response.
+	 *
+	 * @return array
+	 *
+	 * @throws  RuntimeException When response cannot be JSON decoded.
+	 */
 	protected function generate_ok_data_array() {
 		$decoded = json_decode( $this->body, true );
 

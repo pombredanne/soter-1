@@ -1,4 +1,9 @@
 <?php
+/**
+ * Template for vulnerable site HTML email notiication.
+ *
+ * @package soter
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

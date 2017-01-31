@@ -19,13 +19,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Options_Page {
 	/**
 	 * Settings object.
+	 *
+	 * @var Map_Option
 	 */
 	protected $settings;
 
+	/**
+	 * Template object.
+	 *
+	 * @var Template
+	 */
 	protected $template;
 
 	/**
-	 * Constructor.
+	 * Class constructor.
+	 *
+	 * @param Map_Option $settings Settings object.
+	 * @param Template   $template Template object.
 	 */
 	public function __construct( Map_Option $settings, Template $template ) {
 		$this->settings = $settings;
@@ -123,6 +133,9 @@ class Options_Page {
 		] );
 	}
 
+	/**
+	 * Renders the html email field.
+	 */
 	public function render_html_email() {
 		$enabled = $this->settings->get( 'html_email', false );
 
@@ -144,7 +157,7 @@ class Options_Page {
 	public function render_ignored_plugins() {
 		$plugins = get_plugins();
 		$plugins = array_map( function( $key, $value ) {
-			list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $key );
+			list( $slug, $_ ) = explode( DIRECTORY_SEPARATOR, $key );
 
 			return [ 'name' => $value['Name'], 'slug' => $slug ];
 		}, array_keys( $plugins ), $plugins );
@@ -199,16 +212,24 @@ class Options_Page {
 	 * Renders the main page section.
 	 */
 	public function render_section_main() {
+		// @todo Move this into a template file?
 		echo '<p>The main settings for the Soter Security Checker plugin.</p>';
 	}
 
+	/**
+	 * Sanitizes an array of settings to be saved to the database.
+	 *
+	 * @param  array $values Array of plugin settings as received from user.
+	 *
+	 * @return array
+	 */
 	public function sanitize( array $values ) {
 		$sanitized = [];
 
 		// Array of installed plugin slugs.
 		$valid_plugins = array_map( function( $value ) {
 			// Does WP use DIRECTORY_SEPARATOR or is it always /?
-			list( $slug, $basename ) = explode( DIRECTORY_SEPARATOR, $value );
+			list( $slug, $_ ) = explode( DIRECTORY_SEPARATOR, $value );
 
 			return $slug;
 		}, array_keys( get_plugins() ) );

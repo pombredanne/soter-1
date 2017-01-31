@@ -1,4 +1,9 @@
 <?php
+/**
+ * Full vulnerable site notice.
+ *
+ * @package soter
+ */
 
 namespace SSNepenthe\Soter\Notices;
 
@@ -12,11 +17,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/**
+ * This class adds an admin notice with details of all current vulnerabilities.
+ */
 class Vulnerable_Site {
+	/**
+	 * Cache instance.
+	 *
+	 * @var Cache_Interface
+	 */
 	protected $cache;
+
+	/**
+	 * Template instance.
+	 *
+	 * @var Template
+	 */
 	protected $template;
+
+	/**
+	 * List of vulnerability IDs that currently affect the site.
+	 *
+	 * @var int[]
+	 */
 	protected $vuln_ids;
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param Template        $template Template instance.
+	 * @param Cache_Interface $cache    Cache instance.
+	 * @param int[]           $vuln_ids List of vulnerability IDs for notice.
+	 */
 	public function __construct(
 		Template $template,
 		Cache_Interface $cache,
@@ -27,10 +59,16 @@ class Vulnerable_Site {
 		$this->vuln_ids = array_map( 'absint', $vuln_ids );
 	}
 
+	/**
+	 * Hook the notice in to WordPress.
+	 */
 	public function init() {
 		add_action( 'admin_notices', [ $this, 'print_notice' ] );
 	}
 
+	/**
+	 * Prints the actual notice.
+	 */
 	public function print_notice() {
 		if ( 'settings_page_soter' !== get_current_screen()->id ) {
 			return;
@@ -50,6 +88,11 @@ class Vulnerable_Site {
 		);
 	}
 
+	/**
+	 * Generates the data array to be used by the template.
+	 *
+	 * @return array
+	 */
 	protected function generate_template_data() {
 		$vulnerabilities = $this->generate_vulnerabilities_array();
 		$count = count( $vulnerabilities );
@@ -58,6 +101,11 @@ class Vulnerable_Site {
 		return compact( 'count', 'label', 'vulnerabilities' );
 	}
 
+	/**
+	 * Generates and caches the vulnerabilities array for the template data.
+	 *
+	 * @return array
+	 */
 	protected function generate_vulnerabilities_array() {
 		$key = 'vulnerabilities_list_' . implode( '', $this->vuln_ids );
 
