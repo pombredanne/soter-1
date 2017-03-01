@@ -230,6 +230,7 @@ class Plugin {
 	 */
 	protected function plugin_init() {
 		$features = [
+			new Register_User_Meta,
 			new Register_Vulnerability_Post_Type,
 		];
 

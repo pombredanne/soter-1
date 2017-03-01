@@ -44,30 +44,76 @@ class Vulnerable_Site_Abbreviated {
 	}
 
 	/**
-	 * Hooks the notice in to WordPress.
+	 * Hooks the class in to WordPress.
 	 */
 	public function init() {
+		add_action(
+			'admin_enqueue_scripts',
+			[ $this, 'print_dismiss_notice_script']
+		);
 		add_action( 'admin_notices', [ $this, 'print_notice' ] );
+	}
+
+	/**
+	 * Prints the notice dismissal javascript.
+	 */
+	public function print_dismiss_notice_script() {
+		if ( ! $this->should_print_notice() ) {
+			return;
+		}
+
+		$data = [
+			'url' => esc_url_raw( get_rest_url() ) . 'wp/v2/users/me/',
+			'nonce' => wp_create_nonce( 'wp_rest' ),
+		];
+
+		wp_add_inline_script(
+			'jquery-core',
+			$this->template->render( 'scripts/dismiss-notice', $data )
+		);
+	}
+
+	/**
+	 * Determine whether or not this notice should be printed.
+	 *
+	 * @return bool
+	 */
+	protected function should_print_notice() {
+		if ( 'settings_page_soter' === get_current_screen()->id ) {
+			return false;
+		}
+
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			return false;
+		}
+
+		if ( empty( $this->vuln_ids ) ) {
+			return false;
+		}
+
+		$until = get_user_meta(
+			get_current_user_id(),
+			'soter_notice_dismissed',
+			true
+		);
+
+		if ( $until && time() <= $until ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
 	 * Prints the actual notice.
 	 */
 	public function print_notice() {
-		if ( 'settings_page_soter' === get_current_screen()->id ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'update_plugins' ) ) {
-			return;
-		}
-
-		if ( empty( $this->vuln_ids ) ) {
+		if ( ! $this->should_print_notice() ) {
 			return;
 		}
 
 		$count = count( $this->vuln_ids );
-		$label = 1 < $count ? 'vulnerabilities' : 'vulnerability';
+		$label = 1 === $count ? 'vulnerability' : 'vulnerabilities';
 
 		$this->template->output(
 			'notices/vulnerable-site-abbreviated',

@@ -96,7 +96,7 @@ class Vulnerable_Site {
 	protected function generate_template_data() {
 		$vulnerabilities = $this->generate_vulnerabilities_array();
 		$count = count( $vulnerabilities );
-		$label = 1 < $count ? 'vulnerabilities' : 'vulnerability';
+		$label = 1 === $count ? 'vulnerability' : 'vulnerabilities';
 
 		return compact( 'count', 'label', 'vulnerabilities' );
 	}
