@@ -61,30 +61,7 @@ class Template {
 			return;
 		}
 
-		global $comment,
-			   $id,
-			   $posts,
-			   $post,
-			   $user_ID,
-			   $wp,
-			   $wp_did_header,
-			   $wp_query,
-			   $wp_rewrite,
-			   $wp_version,
-			   $wpdb;
-
-		if ( is_array( $wp_query->query_vars ) ) {
-			extract( $wp_query->query_vars, EXTR_SKIP );
-		}
-
-		if ( isset( $s ) ) {
-			$s = esc_attr( $s );
-		}
-
-		// Explicitly passed data may overwrite global data...
-		extract( $data, EXTR_SKIP );
-
-		include $template;
+		static::include_template( $template, $data );
 	}
 
 	/**
@@ -125,5 +102,32 @@ class Template {
 		}
 
 		return $candidates;
+	}
+
+	protected static function include_template( $template, $data ) {
+		global $comment,
+			   $id,
+			   $posts,
+			   $post,
+			   $user_ID,
+			   $wp,
+			   $wp_did_header,
+			   $wp_query,
+			   $wp_rewrite,
+			   $wp_version,
+			   $wpdb;
+
+		if ( is_array( $wp_query->query_vars ) ) {
+			extract( $wp_query->query_vars, EXTR_SKIP );
+		}
+
+		if ( isset( $s ) ) {
+			$s = esc_attr( $s );
+		}
+
+		// Explicitly passed data may overwrite global data...
+		extract( $data, EXTR_SKIP );
+
+		include $template;
 	}
 }
