@@ -38,7 +38,7 @@ $soter_checker = new SSNepenthe\Soter\Requirements_Checker(
 );
 
 // For use of short array syntax.
-$soter_checker->set_min_php( '5.4' );
+$soter_checker->set_min_php( '5.6' );
 
 if ( $soter_checker->requirements_met() ) {
 	$soter_plugin = new SSNepenthe\Soter\Plugin( __FILE__ );
