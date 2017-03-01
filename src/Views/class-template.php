@@ -82,7 +82,7 @@ class Template {
 		}
 
 		// Explicitly passed data may overwrite global data...
-		extract( $data );
+		extract( $data, EXTR_SKIP );
 
 		include $template;
 	}
