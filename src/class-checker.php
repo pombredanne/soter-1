@@ -48,13 +48,6 @@ class Checker {
 	protected $client;
 
 	/**
-	 * List of callbacks to fire after each package is checked.
-	 *
-	 * @var Closure[]
-	 */
-	protected $post_package_check_callbacks = [];
-
-	/**
 	 * List of ignored plugins.
 	 *
 	 * @var string[]
@@ -83,15 +76,6 @@ class Checker {
 		$this->client = $client;
 		$this->ignored_plugins = $ignored_plugins;
 		$this->ignored_themes = $ignored_themes;
-	}
-
-	/**
-	 * Add a callback to be fired after each package check.
-	 *
-	 * @param Closure $callback Post package-check callback.
-	 */
-	public function add_post_package_check_callback( Closure $callback ) {
-		$this->post_package_check_callbacks[] = $callback;
 	}
 
 	/**
@@ -317,8 +301,6 @@ class Checker {
 				$vulnerabilities,
 				$this->check_package( $package )
 			);
-
-			$this->do_post_package_check_callbacks();
 		}
 
 		$vulnerabilities = array_unique( $vulnerabilities );
@@ -326,14 +308,5 @@ class Checker {
 		do_action( 'soter_check_packages_complete', $vulnerabilities );
 
 		return $vulnerabilities;
-	}
-
-	/**
-	 * Triggers all post-check callbacks.
-	 */
-	protected function do_post_package_check_callbacks() {
-		foreach ( $this->post_package_check_callbacks as $callback ) {
-			$callback();
-		}
 	}
 }

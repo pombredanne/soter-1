@@ -208,13 +208,15 @@ class Security_Command {
 			$package_count
 		);
 
-		$this->checker->add_post_package_check_callback(
-			function() use ( $progress ) {
-				$progress->tick();
-			}
-		);
+		$ticker = function() use ( $progress ) {
+			$progress->tick();
+		};
+
+		add_action( 'soter_check_package_complete', $ticker );
 
 		$vulnerabilities = $this->checker->check_site();
+
+		remove_action( 'soter_check_package_complete', $ticker );
 
 		$progress->finish();
 
