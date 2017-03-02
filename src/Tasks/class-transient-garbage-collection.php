@@ -35,7 +35,7 @@ class Transient_Garbage_Collection {
 	 * @param string $prefix Transient prefix.
 	 */
 	public function __construct( $prefix ) {
-		$this->prefix = (string) $prefix . '_';
+		$this->prefix = substr( (string) $prefix, 0, 12 ) . '_';
 	}
 
 	/**
