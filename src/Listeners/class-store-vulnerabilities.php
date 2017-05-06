@@ -37,7 +37,11 @@ class Store_Vulnerabilities {
 	 *
 	 * @param  Vulnerability[] $vulnerabilities A list of detected vulnerabilities.
 	 */
-	public function store_vulnerabilities( array $vulnerabilities ) {
+	public function store_vulnerabilities( $vulnerabilities ) {
+		if ( $vulnerabilities instanceof Vulnerability ) {
+			$vulnerabilities = [ $vulnerabilities ];
+		}
+
 		if ( empty( $vulnerabilities ) ) {
 			return;
 		}

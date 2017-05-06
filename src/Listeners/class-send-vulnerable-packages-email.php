@@ -81,7 +81,11 @@ class Send_Vulnerable_Packages_Email {
 	 *
 	 * @param  Vulnerability[] $vulnerabilities List of vulnerabilities detected.
 	 */
-	public function send_email( array $vulnerabilities ) {
+	public function send_email( $vulnerabilities ) {
+		if ( $vulnerabilities instanceof Vulnerability ) {
+			$vulnerabilities = [ $vulnerabilities ];
+		}
+
 		if ( empty( $vulnerabilities ) ) {
 			return;
 		}
