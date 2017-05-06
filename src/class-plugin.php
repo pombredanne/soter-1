@@ -248,8 +248,8 @@ class Plugin {
 			$settings = $this->resolve( 'settings' );
 
 			return new Checker(
-				$settings->get( 'ignored_plugins' ),
-				$settings->get( 'ignored_themes' ),
+				$settings->get( 'ignored_plugins', [] ),
+				$settings->get( 'ignored_themes', [] ),
 				$this->resolve( 'api' )
 			);
 		} );
