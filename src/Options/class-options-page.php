@@ -157,7 +157,8 @@ class Options_Page {
 	public function render_ignored_plugins() {
 		$plugins = get_plugins();
 		$plugins = array_map( function( $key, $value ) {
-			list( $slug, $_ ) = explode( DIRECTORY_SEPARATOR, $key );
+			$parts = explode( DIRECTORY_SEPARATOR, $key );
+			$slug = reset( $parts );
 
 			return [ 'name' => $value['Name'], 'slug' => $slug ];
 		}, array_keys( $plugins ), $plugins );
@@ -229,7 +230,8 @@ class Options_Page {
 		// Array of installed plugin slugs.
 		$valid_plugins = array_map( function( $value ) {
 			// Does WP use DIRECTORY_SEPARATOR or is it always /?
-			list( $slug, $_ ) = explode( DIRECTORY_SEPARATOR, $value );
+			$parts = explode( DIRECTORY_SEPARATOR, $value );
+			$slug = reset( $parts );
 
 			return $slug;
 		}, array_keys( get_plugins() ) );

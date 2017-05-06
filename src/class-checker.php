@@ -171,7 +171,8 @@ class Checker {
 				array_filter(
 					array_map(
 						function( $file, $plugin ) {
-							list( $slug, $_ ) = explode( DIRECTORY_SEPARATOR, $file );
+							$parts = explode( DIRECTORY_SEPARATOR, $file );
+							$slug = reset( $parts );
 
 							return new Package( $slug, 'plugins', $plugin['Version'] );
 						},
