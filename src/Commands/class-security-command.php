@@ -79,6 +79,11 @@ class Security_Command {
 		$version = isset( $args[1] ) ? $args[1] : null;
 
 		$response = $this->checker->get_client()->plugins( $plugin );
+
+		if ( is_wp_error( $response ) ) {
+			WP_CLI::error( $response->get_error_message() );
+		}
+
 		$vulnerabilities = $response->vulnerabilities_by_version( $version );
 
 		$this->display_results( $vulnerabilities, $assoc_args );
@@ -126,6 +131,11 @@ class Security_Command {
 		$version = isset( $args[1] ) ? $args[1] : null;
 
 		$response = $this->checker->get_client()->themes( $theme );
+
+		if ( is_wp_error( $response ) ) {
+			WP_CLI::error( $response->get_error_message() );
+		}
+
 		$vulnerabilities = $response->vulnerabilities_by_version( $version );
 
 		$this->display_results( $vulnerabilities, $assoc_args );
@@ -167,6 +177,11 @@ class Security_Command {
 		$version = str_replace( '.', '', $args[0] );
 
 		$response = $this->checker->get_client()->wordpresses( $version );
+
+		if ( is_wp_error( $response ) ) {
+			WP_CLI::error( $response->get_error_message() );
+		}
+
 		$vulnerabilities = $response->vulnerabilities_by_version();
 
 		$this->display_results( $vulnerabilities, $assoc_args );
