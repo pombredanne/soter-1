@@ -30,15 +30,10 @@ if ( file_exists( $soter_autoloader ) ) {
 	require_once $soter_autoloader;
 }
 
-// The checker class itself requires PHP 5.3 for namespace support. Since Composer
-// requires 5.3.2 I plan on leaving this as-is.
-$soter_checker = new SSNepenthe\Soter\Requirements_Checker(
-	'Soter',
-	$soter_basename
-);
+$soter_checker = new WP_Requirements\Plugin_Checker( 'Soter', __FILE__ );
 
 // For use of short array syntax.
-$soter_checker->set_min_php( '5.6' );
+$soter_checker->php_at_least( '5.6' );
 
 if ( $soter_checker->requirements_met() ) {
 	$soter_plugin = new SSNepenthe\Soter\Plugin( __FILE__ );
@@ -47,8 +42,7 @@ if ( $soter_checker->requirements_met() ) {
 	register_activation_hook( __FILE__, [ $soter_plugin, 'activate' ] );
 	register_deactivation_hook( __FILE__, [ $soter_plugin, 'deactivate' ] );
 } else {
-	add_action( 'admin_init', [ $soter_checker, 'deactivate' ] );
-	add_action( 'admin_notices', [ $soter_checker, 'notify' ] );
+	$soter_checker->deactivate_and_notify();
 }
 
 unset(
