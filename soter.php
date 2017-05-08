@@ -32,7 +32,7 @@ if ( file_exists( $soter_autoloader ) ) {
 
 $soter_checker = new WP_Requirements\Plugin_Checker( 'Soter', __FILE__ );
 
-// For use of short array syntax.
+// Variadic functions, argument unpacking, use function.
 $soter_checker->php_at_least( '5.6' );
 
 if ( $soter_checker->requirements_met() ) {
