@@ -22,13 +22,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
-$soter_dir = plugin_dir_path( __FILE__ );
-$soter_basename = plugin_basename( __FILE__ );
-$soter_autoloader = $soter_dir . 'vendor/autoload.php';
-
-if ( file_exists( $soter_autoloader ) ) {
-	require_once $soter_autoloader;
+/**
+ * Require a file (once) if it exists.
+ *
+ * @param  string $file The file to check and require.
+ *
+ * @return void
+ */
+function _soter_require_if_exists( $file ) {
+	if ( file_exists( $file ) ) {
+		require_once $file;
+	}
 }
+
+_soter_require_if_exists( __DIR__ . '/vendor/autoload.php' );
 
 $soter_checker = new WP_Requirements\Plugin_Checker( 'Soter', __FILE__ );
 
@@ -45,10 +52,4 @@ if ( $soter_checker->requirements_met() ) {
 	$soter_checker->deactivate_and_notify();
 }
 
-unset(
-	$soter_autoloader,
-	$soter_basename,
-	$soter_checker,
-	$soter_dir,
-	$soter_plugin
-);
+unset( $soter_checker, $soter_plugin );
