@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter;
+namespace Soter;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

@@ -5,9 +5,9 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Notices;
+namespace Soter\Notices;
 
-use SSNepenthe\Soter\Views\Template;
+use Soter\Views\Template;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

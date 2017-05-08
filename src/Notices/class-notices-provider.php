@@ -1,6 +1,6 @@
 <?php
 
-namespace SSNepenthe\Soter\Notices;
+namespace Soter\Notices;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;

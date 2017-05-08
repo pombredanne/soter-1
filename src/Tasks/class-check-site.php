@@ -5,10 +5,10 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Tasks;
+namespace Soter\Tasks;
 
 use Soter_Core\Checker;
-use SSNepenthe\Soter\Options\Map_Option;
+use Soter\Options\Map_Option;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

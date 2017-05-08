@@ -5,9 +5,9 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Listeners;
+namespace Soter\Listeners;
 
-use SSNepenthe\Soter\Views\Template;
+use Soter\Views\Template;
 use Soter_Core\Vulnerability_Interface;
 
 if ( ! defined( 'ABSPATH' ) ) {

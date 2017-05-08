@@ -1,13 +1,13 @@
 <?php
 
-namespace SSNepenthe\Soter;
+namespace Soter;
 
 use Pimple\Container;
+use Soter\Tasks\Check_Site;
+use Soter\Options\Options_Provider;
 use Pimple\ServiceProviderInterface;
-use SSNepenthe\Soter\Tasks\Check_Site;
-use SSNepenthe\Soter\Options\Options_Provider;
-use SSNepenthe\Soter\Tasks\Transient_Garbage_Collection;
-use SSNepenthe\Soter\Tasks\Vulnerability_Garbage_Collection;
+use Soter\Tasks\Transient_Garbage_Collection;
+use Soter\Tasks\Vulnerability_Garbage_Collection;
 
 class Plugin_Provider implements ServiceProviderInterface {
 	protected $file;

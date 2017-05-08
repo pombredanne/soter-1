@@ -5,13 +5,13 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Notices;
+namespace Soter\Notices;
 
 use DateTime;
 use WP_Query;
+use Soter\Views\Template;
 use Soter_Core\Cache_Interface;
-use SSNepenthe\Soter\Views\Template;
-use SSNepenthe\Soter\Register_Vulnerability_Post_Type;
+use Soter\Register_Vulnerability_Post_Type;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

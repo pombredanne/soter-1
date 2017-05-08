@@ -1,6 +1,6 @@
 <?php
 
-namespace SSNepenthe\Soter\Listeners;
+namespace Soter\Listeners;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;

@@ -1,6 +1,6 @@
 <?php
 
-namespace SSNepenthe\Soter\Views;
+namespace Soter\Views;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;

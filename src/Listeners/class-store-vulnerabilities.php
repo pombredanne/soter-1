@@ -5,12 +5,12 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Listeners;
+namespace Soter\Listeners;
 
 use WP_Post;
 use WP_Query;
 use Soter_Core\Vulnerability_Interface;
-use SSNepenthe\Soter\Register_Vulnerability_Post_Type;
+use Soter\Register_Vulnerability_Post_Type;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

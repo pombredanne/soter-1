@@ -5,10 +5,9 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Options;
+namespace Soter\Options;
 
-use SSNepenthe\Soter\Views\Template;
-use SSNepenthe\Soter\Options\Options_Provider;
+use Soter\Views\Template;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter\Views;
+namespace Soter\Views;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

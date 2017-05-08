@@ -1,6 +1,6 @@
 <?php
 
-namespace SSNepenthe\Soter;
+namespace Soter;
 
 use Pimple\Container;
 use Soter_Core\Checker;

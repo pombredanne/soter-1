@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace SSNepenthe\Soter;
+namespace Soter;
 
 use Closure;
 use Pimple\Container;

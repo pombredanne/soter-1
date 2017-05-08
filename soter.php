@@ -43,7 +43,7 @@ $soter_checker = new WP_Requirements\Plugin_Checker( 'Soter', __FILE__ );
 $soter_checker->php_at_least( '5.6' );
 
 if ( $soter_checker->requirements_met() ) {
-	$soter_plugin = new SSNepenthe\Soter\Plugin( [
+	$soter_plugin = new Soter\Plugin( [
 		'dir' => plugin_dir_path( __FILE__ ),
 		'file' => __FILE__,
 		'prefix' => 'soter',
@@ -52,13 +52,13 @@ if ( $soter_checker->requirements_met() ) {
 	] );
 
 	$providers = [
-		new SSNepenthe\Soter\Listeners\Listeners_Provider,
-		new SSNepenthe\Soter\Notices\Notices_Provider,
-		new SSNepenthe\Soter\Options\Options_Provider,
-		new SSNepenthe\Soter\Tasks\Tasks_Provider,
-		new SSNepenthe\Soter\Views\View_Provider,
-		new SSNepenthe\Soter\Plugin_Provider,
-		new SSNepenthe\Soter\Soter_Core_Provider,
+		new Soter\Listeners\Listeners_Provider,
+		new Soter\Notices\Notices_Provider,
+		new Soter\Options\Options_Provider,
+		new Soter\Tasks\Tasks_Provider,
+		new Soter\Views\View_Provider,
+		new Soter\Plugin_Provider,
+		new Soter\Soter_Core_Provider,
 	];
 
 	foreach ( $providers as $provider ) {

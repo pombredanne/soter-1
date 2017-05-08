@@ -1,6 +1,6 @@
 <?php
 
-namespace SSNepenthe\Soter\Tasks;
+namespace Soter\Tasks;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
