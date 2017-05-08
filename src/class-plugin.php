@@ -7,7 +7,6 @@
 
 namespace SSNepenthe\Soter;
 
-use WP_CLI;
 use Closure;
 use Pimple\Container;
 
@@ -16,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * This class acts as the plugin bootstrap, handling WordPress, WP-CLI and WP-Cron.
+ * This class acts as the plugin bootstrap, handling WordPress and WP-Cron.
  */
 class Plugin extends Container {
 	/**
@@ -44,7 +43,6 @@ class Plugin extends Container {
 		$this->upgrader_init();
 
 		$this->admin_init();
-		$this->cli_init();
 		$this->cron_init();
 		$this->listeners_init();
 		$this->plugin_init();
@@ -96,23 +94,6 @@ class Plugin extends Container {
 	}
 
 	/**
-	 * Initializes CLI-specific plugin functionality.
-	 */
-	protected function cli_init() {
-		if ( ! $this->is_cli_request() ) {
-			return;
-		}
-
-		$commands = [
-			'security' => new Commands\Security_Command( $this['checker'] ),
-		];
-
-		foreach ( $commands as $name => $callable ) {
-			WP_CLI::add_command( $name, $callable );
-		}
-	}
-
-	/**
 	 * Initializes cron-specific plugin functionality.
 	 */
 	protected function cron_init() {
@@ -134,15 +115,6 @@ class Plugin extends Container {
 	}
 
 	/**
-	 * Determine if a given request comes from WP-CLI.
-	 *
-	 * @return boolean
-	 */
-	protected function is_cli_request() {
-		return defined( 'WP_CLI' ) && WP_CLI;
-	}
-
-	/**
 	 * Determine if a given request comes from WP-Cron.
 	 *
 	 * @return boolean
@@ -155,7 +127,7 @@ class Plugin extends Container {
 	 * Initializes generic listener functionality.
 	 */
 	protected function listeners_init() {
-		if ( ! $this->is_cron_request() && ! $this->is_cli_request() ) {
+		if ( ! $this->is_cron_request() ) {
 			return;
 		}
 
@@ -264,11 +236,7 @@ class Plugin extends Container {
 	 * Initializes the plugin upgrader functionality.
 	 */
 	protected function upgrader_init() {
-		if (
-			! $this->is_cli_request()
-			&& ! $this->is_cron_request()
-			&& ! is_admin()
-		) {
+		if ( ! $this->is_cron_request() && ! is_admin() ) {
 			return;
 		}
 
