@@ -102,7 +102,7 @@ class Plugin extends Container {
 		}
 
 		$tasks = [
-			new Tasks\Check_Site( $this['checker'] ),
+			new Tasks\Check_Site( $this['checker'], $this['settings'] ),
 			new Tasks\Transient_Garbage_Collection( $this['prefix'] ),
 			new Tasks\Vulnerability_Garbage_Collection(
 				$this['results']->all()
@@ -169,11 +169,7 @@ class Plugin extends Container {
 	protected function register_components() {
 		// Can't share instances b/c each gets different post check callbacks.
 		$this['checker'] = $this->factory( function( Container $c ) {
-			return new Checker(
-				$c['settings']->get( 'ignored_plugins', [] ),
-				$c['settings']->get( 'ignored_themes', [] ),
-				$c['api']
-			);
+			return new \Soter_Core\Checker( $c['api'] );
 		} );
 
 		// Can't share instances b/c some can't be overridable.
@@ -196,15 +192,15 @@ class Plugin extends Container {
 		);
 
 		$this['api'] = function( Container $c ) {
-			return new WPScan\Api_Client( $c['http'], $c['cache'] );
+			return new \Soter_Core\Api_Client( $c['http'], $c['cache'] );
 		};
 
 		$this['cache'] = function( Container $c ) {
-			return new Cache\WP_Transient_Cache( $c['prefix'] );
+			return new \Soter_Core\WP_Transient_Cache( $c['prefix'] );
 		};
 
 		$this['http'] = function( Container $c ) {
-			return new Http\WP_Http_Client( $c['user-agent'] );
+			return new \Soter_Core\WP_Http_Client( $c['user-agent'] );
 		};
 
 		$this['results'] = function( Container $c ) {

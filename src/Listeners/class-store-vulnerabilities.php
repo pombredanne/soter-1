@@ -9,7 +9,7 @@ namespace SSNepenthe\Soter\Listeners;
 
 use WP_Post;
 use WP_Query;
-use SSNepenthe\Soter\WPScan\Vulnerability;
+use Soter_Core\Vulnerability_Interface;
 use SSNepenthe\Soter\Register_Vulnerability_Post_Type;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,7 +27,7 @@ class Store_Vulnerabilities {
 	 */
 	public function init() {
 		add_action(
-			'soter_check_packages_complete',
+			'soter_core_check_packages_complete',
 			[ $this, 'store_vulnerabilities' ]
 		);
 	}
@@ -35,10 +35,10 @@ class Store_Vulnerabilities {
 	/**
 	 * Inserts individual posts into the database.
 	 *
-	 * @param  Vulnerability[] $vulnerabilities A list of detected vulnerabilities.
+	 * @param  Vulnerability_Interface[] $vulnerabilities A list of vulnerabilities.
 	 */
 	public function store_vulnerabilities( $vulnerabilities ) {
-		if ( $vulnerabilities instanceof Vulnerability ) {
+		if ( $vulnerabilities instanceof Vulnerability_Interface ) {
 			$vulnerabilities = [ $vulnerabilities ];
 		}
 
@@ -71,32 +71,37 @@ class Store_Vulnerabilities {
 	/**
 	 * Create a WordPress compatible post array from a given vulnerability.
 	 *
-	 * @param  Vulnerability $vulnerability The vulnerability to create a post from.
+	 * @param  Vulnerability_Interface $vulnerability Vulnerability instance.
 	 *
 	 * @return array
 	 */
-	protected function create_post_array_from_vuln( Vulnerability $vulnerability ) {
+	protected function create_post_array_from_vuln(
+		Vulnerability_Interface $vulnerability
+	) {
+		$meta_input = [];
+
+		foreach ( [ 'id', 'fixed_in', 'vuln_type' ] as $prop ) {
+			if ( $vulnerability->{$prop} ) {
+				$key = "soter_{$prop}";
+				$meta_input[ $key ] = $vulnerability->{$prop};
+			}
+		}
+
+		foreach ( [ 'created_at', 'updated_at', 'published_date' ] as $timestamp ) {
+			if ( isset( $vulnerability->get_raw()[ $timestamp ] ) ) {
+				$key = "soter_{$timestamp}";
+				$meta_input[ $key ] = $vulnerability->get_raw()[ $timestamp ];
+			}
+		}
+
 		$array = [
 			'comment_status' => 'closed',
-			'meta_input' => [
-				'soter_id' => $vulnerability->id,
-				'soter_created_at' => $vulnerability->get_data()['created_at'],
-				'soter_updated_at' => $vulnerability->get_data()['updated_at'],
-				'soter_vuln_type' => $vulnerability->vuln_type,
-			],
+			'meta_input' => $meta_input,
 			'ping_status' => 'closed',
 			'post_status' => Register_Vulnerability_Post_Type::POST_STATUS,
 			'post_title' => $vulnerability->title,
 			'post_type' => Register_Vulnerability_Post_Type::POST_TYPE,
 		];
-
-		if ( $vulnerability->published_date ) {
-			$array['meta_input']['soter_published_date'] = $vulnerability->get_data()['published_date'];
-		}
-
-		if ( $vulnerability->fixed_in ) {
-			$array['meta_input']['soter_fixed_in'] = $vulnerability->fixed_in;
-		}
 
 		return $array;
 	}
@@ -134,13 +139,13 @@ class Store_Vulnerabilities {
 	 * Determine if a given vulnerability has a corresponding post object in a given
 	 * array of WP_Post objects.
 	 *
-	 * @param  Vulnerability $vulnerability The vulnerability to check for.
+	 * @param  Vulnerability_Interface $vulnerability The vulnerability to check for.
 	 * @param  WP_Post[]     $posts         The list of posts to check in.
 	 *
 	 * @return WP_Post|false
 	 */
 	protected function vulnerability_in_post_array(
-		Vulnerability $vulnerability,
+		Vulnerability_Interface $vulnerability,
 		array $posts
 	) {
 		foreach ( $posts as $post ) {
@@ -155,13 +160,13 @@ class Store_Vulnerabilities {
 	/**
 	 * Check whether a vulnerability matches a post by comparing the WPScan ID.
 	 *
-	 * @param  Vulnerability $vulnerability The vulnerability to compare.
+	 * @param  Vulnerability_Interface $vulnerability The vulnerability to compare.
 	 * @param  WP_Post       $post          The post to compare.
 	 *
 	 * @return bool
 	 */
 	protected function vulnerability_matches_post(
-		Vulnerability $vulnerability,
+		Vulnerability_Interface $vulnerability,
 		WP_Post $post
 	) {
 		$post_api_id = intval( get_post_meta( $post->ID, 'soter_id', true ) );

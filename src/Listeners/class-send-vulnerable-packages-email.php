@@ -8,7 +8,7 @@
 namespace SSNepenthe\Soter\Listeners;
 
 use SSNepenthe\Soter\Views\Template;
-use SSNepenthe\Soter\WPScan\Vulnerability;
+use Soter_Core\Vulnerability_Interface;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -73,16 +73,16 @@ class Send_Vulnerable_Packages_Email {
 	 * Hooks the notification functionality in to WordPress.
 	 */
 	public function init() {
-		add_action( 'soter_check_packages_complete', [ $this, 'send_email' ] );
+		add_action( 'soter_core_check_packages_complete', [ $this, 'send_email' ] );
 	}
 
 	/**
 	 * Sends the actual email when appropriate.
 	 *
-	 * @param  Vulnerability[] $vulnerabilities List of vulnerabilities detected.
+	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
 	 */
 	public function send_email( $vulnerabilities ) {
-		if ( $vulnerabilities instanceof Vulnerability ) {
+		if ( $vulnerabilities instanceof Vulnerability_Interface ) {
 			$vulnerabilities = [ $vulnerabilities ];
 		}
 
@@ -130,11 +130,13 @@ class Send_Vulnerable_Packages_Email {
 	/**
 	 * Generates a summary of a vulnerability for use in the template data.
 	 *
-	 * @param  Vulnerability $vulnerability A vulnerability thats needs summarizing.
+	 * @param  Vulnerability_Interface $vulnerability Vulnerability instance.
 	 *
 	 * @return array
 	 */
-	protected function generate_vuln_summary( Vulnerability $vulnerability ) {
+	protected function generate_vuln_summary(
+		Vulnerability_Interface $vulnerability
+	) {
 		$summary = [
 			'title' => $vulnerability->title,
 			'meta' => [],

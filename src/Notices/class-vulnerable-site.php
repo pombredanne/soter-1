@@ -9,8 +9,8 @@ namespace SSNepenthe\Soter\Notices;
 
 use DateTime;
 use WP_Query;
+use Soter_Core\Cache_Interface;
 use SSNepenthe\Soter\Views\Template;
-use SSNepenthe\Soter\Cache\Cache_Interface;
 use SSNepenthe\Soter\Register_Vulnerability_Post_Type;
 
 if ( ! defined( 'ABSPATH' ) ) {
