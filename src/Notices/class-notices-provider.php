@@ -5,6 +5,10 @@ namespace Soter\Notices;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 class Notices_Provider implements ServiceProviderInterface {
 	public function boot( Container $container ) {
 		if ( ! is_admin() ) {

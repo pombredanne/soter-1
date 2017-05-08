@@ -5,6 +5,10 @@ namespace Soter\Options;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 class Options_Provider implements ServiceProviderInterface {
 	const RESULTS_KEY = 'soter_results';
 	const SETTINGS_KEY = 'soter_settings';

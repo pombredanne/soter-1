@@ -9,6 +9,10 @@ use Soter_Core\WP_Http_Client;
 use Soter_Core\WP_Transient_Cache;
 use Pimple\ServiceProviderInterface;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 class Soter_Core_Provider implements ServiceProviderInterface {
 	public function register( Container $container ) {
 		$container['api'] = function( Container $c ) {

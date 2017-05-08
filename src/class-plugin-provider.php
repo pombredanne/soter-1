@@ -9,6 +9,10 @@ use Pimple\ServiceProviderInterface;
 use Soter\Tasks\Transient_Garbage_Collection;
 use Soter\Tasks\Vulnerability_Garbage_Collection;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 class Plugin_Provider implements ServiceProviderInterface {
 	protected $file;
 

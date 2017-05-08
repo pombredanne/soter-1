@@ -5,6 +5,10 @@ namespace Soter\Tasks;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 class Tasks_Provider implements ServiceProviderInterface {
 	public function boot( Container $container ) {
 		if ( ! $this->doing_cron() ) {

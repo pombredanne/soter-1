@@ -5,6 +5,10 @@ namespace Soter\Views;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 class View_Provider implements ServiceProviderInterface {
 	public function register( Container $container ) {
 		$container['views.core_locator'] = function( Container $c ) {
