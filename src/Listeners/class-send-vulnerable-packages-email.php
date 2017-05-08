@@ -70,13 +70,6 @@ class Send_Vulnerable_Packages_Email {
 	}
 
 	/**
-	 * Hooks the notification functionality in to WordPress.
-	 */
-	public function init() {
-		add_action( 'soter_core_check_packages_complete', [ $this, 'send_email' ] );
-	}
-
-	/**
 	 * Sends the actual email when appropriate.
 	 *
 	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.

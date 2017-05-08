@@ -39,15 +39,6 @@ class Transient_Garbage_Collection {
 	}
 
 	/**
-	 * Hooks the task functionality in to WordPress.
-	 *
-	 * Specifically, this piggybacks on the daily wp_scheduled_delete task.
-	 */
-	public function init() {
-		add_action( 'wp_scheduled_delete', [ $this, 'run_task' ] );
-	}
-
-	/**
 	 * Deletes all transients from the database with the specified prefix.
 	 *
 	 * Mostly swiped from populate_options() in wp-admin/includes/schema.php.

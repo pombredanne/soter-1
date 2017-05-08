@@ -23,16 +23,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Store_Vulnerabilities {
 	/**
-	 * Hooks the recording functionality in to WordPress.
-	 */
-	public function init() {
-		add_action(
-			'soter_core_check_packages_complete',
-			[ $this, 'store_vulnerabilities' ]
-		);
-	}
-
-	/**
 	 * Inserts individual posts into the database.
 	 *
 	 * @param  Vulnerability_Interface[] $vulnerabilities A list of vulnerabilities.

@@ -16,16 +16,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Register_User_Meta {
 	/**
-	 * Hooks the class in to WordPress.
-	 */
-	public function init() {
-		add_action( 'init', [ $this, 'register_user_meta' ] );
-	}
-
-	/**
 	 * Registers the soter_notice_dismissed user meta key.
 	 */
-	public function register_user_meta() {
+	public function register() {
 		register_meta( 'user', 'soter_notice_dismissed', [
 			'type' => 'integer',
 			'single' => true,

@@ -50,10 +50,22 @@ if ( $soter_checker->requirements_met() ) {
 		'url' => 'https://github.com/ssnepenthe/soter',
 		'version' => '0.4.0',
 	] );
-	$soter_plugin->init();
 
-	register_activation_hook( __FILE__, [ $soter_plugin, 'activate' ] );
-	register_deactivation_hook( __FILE__, [ $soter_plugin, 'deactivate' ] );
+	$providers = [
+		new SSNepenthe\Soter\Listeners\Listeners_Provider,
+		new SSNepenthe\Soter\Notices\Notices_Provider,
+		new SSNepenthe\Soter\Options\Options_Provider,
+		new SSNepenthe\Soter\Tasks\Tasks_Provider,
+		new SSNepenthe\Soter\Views\View_Provider,
+		new SSNepenthe\Soter\Plugin_Provider,
+		new SSNepenthe\Soter\Soter_Core_Provider,
+	];
+
+	foreach ( $providers as $provider ) {
+		$soter_plugin->register( $provider );
+	}
+
+	add_action( 'plugins_loaded', [ $soter_plugin, 'boot' ] );
 } else {
 	$soter_checker->deactivate_and_notify();
 }

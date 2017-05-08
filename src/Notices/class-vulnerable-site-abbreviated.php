@@ -44,17 +44,6 @@ class Vulnerable_Site_Abbreviated {
 	}
 
 	/**
-	 * Hooks the class in to WordPress.
-	 */
-	public function init() {
-		add_action(
-			'admin_enqueue_scripts',
-			[ $this, 'print_dismiss_notice_script']
-		);
-		add_action( 'admin_notices', [ $this, 'print_notice' ] );
-	}
-
-	/**
 	 * Prints the notice dismissal javascript.
 	 */
 	public function print_dismiss_notice_script() {

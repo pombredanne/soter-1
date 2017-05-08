@@ -60,13 +60,6 @@ class Vulnerable_Site {
 	}
 
 	/**
-	 * Hook the notice in to WordPress.
-	 */
-	public function init() {
-		add_action( 'admin_notices', [ $this, 'print_notice' ] );
-	}
-
-	/**
 	 * Prints the actual notice.
 	 */
 	public function print_notice() {

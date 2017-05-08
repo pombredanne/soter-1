@@ -46,13 +46,6 @@ class Upgrader {
 	}
 
 	/**
-	 * Hooks the class in to WordPress.
-	 */
-	public function init() {
-		add_action( 'plugins_loaded', [ $this, 'perform_upgrade' ] );
-	}
-
-	/**
 	 * Performs all necessary upgrade steps for current version.
 	 */
 	public function perform_upgrade() {

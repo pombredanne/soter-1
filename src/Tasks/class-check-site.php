@@ -40,13 +40,6 @@ class Check_Site {
 	}
 
 	/**
-	 * Hooks the task functionality in to WordPress.
-	 */
-	public function init() {
-		add_action( self::HOOK, [ $this, 'run_task' ] );
-	}
-
-	/**
 	 * Run the site check.
 	 */
 	public function run_task() {

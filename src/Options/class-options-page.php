@@ -8,6 +8,7 @@
 namespace SSNepenthe\Soter\Options;
 
 use SSNepenthe\Soter\Views\Template;
+use SSNepenthe\Soter\Options\Options_Provider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -43,20 +44,12 @@ class Options_Page {
 	}
 
 	/**
-	 * Hooks the class in to WordPress.
-	 */
-	public function init() {
-		add_action( 'admin_init', [ $this, 'admin_init' ] );
-		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
-	}
-
-	/**
 	 * Registers settings, sections and fields.
 	 */
 	public function admin_init() {
 		register_setting(
 			'soter_settings_group',
-			'soter_settings',
+			Options_Provider::SETTINGS_KEY,
 			[ $this, 'sanitize' ]
 		);
 
