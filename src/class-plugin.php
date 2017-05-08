@@ -76,7 +76,7 @@ class Plugin extends Container {
 		}
 
 		$results = $this['results'];
-		$template = $this['template']( false );
+		$template = $this['views.plugin'];
 
 		$features = [
 			new Notices\Vulnerable_Site(
@@ -136,7 +136,7 @@ class Plugin extends Container {
 		$listeners = [
 			new Listeners\Log_Vulnerability_Ids( $this['results'] ),
 			new Listeners\Send_Vulnerable_Packages_Email(
-				$this['template'](),
+				$this['views.overridable'],
 				$settings->get( 'enable_email', false ),
 				$settings->get( 'html_email', false ),
 				$settings->get( 'email_address', '' )
@@ -167,29 +167,32 @@ class Plugin extends Container {
 	 * Registers all needed values.
 	 */
 	protected function register_components() {
-		// Can't share instances b/c each gets different post check callbacks.
-		$this['checker'] = $this->factory( function( Container $c ) {
+		$this['checker'] = function( Container $c ) {
 			return new \Soter_Core\Checker( $c['api'] );
-		} );
+		};
 
-		// Can't share instances b/c some can't be overridable.
-		$container = $this;
+		$this['views.core_locator'] = function( Container $c ) {
+			return new Views\Core_Template_Locator;
+		};
 
-		$this['template'] = $this->protect(
-			function( $overridable = true ) use ( $container ) {
-				$stack = new Views\Template_Locator_Stack;
+		$this['views.plugin_locator'] = function( Container $c ) {
+			return new Views\Dir_Template_Locator( $c['dir'] );
+		};
 
-				if ( $overridable ) {
-					$stack->push( new Views\Core_Template_Locator );
-				}
+		$this['views.overridable'] = function( Container $c ) {
+			return new Views\Template(
+				new Views\Template_Locator_Stack( [
+					$c['views.core_locator'],
+					$c['views.plugin_locator']
+				] )
+			);
+		};
 
-				$stack->push(
-					new Views\Dir_Template_Locator( $container['dir'] )
-				);
-
-				return new Views\Template( $stack );
-			}
-		);
+		$this['views.plugin'] = function( Container $c ) {
+			return new Views\Template(
+				new Views\Template_Locator_Stack( [ $c['views.plugin_locator'] ] )
+			);
+		};
 
 		$this['api'] = function( Container $c ) {
 			return new \Soter_Core\Api_Client( $c['http'], $c['cache'] );
