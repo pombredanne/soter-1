@@ -43,7 +43,13 @@ $soter_checker = new WP_Requirements\Plugin_Checker( 'Soter', __FILE__ );
 $soter_checker->php_at_least( '5.6' );
 
 if ( $soter_checker->requirements_met() ) {
-	$soter_plugin = new SSNepenthe\Soter\Plugin( __FILE__ );
+	$soter_plugin = new SSNepenthe\Soter\Plugin( [
+		'dir' => plugin_dir_path( __FILE__ ),
+		'file' => __FILE__,
+		'prefix' => 'soter',
+		'url' => 'https://github.com/ssnepenthe/soter',
+		'version' => '0.4.0',
+	] );
 	$soter_plugin->init();
 
 	register_activation_hook( __FILE__, [ $soter_plugin, 'activate' ] );

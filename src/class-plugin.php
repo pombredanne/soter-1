@@ -9,6 +9,7 @@ namespace SSNepenthe\Soter;
 
 use WP_CLI;
 use Closure;
+use Pimple\Container;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -17,53 +18,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * This class acts as the plugin bootstrap, handling WordPress, WP-CLI and WP-Cron.
  */
-class Plugin {
-	/**
-	 * Main plugin file path, used for (de)activation hooks.
-	 *
-	 * @var string
-	 */
-	protected $file;
-
-	/**
-	 * Container entries which are resolved on each call.
-	 *
-	 * @var Closure[]
-	 */
-	protected $entries = [];
-
-	/**
-	 * Container entries which are cached after first access.
-	 *
-	 * @var Closure[]
-	 */
-	protected $shared_entries = [];
-
-	/**
-	 * Cached values returned from $shared_entries.
-	 *
-	 * @var array
-	 */
-	protected $shared_cache = [];
-
-	/**
-	 * Class constructor.
-	 *
-	 * @param string $file Main plugin file path.
-	 */
-	public function __construct( $file ) {
-		$this->file = (string) $file;
-
-		$this->register_components();
-	}
-
+class Plugin extends Container {
 	/**
 	 * Plugin activation hook - schedules WP-Cron event and registers uninstall hook.
 	 */
 	public function activate() {
 		wp_schedule_event( time(), 'twicedaily', Tasks\Check_Site::HOOK );
 
-		register_uninstall_hook( $this->file, [ __CLASS__, 'uninstall' ] );
+		register_uninstall_hook( $this['file'], [ __CLASS__, 'uninstall' ] );
 	}
 
 	/**
@@ -77,6 +39,8 @@ class Plugin {
 	 * Initializes/bootstraps the plugin.
 	 */
 	public function init() {
+		$this->register_components();
+
 		$this->upgrader_init();
 
 		$this->admin_init();
@@ -106,16 +70,6 @@ class Plugin {
 	}
 
 	/**
-	 * Adds an container entry.
-	 *
-	 * @param string  $key     Identifier for a given entry.
-	 * @param Closure $closure Function to call to get the value of a given entry.
-	 */
-	protected function add( string $key, Closure $closure ) {
-		$this->entries[ $key ] = $closure;
-	}
-
-	/**
 	 * Initializes admin-specific plugin functionality.
 	 */
 	protected function admin_init() {
@@ -123,17 +77,17 @@ class Plugin {
 			return;
 		}
 
-		$results = $this->resolve( 'results' );
-		$template = $this->resolve( 'template', false );
+		$results = $this['results'];
+		$template = $this['template']( false );
 
 		$features = [
 			new Notices\Vulnerable_Site(
 				$template,
-				$this->resolve( 'cache' ),
+				$this['cache'],
 				$results->all()
 			),
 			new Notices\Vulnerable_Site_Abbreviated( $template, $results->all() ),
-			new Options\Options_Page( $this->resolve( 'settings' ), $template ),
+			new Options\Options_Page( $this['settings'], $template ),
 		];
 
 		foreach ( $features as $feature ) {
@@ -150,9 +104,7 @@ class Plugin {
 		}
 
 		$commands = [
-			'security' => new Commands\Security_Command(
-				$this->resolve( 'checker' )
-			),
+			'security' => new Commands\Security_Command( $this['checker'] ),
 		];
 
 		foreach ( $commands as $name => $callable ) {
@@ -169,10 +121,10 @@ class Plugin {
 		}
 
 		$tasks = [
-			new Tasks\Check_Site( $this->resolve( 'checker' ) ),
-			new Tasks\Transient_Garbage_Collection( $this->resolve( 'prefix' ) ),
+			new Tasks\Check_Site( $this['checker'] ),
+			new Tasks\Transient_Garbage_Collection( $this['prefix'] ),
 			new Tasks\Vulnerability_Garbage_Collection(
-				$this->resolve( 'results' )->all()
+				$this['results']->all()
 			),
 		];
 
@@ -207,12 +159,12 @@ class Plugin {
 			return;
 		}
 
-		$settings = $this->resolve( 'settings' );
+		$settings = $this['settings'];
 
 		$listeners = [
-			new Listeners\Log_Vulnerability_Ids( $this->resolve( 'results' ) ),
+			new Listeners\Log_Vulnerability_Ids( $this['results'] ),
 			new Listeners\Send_Vulnerable_Packages_Email(
-				$this->resolve( 'template' ),
+				$this['template'](),
 				$settings->get( 'enable_email', false ),
 				$settings->get( 'html_email', false ),
 				$settings->get( 'email_address', '' )
@@ -244,118 +196,68 @@ class Plugin {
 	 */
 	protected function register_components() {
 		// Can't share instances b/c each gets different post check callbacks.
-		$this->add( 'checker', function() {
-			$settings = $this->resolve( 'settings' );
-
+		$this['checker'] = $this->factory( function( Container $c ) {
 			return new Checker(
-				$settings->get( 'ignored_plugins', [] ),
-				$settings->get( 'ignored_themes', [] ),
-				$this->resolve( 'api' )
+				$c['settings']->get( 'ignored_plugins', [] ),
+				$c['settings']->get( 'ignored_themes', [] ),
+				$c['api']
 			);
 		} );
 
 		// Can't share instances b/c some can't be overridable.
-		$this->add( 'template', function( $overridable = true ) {
-			$stack = new Views\Template_Locator_Stack;
+		$container = $this;
 
-			if ( $overridable ) {
-				$stack->push( new Views\Core_Template_Locator );
+		$this['template'] = $this->protect(
+			function( $overridable = true ) use ( $container ) {
+				$stack = new Views\Template_Locator_Stack;
+
+				if ( $overridable ) {
+					$stack->push( new Views\Core_Template_Locator );
+				}
+
+				$stack->push(
+					new Views\Dir_Template_Locator( $container['dir'] )
+				);
+
+				return new Views\Template( $stack );
 			}
+		);
 
-			$stack->push(
-				new Views\Dir_Template_Locator( plugin_dir_path( $this->file ) )
-			);
+		$this['api'] = function( Container $c ) {
+			return new WPScan\Api_Client( $c['http'], $c['cache'] );
+		};
 
-			return new Views\Template( $stack );
-		} );
+		$this['cache'] = function( Container $c ) {
+			return new Cache\WP_Transient_Cache( $c['prefix'] );
+		};
 
-		$this->share( 'api', function() {
-			return new WPScan\Api_Client(
-				$this->resolve( 'http' ),
-				$this->resolve( 'cache' )
-			);
-		} );
+		$this['http'] = function( Container $c ) {
+			return new Http\WP_Http_Client( $c['user-agent'] );
+		};
 
-		$this->share( 'cache', function() {
-			return new Cache\WP_Transient_Cache( $this->resolve( 'prefix' ) );
-		} );
-
-		$this->share( 'http', function() {
-			return new Http\WP_Http_Client( $this->resolve( 'user-agent' ) );
-		} );
-
-		$this->share( 'prefix', function() {
-			return 'soter';
-		} );
-
-		$this->share( 'results', function() {
+		$this['results'] = function( Container $c ) {
 			$results = new Options\List_Option( 'soter_results' );
 			$results->init();
 
 			return $results;
-		} );
+		};
 
-		$this->share( 'settings', function() {
+		$this['settings'] = function( Container $c ) {
 			$settings = new Options\Map_Option( 'soter_settings' );
 			$settings->init();
 
 			return $settings;
-		} );
+		};
 
-		$this->share( 'url', function() {
-			return 'https://github.com/ssnepenthe/soter';
-		} );
-
-		$this->share( 'user-agent', function() {
+		$this['user-agent'] = function( Container $c ) {
 			return sprintf(
 				'%s (%s) | Soter | v%s | %s',
 				get_bloginfo( 'name' ),
 				get_home_url(),
-				$this->resolve( 'version' ),
-				$this->resolve( 'url' )
+				$c['version'],
+				$c['url']
 			);
-		} );
-
-		$this->share( 'version', function() {
-			return '0.4.0';
-		} );
-	}
-
-	/**
-	 * Resolves a given entry by first looking in the cache, then shared entries and
-	 * finally generic entries.
-	 *
-	 * @param  string $key     Entry key to resolve.
-	 * @param  mixed  ...$args Any args that should be passed to a given entry.
-	 *
-	 * @return mixed
-	 */
-	protected function resolve( string $key, ...$args ) {
-		if ( isset( $this->shared_cache[ $key ] ) ) {
-			return $this->shared_cache[ $key ];
-		}
-
-		if ( isset( $this->shared_entries[ $key ] ) ) {
-			return $this->shared_cache[ $key ] = $this->shared_entries[ $key ]();
-		}
-
-		// Args are only used for non-shared entries.
-		if ( isset( $this->entries[ $key ] ) ) {
-			return $this->entries[ $key ]( ...$args );
-		}
-
-		// Potentially problematic to return null.
-		return null;
-	}
-
-	/**
-	 * Add an entry that should be cached.
-	 *
-	 * @param  string  $key     The key for a given entry.
-	 * @param  Closure $closure The function to call to get the value of an entry.
-	 */
-	protected function share( string $key, Closure $closure ) {
-		$this->shared_entries[ $key ] = $closure;
+		};
 	}
 
 	/**
@@ -371,8 +273,8 @@ class Plugin {
 		}
 
 		$upgrader = new Upgrader(
-			$this->resolve( 'results' ),
-			$this->resolve( 'settings' )
+			$this['results'],
+			$this['settings']
 		);
 		$upgrader->init();
 	}
