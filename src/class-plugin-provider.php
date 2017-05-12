@@ -71,9 +71,10 @@ class Plugin_Provider implements ServiceProviderInterface {
 
 		$container['user-agent'] = function( Container $c ) {
 			return sprintf(
-				'%s (%s) | Soter | v%s | %s',
+				'%s (%s) | %s | v%s | %s',
 				get_bloginfo( 'name' ),
 				get_home_url(),
+				$c['name'],
 				$c['version'],
 				$c['url']
 			);

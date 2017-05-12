@@ -45,6 +45,7 @@ function _soter_init() {
 		$plugin = new Soter\Plugin( [
 			'dir' => plugin_dir_path( __FILE__ ),
 			'file' => __FILE__,
+			'name' => 'Soter',
 			'prefix' => 'soter',
 			'url' => 'https://github.com/ssnepenthe/soter',
 			'version' => '0.4.0',
