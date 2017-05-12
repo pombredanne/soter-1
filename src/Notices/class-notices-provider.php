@@ -33,7 +33,7 @@ class Notices_Provider implements ServiceProviderInterface {
 		$container['notices.abbreviated'] = function( Container $c ) {
 			return new Vulnerable_Site_Abbreviated(
 				$c['views.plugin'],
-				$c['options.results']->all()
+				$c['options.manager']->vulnerabilities()
 			);
 		};
 
@@ -41,7 +41,7 @@ class Notices_Provider implements ServiceProviderInterface {
 			return new Vulnerable_Site(
 				$c['views.plugin'],
 				$c['cache'],
-				$c['options.results']->all()
+				$c['options.manager']->vulnerabilities()
 			);
 		};
 	}

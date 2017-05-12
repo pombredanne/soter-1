@@ -8,7 +8,7 @@
 namespace Soter\Tasks;
 
 use Soter_Core\Checker;
-use Soter\Options\Map_Option;
+use Soter\Options\Options_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -27,16 +27,16 @@ class Check_Site {
 	 */
 	protected $checker;
 
-	protected $settings;
+	protected $options;
 
 	/**
 	 * Class constructor.
 	 *
 	 * @param Checker $checker Checker instance.
 	 */
-	public function __construct( Checker $checker, Map_Option $settings ) {
+	public function __construct( Checker $checker, Options_Manager $options ) {
 		$this->checker = $checker;
-		$this->settings = $settings;
+		$this->options = $options;
 	}
 
 	/**
@@ -44,11 +44,10 @@ class Check_Site {
 	 */
 	public function run_task() {
 		// This is it - Logging and notification is handled by dedicated listeners.
-		$ignored = array_merge(
-			$this->settings->get( 'ignored_plugins', [] ),
-			$this->settings->get( 'ignored_themes', [] )
-		);
-
-		$this->checker->check_site( $ignored );
+		try {
+			$this->checker->check_site( $this->options->ignored_packages() );
+		} catch ( \RuntimeException $e ) {
+			// @todo How to handle HTTP error? Ignore? Log? Email user?
+		}
 	}
 }

@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 ?><input
-	id="soter_settings_email_address"
-	name="soter_settings[email_address]"
-	placeholder="<?php echo esc_attr( $default ) ?>"
+	id="soter_email_address"
+	name="soter_email_address"
+	placeholder="<?php echo esc_attr( $placeholder ) ?>"
 	type="email"
-	value="<?php echo esc_attr( $current ) ?>"
+	value="<?php echo esc_attr( $value ) ?>"
 >

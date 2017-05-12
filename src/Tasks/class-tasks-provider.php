@@ -31,12 +31,12 @@ class Tasks_Provider implements ServiceProviderInterface {
 
 	public function register( Container $container ) {
 		$container['tasks.check_site'] = function( Container $c ) {
-			return new Check_Site( $c['checker'], $c['options.settings'] );
+			return new Check_Site( $c['checker'], $c['options.manager'] );
 		};
 
 		$container['tasks.gc_posts'] = function( Container $c ) {
 			return new Vulnerability_Garbage_Collection(
-				$c['options.results']->all()
+				$c['options.manager']->vulnerabilities()
 			);
 		};
 

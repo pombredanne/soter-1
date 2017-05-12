@@ -11,9 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 ?><fieldset>
 	<label>
-		<input<?php checked( $enabled, true ) ?>
-			id="soter_settings_enable_email"
-			name="soter_settings[enable_email]"
+		<input
+			<?php checked( $enabled ) ?>
+			id="soter_enable_email"
+			name="soter_enable_email"
 			type="checkbox"
 			value="1"
 		>

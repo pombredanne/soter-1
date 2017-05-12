@@ -13,8 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php foreach ( $packages as $package ) : ?>
 		<label>
 			<input<?php checked( in_array( $package['slug'], $ignored_packages, true ), true ) ?>
-				id="soter_settings_<?php echo esc_attr( $package['slug'] ) ?>"
-				name="soter_settings[ignored_<?php echo esc_attr( $type ) ?>][]"
+				id="soter_ignored_<?php echo esc_attr( $type ) ?>_<?php echo esc_attr( $package['slug'] ) ?>"
+				name="soter_ignored_<?php echo esc_attr( $type ) ?>[]"
 				type="checkbox"
 				value="<?php echo esc_attr( $package['slug'] ) ?>"
 			>

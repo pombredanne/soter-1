@@ -31,15 +31,13 @@ class Listeners_Provider implements ServiceProviderInterface {
 
 	public function register( Container $container ) {
 		$container['listeners.log_ids'] = function( Container $c ) {
-			return new Log_Vulnerability_Ids( $c['options.results'] );
+			return new Log_Vulnerability_Ids( $c['options.manager'] );
 		};
 
 		$container['listeners.send_mail'] = function( Container $c ) {
 			return new Send_Vulnerable_Packages_Email(
 				$c['views.overridable'],
-				$c['options.settings']->get( 'enable_email', false ),
-				$c['options.settings']->get( 'html_email', false ),
-				$c['options.settings']->get( 'email_address', '' )
+				$c['options.manager']
 			);
 		};
 

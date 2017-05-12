@@ -8,6 +8,7 @@
 namespace Soter\Listeners;
 
 use Soter\Views\Template;
+use Soter\Options\Options_Manager;
 use Soter_Core\Vulnerability_Interface;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,26 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * found to be vulnerable and the admin has enabled email notiications.
  */
 class Send_Vulnerable_Packages_Email {
-	/**
-	 * To email address.
-	 *
-	 * @var string
-	 */
-	protected $email_address;
-
-	/**
-	 * Whether or not notifications are enabled.
-	 *
-	 * @var bool
-	 */
-	protected $enable_email;
-
-	/**
-	 * Whether or not the email type is set to html.
-	 *
-	 * @var bool
-	 */
-	protected $html_email;
+	protected $options;
 
 	/**
 	 * Template instance.
@@ -51,22 +33,10 @@ class Send_Vulnerable_Packages_Email {
 	 * Class constructor.
 	 *
 	 * @param Template $template      Template instance.
-	 * @param boolean  $enable_email  Whether or not notifications are enabled.
-	 * @param boolean  $html_email    Whether or not to send html-type emails.
-	 * @param string   $email_address The to email address.
 	 */
-	public function __construct(
-		Template $template,
-		$enable_email = false,
-		$html_email = false,
-		$email_address = ''
-	) {
+	public function __construct( Template $template, Options_Manager $options ) {
 		$this->template = $template;
-		$this->enable_email = (bool) $enable_email;
-		$this->html_email = (bool) $html_email;
-		$this->email_address = empty( $email_address )
-			? get_bloginfo( 'admin_email' )
-			: (string) $email_address;
+		$this->options = $options;
 	}
 
 	/**
@@ -75,15 +45,22 @@ class Send_Vulnerable_Packages_Email {
 	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
 	 */
 	public function send_email( $vulnerabilities ) {
+		// Bail if email notifications are not enabled.
+		if ( ! $this->options->enable_email() ) {
+			return;
+		}
+
 		if ( $vulnerabilities instanceof Vulnerability_Interface ) {
 			$vulnerabilities = [ $vulnerabilities ];
 		}
 
+		// Bail if there are no vulnerabilities.
 		if ( empty( $vulnerabilities ) ) {
 			return;
 		}
 
-		if ( ! $this->enable_email ) {
+		// Bail if invalid email address was supplied.
+		if ( ! $this->options->email_address() ) {
 			return;
 		}
 
@@ -98,7 +75,7 @@ class Send_Vulnerable_Packages_Email {
 		$template = 'emails/text-vulnerable';
 		$action_url = admin_url( 'update-core.php' );
 
-		if ( $this->html_email ) {
+		if ( 'html' === $this->options->email_type() ) {
 			$headers[] = 'Content-type: text/html';
 			$template = 'emails/html-vulnerable';
 		}
@@ -110,7 +87,7 @@ class Send_Vulnerable_Packages_Email {
 		}
 
 		wp_mail(
-			$this->email_address,
+			$this->options->email_address(),
 			$subject,
 			$this->template->render(
 				$template,

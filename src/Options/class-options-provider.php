@@ -10,10 +10,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Options_Provider implements ServiceProviderInterface {
-	const RESULTS_KEY = 'soter_results';
-	const SETTINGS_KEY = 'soter_settings';
-
 	public function boot( Container $container ) {
+		$this->boot_manager( $container );
+		$this->boot_page( $container );
+	}
+
+	protected function boot_manager( Container $container ) {
+		add_action( 'init', [ $container['options.manager'], 'register_settings' ] );
+	}
+
+	protected function boot_page( Container $container ) {
 		if ( ! is_admin() ) {
 			return;
 		}
@@ -23,22 +29,16 @@ class Options_Provider implements ServiceProviderInterface {
 	}
 
 	public function register( Container $container ) {
+		$container['options.manager'] = function( Container $c ) {
+			return new Options_Manager( $c['options.store'] );
+		};
+
 		$container['options.page'] = function( Container $c ) {
-			return new Options_Page( $c['options.settings'], $c['views.plugin'] );
+			return new Options_Page( $c['options.manager'], $c['views.plugin'] );
 		};
 
-		$container['options.results'] = function( Container $c ) {
-			$results = new List_Option( self::RESULTS_KEY );
-			$results->init();
-
-			return $results;
-		};
-
-		$container['options.settings'] = function( Container $c ) {
-			$settings = new Map_Option( self::SETTINGS_KEY );
-			$settings->init();
-
-			return $settings;
+		$container['options.store'] = function( Container $c ) {
+			return new Options_Store( $c['prefix'] );
 		};
 	}
 }

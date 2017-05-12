@@ -41,19 +41,26 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 * @todo Move to standalone uninstall script.
 	 */
 	public static function uninstall() {
-		delete_option( Options_Provider::SETTINGS_KEY );
-		delete_option( Options_Provider::RESULTS_KEY );
-
-		$tasks = [
-			// Not perfect - only deletes transients that have already expired.
-			new Transient_Garbage_Collection( 'soter' ),
-			// No param - defaults to empty array - all vulnerabilities are deleted.
-			new Vulnerability_Garbage_Collection,
+		$options = [
+			'soter_email_address',
+			'soter_email_type',
+			'soter_enable_email',
+			'soter_enable_notices',
+			'soter_ignored_plugins',
+			'soter_ignored_themes',
+			'soter_installed_version',
+			'soter_ignored_vulnerabilities',
 		];
 
-		foreach ( $tasks as $task ) {
-			$task->run_task();
+		foreach ( $options as $option ) {
+			delete_option( $option );
 		}
+
+		// Not perfect - only deletes transients that have already expired.
+		( new Transient_Garbage_Collection( 'soter' ) )->run_task();
+
+		// No param - defaults to empty array - all vulnerabilities are deleted.
+		( new Vulnerability_Garbage_Collection )->run_task();
 	}
 
 	public function register( Container $container ) {
@@ -66,7 +73,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 		};
 
 		$container['upgrader'] = function( Container $c ) {
-			return new Upgrader( $c['options.results'], $c['options.settings'] );
+			return new Upgrader( $c['options.manager'] );
 		};
 
 		$container['user-agent'] = function( Container $c ) {

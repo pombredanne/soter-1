@@ -17,12 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This class registers/renders everything on the plugin options page.
  */
 class Options_Page {
-	/**
-	 * Settings object.
-	 *
-	 * @var Map_Option
-	 */
-	protected $settings;
+	protected $options;
 
 	/**
 	 * Template object.
@@ -34,11 +29,10 @@ class Options_Page {
 	/**
 	 * Class constructor.
 	 *
-	 * @param Map_Option $settings Settings object.
 	 * @param Template   $template Template object.
 	 */
-	public function __construct( Map_Option $settings, Template $template ) {
-		$this->settings = $settings;
+	public function __construct( Options_Manager $options, Template $template ) {
+		$this->options = $options;
 		$this->template = $template;
 	}
 
@@ -46,12 +40,6 @@ class Options_Page {
 	 * Registers settings, sections and fields.
 	 */
 	public function admin_init() {
-		register_setting(
-			'soter_settings_group',
-			Options_Provider::SETTINGS_KEY,
-			[ $this, 'sanitize' ]
-		);
-
 		add_settings_section(
 			'soter_main',
 			'Main Settings',
@@ -76,9 +64,9 @@ class Options_Page {
 		);
 
 		add_settings_field(
-			'soter_html_email',
-			'Html Email',
-			[ $this, 'render_html_email' ],
+			'soter_email_type',
+			'Email Type',
+			[ $this, 'render_email_type' ],
 			'soter',
 			'soter_main'
 		);
@@ -117,30 +105,36 @@ class Options_Page {
 	 * Renders the email address field.
 	 */
 	public function render_email_address() {
-		$current = $this->settings->get( 'email_address', '' );
+		// @todo
+		$placeholder = get_bloginfo( 'admin_email' );
+		$current = $this->options->email_address();
+		$value = $placeholder === $current ? '' : $current;
 
-		$this->template->output( 'options/email-address', [
-			'current' => $current,
-			'default' => get_bloginfo( 'admin_email' ),
-		] );
+		$this->template->output(
+			'options/email-address',
+			compact( 'placeholder', 'value' )
+		);
 	}
 
 	/**
 	 * Renders the html email field.
 	 */
-	public function render_html_email() {
-		$enabled = $this->settings->get( 'html_email', false );
+	public function render_email_type() {
+		$type = $this->options->email_type();
 
-		$this->template->output( 'options/html-email', compact( 'enabled' ) );
+		$this->template->output( 'options/email-type', [
+			'html_checked' => 'html' === $type,
+			'text_checked' => 'text' === $type,
+		] );
 	}
 
 	/**
 	 * Renders the enable email field.
 	 */
 	public function render_enable_email() {
-		$enabled = $this->settings->get( 'enable_email', false );
-
-		$this->template->output( 'options/enable-email', compact( 'enabled' ) );
+		$this->template->output( 'options/enable-email', [
+			'enabled' => $this->options->enable_email(),
+		] );
 	}
 
 	/**
@@ -155,10 +149,8 @@ class Options_Page {
 			return [ 'name' => $value['Name'], 'slug' => $slug ];
 		}, array_keys( $plugins ), $plugins );
 
-		$ignored = $this->settings->get( 'ignored_plugins', [] );
-
 		$this->template->output( 'options/ignored-packages', [
-			'ignored_packages' => $ignored,
+			'ignored_packages' => $this->options->ignored_plugins(),
 			'packages' => $plugins,
 			'type' => 'plugins',
 		] );
@@ -175,10 +167,8 @@ class Options_Page {
 			];
 		}, wp_get_themes() );
 
-		$ignored = $this->settings->get( 'ignored_themes', [] );
-
 		$this->template->output( 'options/ignored-packages', [
-			'ignored_packages' => $ignored,
+			'ignored_packages' => $this->options->ignored_themes(),
 			'packages' => $themes,
 			'type' => 'themes',
 		] );
@@ -193,7 +183,7 @@ class Options_Page {
 		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
 		echo '<form action="options.php" method="POST">';
 
-		settings_fields( 'soter_settings_group' );
+		settings_fields( 'soter_group' );
 		do_settings_sections( 'soter' );
 		submit_button();
 
@@ -207,56 +197,5 @@ class Options_Page {
 	public function render_section_main() {
 		// @todo Move this into a template file?
 		echo '<p>The main settings for the Soter Security Checker plugin.</p>';
-	}
-
-	/**
-	 * Sanitizes an array of settings to be saved to the database.
-	 *
-	 * @param  array $values Array of plugin settings as received from user.
-	 *
-	 * @return array
-	 */
-	public function sanitize( array $values ) {
-		$sanitized = [];
-
-		// Array of installed plugin slugs.
-		$valid_plugins = array_map( function( $value ) {
-			// Does WP use DIRECTORY_SEPARATOR or is it always /?
-			$parts = explode( DIRECTORY_SEPARATOR, $value );
-			$slug = reset( $parts );
-
-			return $slug;
-		}, array_keys( get_plugins() ) );
-
-		// Array of installed theme slugs.
-		$valid_themes = array_values( wp_list_pluck(
-			wp_get_themes(),
-			'stylesheet'
-		) );
-
-		$sanitized['enable_email'] = filter_var(
-			isset( $values['enable_email'] ) ? $values['enable_email'] : false,
-			FILTER_VALIDATE_BOOLEAN
-		);
-		$sanitized['email_address'] = sanitize_email(
-			isset( $values['email_address'] ) ? $values['email_address'] : ''
-		);
-		$sanitized['html_email'] = filter_var(
-			isset( $values['html_email'] ) ? $values['html_email'] : false,
-			FILTER_VALIDATE_BOOLEAN
-		);
-		$sanitized['ignored_plugins'] = array_values( array_intersect(
-			$valid_plugins,
-			isset( $values['ignored_plugins'] ) ? $values['ignored_plugins'] : []
-		) );
-		$sanitized['ignored_themes'] = array_values( array_intersect(
-			$valid_themes,
-			isset( $values['ignored_themes'] ) ? $values['ignored_themes'] : []
-		) );
-		// Version would normally be unset since there is no input for it so instead
-		// we will just grab the previous value and use it as our sanitiezd value.
-		$sanitized['version'] = $this->settings->get( 'version', false );
-
-		return $sanitized;
 	}
 }
