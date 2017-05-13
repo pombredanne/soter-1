@@ -15,17 +15,26 @@ class Listeners_Provider implements ServiceProviderInterface {
 			return;
 		}
 
+		$this->boot_email_listener( $container );
+
 		add_action(
 			'soter_core_check_packages_complete',
 			[ $container['listeners.log_ids'], 'log_vulnerability_ids' ]
 		);
 		add_action(
 			'soter_core_check_packages_complete',
-			[ $container['listeners.send_mail'], 'send_email' ]
+			[ $container['listeners.store_vuln'], 'store_vulnerabilities' ]
 		);
+	}
+
+	protected function boot_email_listener( Container $container ) {
+		if ( ! $container['options.manager']->enable_email() ) {
+			return;
+		}
+
 		add_action(
 			'soter_core_check_packages_complete',
-			[ $container['listeners.store_vuln'], 'store_vulnerabilities' ]
+			[ $container['listeners.send_mail'], 'send_email' ]
 		);
 	}
 
