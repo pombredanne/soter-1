@@ -11,7 +11,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Notices_Provider implements ServiceProviderInterface {
 	public function boot( Container $container ) {
-		if ( ! is_admin() ) {
+		$this->boot_config_notices( $container );
+		$this->boot_vulnerability_notices( $container );
+	}
+
+	protected function boot_config_notices( Container $container ) {
+		if (
+			$container['options.manager']->enable_email()
+			|| $container['options.manager']->enable_notices()
+		) {
+			return;
+		}
+
+		add_action(
+			'admin_notices',
+			[ $container['notices.config'], 'print_notice' ]
+		);
+	}
+
+	protected function boot_vulnerability_notices( Container $container ) {
+		if ( ! is_admin() || ! $container['options.manager']->enable_notices() ) {
 			return;
 		}
 
@@ -35,6 +54,10 @@ class Notices_Provider implements ServiceProviderInterface {
 				$c['views.plugin'],
 				$c['options.manager']->vulnerabilities()
 			);
+		};
+
+		$container['notices.config'] = function( Container $c ) {
+			return new Configuration_Error( $c['views.plugin'] );
 		};
 
 		$container['notices.vulnerable'] = function( Container $c ) {
