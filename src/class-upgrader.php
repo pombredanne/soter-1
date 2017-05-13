@@ -7,7 +7,7 @@
 
 namespace Soter;
 
-use Soter\Tasks\Check_Site;
+use Soter\Jobs\Check_Site;
 use Soter\Options\Options_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -55,8 +55,8 @@ class Upgrader {
 		}
 
 		// Create 0.4.0+ cron hook if it does not exist.
-		if ( false === wp_next_scheduled( Check_Site::HOOK ) ) {
-			wp_schedule_event( time(), 'twicedaily', Check_Site::HOOK );
+		if ( false === wp_next_scheduled( Check_Site::get_hook() ) ) {
+			wp_schedule_event( time(), 'twicedaily', Check_Site::get_hook() );
 		}
 	}
 

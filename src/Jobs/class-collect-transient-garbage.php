@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace Soter\Tasks;
+namespace Soter\Jobs;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * WordPress already cleans out expired transients on DB upgrade which is more than
  * likely sufficient.
  */
-class Transient_Garbage_Collection {
+class Collect_Transient_Garbage {
 	/**
 	 * Transient prefix.
 	 *
@@ -43,7 +43,7 @@ class Transient_Garbage_Collection {
 	 *
 	 * Mostly swiped from populate_options() in wp-admin/includes/schema.php.
 	 */
-	public function run_task() {
+	public function run() {
 		global $wpdb;
 
 		// Only needs to run if site is storing transients in database.
@@ -71,5 +71,9 @@ class Transient_Garbage_Collection {
 			$length,
 			$time
 		) );
+	}
+
+	public static function get_hook() {
+		return 'wp_scheduled_delete';
 	}
 }

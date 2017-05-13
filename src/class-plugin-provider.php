@@ -3,11 +3,11 @@
 namespace Soter;
 
 use Pimple\Container;
-use Soter\Tasks\Check_Site;
+use Soter\Jobs\Check_Site;
 use Soter\Options\Options_Provider;
 use Pimple\ServiceProviderInterface;
-use Soter\Tasks\Transient_Garbage_Collection;
-use Soter\Tasks\Vulnerability_Garbage_Collection;
+use Soter\Jobs\Collect_Transient_Garbage;
+use Soter\Jobs\Collect_Vulnerability_Garbage;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -28,13 +28,13 @@ class Plugin_Provider implements ServiceProviderInterface {
 	}
 
 	public function activate() {
-		wp_schedule_event( time(), 'twicedaily', Check_Site::HOOK );
+		wp_schedule_event( time(), 'twicedaily', Check_Site::get_hook() );
 
 		register_uninstall_hook( $this->file, [ __CLASS__, 'uninstall' ] );
 	}
 
 	public function deactivate() {
-		wp_clear_scheduled_hook( Check_Site::HOOK );
+		wp_clear_scheduled_hook( Check_Site::get_hook() );
 	}
 
 	/**
@@ -57,10 +57,10 @@ class Plugin_Provider implements ServiceProviderInterface {
 		}
 
 		// Not perfect - only deletes transients that have already expired.
-		( new Transient_Garbage_Collection( 'soter' ) )->run_task();
+		( new Collect_Transient_Garbage( 'soter' ) )->run_task();
 
 		// No param - defaults to empty array - all vulnerabilities are deleted.
-		( new Vulnerability_Garbage_Collection )->run_task();
+		( new Collect_Vulnerability_Garbage )->run_task();
 	}
 
 	public function register( Container $container ) {

@@ -55,7 +55,7 @@ function _soter_init() {
 			new Soter\Listeners\Listeners_Provider,
 			new Soter\Notices\Notices_Provider,
 			new Soter\Options\Options_Provider,
-			new Soter\Tasks\Tasks_Provider,
+			new Soter\Jobs\Jobs_Provider,
 			new Soter\Views\View_Provider,
 			new Soter\Plugin_Provider,
 			new Soter\Soter_Core_Provider,

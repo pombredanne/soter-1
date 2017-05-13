@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace Soter\Tasks;
+namespace Soter\Jobs;
 
 use Soter_Core\Checker;
 use Soter\Options\Options_Manager;
@@ -18,8 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This class hooks the checker to our WP-Cron hook.
  */
 class Check_Site {
-	const HOOK = 'soter_run_check';
-
 	/**
 	 * Checker instance.
 	 *
@@ -42,12 +40,16 @@ class Check_Site {
 	/**
 	 * Run the site check.
 	 */
-	public function run_task() {
+	public function run() {
 		// This is it - Logging and notification is handled by dedicated listeners.
 		try {
 			$this->checker->check_site( $this->options->ignored_packages() );
 		} catch ( \RuntimeException $e ) {
 			// @todo How to handle HTTP error? Ignore? Log? Email user?
 		}
+	}
+
+	public static function get_hook() {
+		return 'soter_run_check';
 	}
 }
