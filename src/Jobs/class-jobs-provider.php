@@ -31,7 +31,7 @@ class Jobs_Provider implements ServiceProviderInterface {
 
 	public function register( Container $container ) {
 		$container['jobs.check_site'] = function( Container $c ) {
-			return new Check_Site( $c['checker'], $c['options.manager'] );
+			return new Check_Site( $c['core.checker'], $c['options.manager'] );
 		};
 
 		$container['jobs.gc_posts'] = function( Container $c ) {

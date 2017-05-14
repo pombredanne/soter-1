@@ -63,7 +63,7 @@ class Notices_Provider implements ServiceProviderInterface {
 		$container['notices.vulnerable'] = function( Container $c ) {
 			return new Vulnerable_Site(
 				$c['views.plugin'],
-				$c['cache'],
+				$c['core.cache'],
 				$c['options.manager']->vulnerabilities()
 			);
 		};

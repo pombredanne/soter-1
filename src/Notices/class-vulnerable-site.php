@@ -101,9 +101,10 @@ class Vulnerable_Site {
 	 */
 	protected function generate_vulnerabilities_array() {
 		$key = 'vulnerabilities_list_' . implode( '', $this->vuln_ids );
+		$cached = $this->cache->get( $key );
 
-		if ( $this->cache->contains( $key ) ) {
-			return $this->cache->fetch( $key );
+		if ( ! is_null( $cached ) ) {
+			return $cached;
 		}
 
 		$query = new WP_Query( [
@@ -150,7 +151,7 @@ class Vulnerable_Site {
 			wp_reset_postdata();
 		}
 
-		$this->cache->save( $key, $vulnerabilities, HOUR_IN_SECONDS );
+		$this->cache->put( $key, $vulnerabilities, HOUR_IN_SECONDS );
 
 		return $vulnerabilities;
 	}
