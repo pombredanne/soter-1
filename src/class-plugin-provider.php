@@ -17,12 +17,6 @@ class Plugin_Provider implements ServiceProviderInterface {
 	protected $file;
 
 	public function boot( Container $container ) {
-		// @todo Better way to handle this? It is needed in ->activate().
-		$this->file = $container['file'];
-
-		register_activation_hook( $container['file'], [ $this, 'activate' ] );
-		register_deactivation_hook( $container['file'], [ $this, 'deactivate' ] );
-
 		$this->boot_content_types( $container );
 		$this->boot_upgrader( $container );
 	}
@@ -64,6 +58,12 @@ class Plugin_Provider implements ServiceProviderInterface {
 	}
 
 	public function register( Container $container ) {
+		// @todo Better way to handle this? It is needed in ->activate().
+		$this->file = $container['file'];
+
+		register_activation_hook( $container['file'], [ $this, 'activate' ] );
+		register_deactivation_hook( $container['file'], [ $this, 'deactivate' ] );
+
 		$container['register_user_meta'] = function( Container $c ) {
 			return new Register_User_Meta;
 		};
