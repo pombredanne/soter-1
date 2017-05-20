@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace Soter\Listeners;
+namespace Soter\Notifiers;
 
 use Soter\Views\Template;
 use Soter\Options\Options_Manager;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Soter\Listeners;
+namespace Soter\Notifiers;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
-class Listeners_Provider implements ServiceProviderInterface {
+class Notifiers_Provider implements ServiceProviderInterface {
 	public function boot( Container $container ) {
 		if ( ! $this->doing_cron() ) {
 			return;
@@ -17,12 +17,12 @@ class Listeners_Provider implements ServiceProviderInterface {
 
 		add_action(
 			'soter_core_check_packages_complete',
-			[ $container['listeners.send_mail'], 'send_email' ]
+			[ $container['notifiers.send_mail'], 'send_email' ]
 		);
 	}
 
 	public function register( Container $container ) {
-		$container['listeners.send_mail'] = function( Container $c ) {
+		$container['notifiers.send_mail'] = function( Container $c ) {
 			return new Send_Vulnerable_Packages_Email(
 				$c['views.overridable'],
 				$c['options.manager']
