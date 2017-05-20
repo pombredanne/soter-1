@@ -7,7 +7,6 @@ use Soter\Jobs\Check_Site;
 use Soter\Options\Options_Provider;
 use Pimple\ServiceProviderInterface;
 use Soter\Jobs\Collect_Transient_Garbage;
-use Soter\Jobs\Collect_Vulnerability_Garbage;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -17,8 +16,11 @@ class Plugin_Provider implements ServiceProviderInterface {
 	protected $file;
 
 	public function boot( Container $container ) {
-		$this->boot_content_types( $container );
-		$this->boot_upgrader( $container );
+		if ( ! $this->doing_cron() && ! is_admin() ) {
+			return;
+		}
+
+		add_action( 'init', [ $container['upgrader'], 'perform_upgrade' ] );
 	}
 
 	public function activate() {
@@ -38,12 +40,9 @@ class Plugin_Provider implements ServiceProviderInterface {
 		$options = [
 			'soter_email_address',
 			'soter_email_type',
-			'soter_enable_email',
-			'soter_enable_notices',
 			'soter_ignored_plugins',
 			'soter_ignored_themes',
 			'soter_installed_version',
-			'soter_ignored_vulnerabilities',
 		];
 
 		foreach ( $options as $option ) {
@@ -51,10 +50,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 		}
 
 		// Not perfect - only deletes transients that have already expired.
-		( new Collect_Transient_Garbage( 'soter' ) )->run_task();
-
-		// No param - defaults to empty array - all vulnerabilities are deleted.
-		( new Collect_Vulnerability_Garbage )->run_task();
+		( new Collect_Transient_Garbage( 'soter' ) )->run();
 	}
 
 	public function register( Container $container ) {
@@ -63,14 +59,6 @@ class Plugin_Provider implements ServiceProviderInterface {
 
 		register_activation_hook( $container['file'], [ $this, 'activate' ] );
 		register_deactivation_hook( $container['file'], [ $this, 'deactivate' ] );
-
-		$container['register_user_meta'] = function( Container $c ) {
-			return new Register_User_Meta;
-		};
-
-		$container['register_vuln_cpt'] = function( Container $c ) {
-			return new Register_Vulnerability_Post_Type;
-		};
 
 		$container['upgrader'] = function( Container $c ) {
 			return new Upgrader( $c['options.manager'] );
@@ -86,19 +74,6 @@ class Plugin_Provider implements ServiceProviderInterface {
 				$c['url']
 			);
 		};
-	}
-
-	protected function boot_content_types( Container $container ) {
-		add_action( 'init', [ $container['register_user_meta'], 'register' ] );
-		add_action( 'init', [ $container['register_vuln_cpt'], 'register' ] );
-	}
-
-	protected function boot_upgrader( Container $container ) {
-		if ( ! $this->doing_cron() && ! is_admin() ) {
-			return;
-		}
-
-		add_action( 'init', [ $container['upgrader'], 'perform_upgrade' ] );
 	}
 
 	protected function doing_cron() {

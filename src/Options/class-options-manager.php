@@ -24,14 +24,6 @@ class Options_Manager {
 		return (string) $this->store->get( 'email_type', 'text' );
 	}
 
-	public function enable_email() {
-		return (bool) $this->store->get( 'enable_email', false );
-	}
-
-	public function enable_notices() {
-		return (bool) $this->store->get( 'enable_notices', true );
-	}
-
 	public function get_store() {
 		return $this->store;
 	}
@@ -52,10 +44,6 @@ class Options_Manager {
 		return (string) $this->store->get( 'installed_version', '' );
 	}
 
-	public function vulnerabilities() {
-		return (array) $this->store->get( 'vulnerabilities', [] );
-	}
-
 	public function register_settings() {
 		register_setting( 'soter_group', 'soter_email_address', [
 			'default' => get_bloginfo( 'admin_email' ),
@@ -66,18 +54,6 @@ class Options_Manager {
 		register_setting( 'soter_group', 'soter_email_type', [
 			'default' => 'text',
 			'sanitize_callback' => [ $this, 'sanitize_email_type' ],
-			'show_in_rest' => true,
-		] );
-
-		register_setting( 'soter_group', 'soter_enable_email', [
-			'default' => false,
-			'sanitize_callback' => [ $this, 'sanitize_boolean' ],
-			'show_in_rest' => true,
-		] );
-
-		register_setting( 'soter_group', 'soter_enable_notices', [
-			'default' => true,
-			'sanitize_callback' => [ $this, 'sanitize_boolean' ],
 			'show_in_rest' => true,
 		] );
 
@@ -98,16 +74,6 @@ class Options_Manager {
 			'sanitize_callback' => [ $this, 'sanitize_installed_version' ],
 			'show_in_rest' => true,
 		] );
-
-		register_setting( 'soter_group', 'soter_vulnerabilities', [
-			'default' => [],
-			'sanitize_callback' => [ $this, 'sanitize_vulnerabilities' ],
-			'show_in_rest' => true,
-		] );
-	}
-
-	public function sanitize_boolean( $value ) {
-		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
 	}
 
 	public function sanitize_email_address( $value ) {
@@ -228,42 +194,12 @@ class Options_Manager {
 		return $value;
 	}
 
-	public function sanitize_vulnerabilities( $value ) {
-		$value = (array) $value;
-		$valid = true;
-
-		foreach ( $value as $id ) {
-			if ( ! is_numeric( $value ) ) {
-				$valid = false;
-				break;
-			}
-		}
-
-		if ( ! $valid ) {
-			add_settings_error(
-				'soter_vulnerabilities',
-				'invalid_soter_vulnerabilities',
-				'Vulnerabilities must be an array of numeric IDs.'
-			);
-		}
-
-		return array_map( 'intval', $value );
-	}
-
 	public function set_email_address( $value ) {
 		return $this->store->set( 'email_address', $value );
 	}
 
 	public function set_email_type( $value ) {
 		return $this->store->set( 'email_type', $value );
-	}
-
-	public function set_enable_email( $value ) {
-		return $this->store->set( 'enable_email', $value );
-	}
-
-	public function set_enable_notices( $value ) {
-		return $this->store->set( 'enable_notices', $value );
 	}
 
 	public function set_ignored_plugins( $value ) {
@@ -276,9 +212,5 @@ class Options_Manager {
 
 	public function set_installed_version( $value ) {
 		return $this->store->set( 'installed_version', $value );
-	}
-
-	public function set_vulnerabilities( $value ) {
-		return $this->store->set( 'vulnerabilities', $value );
 	}
 }

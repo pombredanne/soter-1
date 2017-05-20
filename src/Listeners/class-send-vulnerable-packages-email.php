@@ -16,8 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * This class creates and sends email notifications after a site scan if the site is
- * found to be vulnerable and the admin has enabled email notiications.
+ * This class creates and sends email notifications after a site scan.
  */
 class Send_Vulnerable_Packages_Email {
 	protected $options;
@@ -45,11 +44,6 @@ class Send_Vulnerable_Packages_Email {
 	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
 	 */
 	public function send_email( $vulnerabilities ) {
-		// Bail if email notifications are not enabled.
-		if ( ! $this->options->enable_email() ) {
-			return;
-		}
-
 		if ( $vulnerabilities instanceof Vulnerability_Interface ) {
 			$vulnerabilities = [ $vulnerabilities ];
 		}

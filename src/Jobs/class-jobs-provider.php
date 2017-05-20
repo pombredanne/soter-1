@@ -20,10 +20,6 @@ class Jobs_Provider implements ServiceProviderInterface {
 			[ $container['jobs.check_site'], 'run' ]
 		);
 		add_action(
-			$container['jobs.gc_posts']->get_hook(),
-			[ $container['jobs.gc_posts'], 'run' ]
-		);
-		add_action(
 			$container['jobs.gc_transients']->get_hook(),
 			[ $container['jobs.gc_transients'], 'run' ]
 		);
@@ -32,12 +28,6 @@ class Jobs_Provider implements ServiceProviderInterface {
 	public function register( Container $container ) {
 		$container['jobs.check_site'] = function( Container $c ) {
 			return new Check_Site( $c['core.checker'], $c['options.manager'] );
-		};
-
-		$container['jobs.gc_posts'] = function( Container $c ) {
-			return new Collect_Vulnerability_Garbage(
-				$c['options.manager']->vulnerabilities()
-			);
 		};
 
 		$container['jobs.gc_transients'] = function( Container $c ) {

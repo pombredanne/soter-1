@@ -48,14 +48,6 @@ class Options_Page {
 		);
 
 		add_settings_field(
-			'soter_notification_types',
-			'Notification Types',
-			[ $this, 'render_notification_types' ],
-			'soter',
-			'soter_main'
-		);
-
-		add_settings_field(
 			'soter_email_address',
 			'Email Address',
 			[ $this, 'render_email_address' ],
@@ -125,16 +117,6 @@ class Options_Page {
 		$this->template->output( 'options/email-type', [
 			'html_checked' => 'html' === $type,
 			'text_checked' => 'text' === $type,
-		] );
-	}
-
-	/**
-	 * Renders the enable email field.
-	 */
-	public function render_notification_types() {
-		$this->template->output( 'options/notification-types', [
-			'email_checked' => $this->options->enable_email(),
-			'notices_checked' => $this->options->enable_notices(),
 		] );
 	}
 

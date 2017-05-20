@@ -7,6 +7,7 @@
 
 namespace Soter;
 
+use WP_Query;
 use Soter\Jobs\Check_Site;
 use Soter\Options\Options_Manager;
 
@@ -35,6 +36,25 @@ class Upgrader {
 		$this->upgrade_to_050();
 	}
 
+	protected function delete_vulnerabilities() {
+		$query = new WP_Query( [
+			'fields' => 'ids',
+			'no_found_rows' => true,
+			'post_type' => 'soter_vulnerability',
+			'post_status' => 'private',
+			// @todo Vulnerabilities were previously garbage collected on a daily
+			// basis so it shouldn't be a problem to get all of them - worth testing.
+			'posts_per_page' => -1,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+		] );
+
+		// Can be empty.
+		foreach ( $query->posts as $id ) {
+			wp_delete_post( $id );
+		}
+	}
+
 	protected function upgrade_to_050() {
 		if ( $this->options->installed_version() ) {
 			return;
@@ -43,6 +63,8 @@ class Upgrader {
 		$this->upgrade_cron();
 		$this->upgrade_options();
 		$this->upgrade_results();
+
+		$this->delete_vulnerabilities();
 
 		// Set installed version so upgrader does not run again.
 		$this->options->set_installed_version( '0.5.0' );
@@ -74,13 +96,6 @@ class Upgrader {
 		}
 
 		if (
-			isset( $old_options['enable_email'] )
-			&& $old_options['enable_email']
-		) {
-			$this->options->set_enable_email( true );
-		}
-
-		if (
 			isset( $old_options['ignored_plugins'] )
 			&& is_array( $old_options['ignored_plugins'] )
 		) {
@@ -98,12 +113,6 @@ class Upgrader {
 	}
 
 	protected function upgrade_results() {
-		$old_results = $this->options->get_store()->get( 'results', [] );
-
-		if ( ! empty( $old_results ) ) {
-			$this->options->set_vulnerabilities( $old_results );
-		}
-
 		$this->options->get_store()->delete( 'results' );
 	}
 }

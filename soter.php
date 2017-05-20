@@ -53,7 +53,6 @@ function _soter_init() {
 
 		$providers = [
 			new Soter\Listeners\Listeners_Provider,
-			new Soter\Notices\Notices_Provider,
 			new Soter\Options\Options_Provider,
 			new Soter\Jobs\Jobs_Provider,
 			new Soter\Views\View_Provider,
