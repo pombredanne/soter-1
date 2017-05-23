@@ -6,6 +6,7 @@ use Pimple\Container;
 use Soter_Core\Checker;
 use Soter_Core\Api_Client;
 use Soter_Core\WP_Http_Client;
+use Soter_Core\Cached_Http_Client;
 use Soter_Core\WP_Package_Manager;
 use Soter_Core\WP_Transient_Cache;
 use Pimple\ServiceProviderInterface;
@@ -17,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Soter_Core_Provider implements ServiceProviderInterface {
 	public function register( Container $container ) {
 		$container['core.api'] = function( Container $c ) {
-			return new Api_Client( $c['core.http'], $c['core.cache'] );
+			return new Api_Client( $c['core.http'] );
 		};
 
 		$container['core.cache'] = function( Container $c ) {
@@ -29,7 +30,10 @@ class Soter_Core_Provider implements ServiceProviderInterface {
 		};
 
 		$container['core.http'] = function( Container $c ) {
-			return new WP_Http_Client( $c['user-agent'] );
+			return new Cached_Http_Client(
+				new WP_Http_Client( $c['user-agent'] ),
+				$c['core.cache']
+			);
 		};
 
 		$container['core.manager'] = function( Container $c ) {
