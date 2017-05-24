@@ -27,31 +27,10 @@ class Plugin_Provider implements ServiceProviderInterface {
 		if ( false === wp_next_scheduled( Check_Site::get_hook() ) ) {
 			wp_schedule_event( time(), 'twicedaily', Check_Site::get_hook() );
 		}
-
-		register_uninstall_hook( $container['file'], [ __CLASS__, 'uninstall' ] );
 	}
 
 	public function deactivate( Container $container ) {
 		wp_clear_scheduled_hook( Check_Site::get_hook() );
-	}
-
-	/**
-	 * @todo Move to standalone uninstall script.
-	 */
-	public static function uninstall() {
-		$options = [
-			'soter_email_address',
-			'soter_email_type',
-			'soter_ignored_plugins',
-			'soter_ignored_themes',
-			'soter_installed_version',
-		];
-
-		foreach ( $options as $option ) {
-			delete_option( $option );
-		}
-
-		( new Soter_Core\WP_Transient_Cache( $GLOBALS['wpdb'], 'soter' ) )->flush();
 	}
 
 	public function register( Container $container ) {
