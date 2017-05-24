@@ -7,7 +7,7 @@
 
 namespace Soter\Notifiers;
 
-use Soter\Views\Template;
+use League\Plates\Engine;
 use Soter\Options\Options_Manager;
 use Soter_Core\Vulnerability_Interface;
 
@@ -21,19 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Send_Vulnerable_Packages_Email {
 	protected $options;
 
-	/**
-	 * Template instance.
-	 *
-	 * @var Template
-	 */
 	protected $template;
 
 	/**
 	 * Class constructor.
-	 *
-	 * @param Template $template      Template instance.
 	 */
-	public function __construct( Template $template, Options_Manager $options ) {
+	public function __construct( Engine $template, Options_Manager $options ) {
 		$this->template = $template;
 		$this->options = $options;
 	}

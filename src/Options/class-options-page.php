@@ -7,7 +7,7 @@
 
 namespace Soter\Options;
 
-use Soter\Views\Template;
+use League\Plates\Engine;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -19,11 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Options_Page {
 	protected $options;
 
-	/**
-	 * Template object.
-	 *
-	 * @var Template
-	 */
 	protected $template;
 
 	/**
@@ -31,7 +26,7 @@ class Options_Page {
 	 *
 	 * @param Template   $template Template object.
 	 */
-	public function __construct( Options_Manager $options, Template $template ) {
+	public function __construct( Options_Manager $options, Engine $template ) {
 		$this->options = $options;
 		$this->template = $template;
 	}
@@ -102,7 +97,7 @@ class Options_Page {
 		$current = $this->options->email_address();
 		$value = $placeholder === $current ? '' : $current;
 
-		$this->template->output(
+		echo $this->template->render(
 			'options/email-address',
 			compact( 'placeholder', 'value' )
 		);
@@ -114,7 +109,7 @@ class Options_Page {
 	public function render_email_type() {
 		$type = $this->options->email_type();
 
-		$this->template->output( 'options/email-type', [
+		echo $this->template->render( 'options/email-type', [
 			'html_checked' => 'html' === $type,
 			'text_checked' => 'text' === $type,
 		] );
@@ -132,7 +127,7 @@ class Options_Page {
 			return [ 'name' => $value['Name'], 'slug' => $slug ];
 		}, array_keys( $plugins ), $plugins );
 
-		$this->template->output( 'options/ignored-packages', [
+		echo $this->template->render( 'options/ignored-packages', [
 			'ignored_packages' => $this->options->ignored_plugins(),
 			'packages' => $plugins,
 			'type' => 'plugins',
@@ -150,7 +145,7 @@ class Options_Page {
 			];
 		}, wp_get_themes() );
 
-		$this->template->output( 'options/ignored-packages', [
+		echo $this->template->render( 'options/ignored-packages', [
 			'ignored_packages' => $this->options->ignored_themes(),
 			'packages' => $themes,
 			'type' => 'themes',

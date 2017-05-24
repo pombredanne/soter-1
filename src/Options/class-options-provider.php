@@ -34,7 +34,7 @@ class Options_Provider implements ServiceProviderInterface {
 		};
 
 		$container['options.page'] = function( Container $c ) {
-			return new Options_Page( $c['options.manager'], $c['views.plugin'] );
+			return new Options_Page( $c['options.manager'], $c['plates'] );
 		};
 
 		$container['options.store'] = function( Container $c ) {

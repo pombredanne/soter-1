@@ -24,7 +24,7 @@ class Notifiers_Provider implements ServiceProviderInterface {
 	public function register( Container $container ) {
 		$container['notifiers.send_mail'] = function( Container $c ) {
 			return new Send_Vulnerable_Packages_Email(
-				$c['views.overridable'],
+				$c['plates'],
 				$c['options.manager']
 			);
 		};
