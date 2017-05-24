@@ -16,8 +16,10 @@ class Notifiers_Provider implements ServiceProviderInterface {
 		}
 
 		add_action(
-			'soter_core_check_packages_complete',
-			[ $container['notifiers.send_mail'], 'send_email' ]
+			'soter_check_complete',
+			[ $container['notifiers.send_mail'], 'send_email' ],
+			10,
+			2
 		);
 	}
 

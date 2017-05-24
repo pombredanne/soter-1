@@ -41,9 +41,21 @@ class Check_Site {
 	 * Run the site check.
 	 */
 	public function run() {
-		// This is it - Logging and notification is handled by dedicated listeners.
 		try {
-			$this->checker->check_site( $this->options->ignored_packages() );
+			$vulnerabilities = $this->checker->check_site(
+				$this->options->ignored_packages()
+			);
+
+			$hash = $this->generate_scan_hash( $vulnerabilities );
+			$has_changed = $hash !== $this->options->last_scan_hash();
+
+			do_action(
+				'soter_check_complete',
+				$vulnerabilities,
+				$has_changed
+			);
+
+			$this->options->set_last_scan_hash( $hash );
 		} catch ( \RuntimeException $e ) {
 			// @todo How to handle HTTP error? Ignore? Log? Email user?
 		}
@@ -51,5 +63,16 @@ class Check_Site {
 
 	public static function get_hook() {
 		return 'soter_run_check';
+	}
+
+	protected function generate_scan_hash( array $vulnerabilities ) {
+		if ( empty( $vulnerabilities ) ) {
+			return '';
+		}
+
+		$ids = array_map( 'intval', wp_list_pluck( $vulnerabilities, 'id' ) );
+		sort( $ids );
+
+		return hash( 'sha1', implode( ':', $ids ) );
 	}
 }

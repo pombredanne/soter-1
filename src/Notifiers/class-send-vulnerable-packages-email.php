@@ -36,19 +36,18 @@ class Send_Vulnerable_Packages_Email {
 	 *
 	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
 	 */
-	public function send_email( $vulnerabilities ) {
+	public function send_email( $vulnerabilities, $has_changed ) {
+		if (
+			empty( $vulnerabilities )
+			|| ( ! $has_changed && ! $this->options->should_nag() )
+		) {
+			return;
+		}
+
+		// If an array only has one object, do_action() passes that object by itself
+		// instead of the original array. Let's put it back in an array.
 		if ( $vulnerabilities instanceof Vulnerability_Interface ) {
 			$vulnerabilities = [ $vulnerabilities ];
-		}
-
-		// Bail if there are no vulnerabilities.
-		if ( empty( $vulnerabilities ) ) {
-			return;
-		}
-
-		// Bail if invalid email address was supplied.
-		if ( ! $this->options->email_address() ) {
-			return;
 		}
 
 		$count = count( $vulnerabilities );
