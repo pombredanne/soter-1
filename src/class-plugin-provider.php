@@ -23,13 +23,15 @@ class Plugin_Provider implements ServiceProviderInterface {
 		add_action( 'init', [ $container['upgrader'], 'perform_upgrade' ] );
 	}
 
-	public function activate() {
-		wp_schedule_event( time(), 'twicedaily', Check_Site::get_hook() );
+	public function activate( Container $container ) {
+		if ( false === wp_next_scheduled( Check_Site::get_hook() ) ) {
+			wp_schedule_event( time(), 'twicedaily', Check_Site::get_hook() );
+		}
 
-		register_uninstall_hook( $this->file, [ __CLASS__, 'uninstall' ] );
+		register_uninstall_hook( $container['file'], [ __CLASS__, 'uninstall' ] );
 	}
 
-	public function deactivate() {
+	public function deactivate( Container $container ) {
 		wp_clear_scheduled_hook( Check_Site::get_hook() );
 	}
 
@@ -53,12 +55,6 @@ class Plugin_Provider implements ServiceProviderInterface {
 	}
 
 	public function register( Container $container ) {
-		// @todo Better way to handle this? It is needed in ->activate().
-		$this->file = $container['file'];
-
-		register_activation_hook( $container['file'], [ $this, 'activate' ] );
-		register_deactivation_hook( $container['file'], [ $this, 'deactivate' ] );
-
 		$container['upgrader'] = function( Container $c ) {
 			return new Upgrader( $c['options.manager'] );
 		};

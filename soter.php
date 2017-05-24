@@ -64,6 +64,9 @@ function _soter_init() {
 			$plugin->register( $provider );
 		}
 
+		register_activation_hook( $plugin['file'], [ $plugin, 'activate' ] );
+		register_deactivation_hook( $plugin['file'], [ $plugin, 'deactivate' ] );
+
 		add_action( 'plugins_loaded', [ $plugin, 'boot' ] );
 	} else {
 		$checker->deactivate_and_notify();

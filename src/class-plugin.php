@@ -19,14 +19,28 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This class acts as the plugin bootstrap, handling WordPress and WP-Cron.
  */
 class Plugin extends Container {
-	protected $boot_queue = [];
+	protected $providers = [];
+
+	public function activate() {
+		foreach ( $this->providers as $provider ) {
+			if ( method_exists( $provider, 'activate' ) ) {
+				$provider->activate( $this );
+			}
+		}
+	}
 
 	public function boot() {
-		while ( count( $this->boot_queue ) ) {
-			$provider = array_shift( $this->boot_queue );
-
+		foreach ( $this->providers as $provider ) {
 			if ( method_exists( $provider, 'boot' ) ) {
 				$provider->boot( $this );
+			}
+		}
+	}
+
+	public function deactivate() {
+		foreach ( $this->providers as $provider ) {
+			if ( method_exists( $provider, 'deactivate' ) ) {
+				$provider->deactivate( $this );
 			}
 		}
 	}
@@ -37,6 +51,8 @@ class Plugin extends Container {
 	) {
 		parent::register( $provider, $values );
 
-		$this->boot_queue[] = $provider;
+		$this->providers[] = $provider;
+
+		return $this;
 	}
 }
