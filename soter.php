@@ -41,6 +41,9 @@ function _soter_init() {
 	// Short array syntax.
 	$checker->php_at_least( '5.4' );
 
+	// Register_setting() with args array.
+	$checker->wp_at_least( '4.7' );
+
 	if ( $checker->requirements_met() ) {
 		$plugin = new Soter\Plugin( [
 			'dir' => plugin_dir_path( __FILE__ ),

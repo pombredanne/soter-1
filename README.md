@@ -8,7 +8,7 @@ A less intrusive alternative to the [WPScan vulnerability scanner](https://wpsca
 NOTE: This plugin does not verify the integrity of files on your server - it only checks installed packages by name/version against a list of known vulnerabilities provided by the WPScan API.
 
 ## Requirements
-WordPress, PHP 5.6 or later and Composer.
+WordPress 4.7 or later, PHP 5.4 or later and Composer.
 
 ## Installation
 Install using Composer:
