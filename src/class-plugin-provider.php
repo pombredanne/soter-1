@@ -49,8 +49,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 			delete_option( $option );
 		}
 
-		// Not perfect - only deletes transients that have already expired.
-		( new Collect_Transient_Garbage( 'soter' ) )->run();
+		( new Soter_Core\WP_Transient_Cache( $GLOBALS['wpdb'], 'soter' ) )->flush();
 	}
 
 	public function register( Container $container ) {
