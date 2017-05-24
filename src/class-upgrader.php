@@ -84,8 +84,7 @@ class Upgrader {
 
 	protected function upgrade_options() {
 		// Pre-0.4.0 options array to 0.5.0+ individual option entries.
-		$old_options = get_option( 'soter_settings' );
-		$old_options = (array) $this->options->get_store()->get( 'settings' );
+		$old_options = (array) $this->options->get_store()->get( 'settings', [] );
 
 		if ( isset( $old_options['email_address'] ) ) {
 			$this->options->set_email_address( $old_options['email_address'] );
