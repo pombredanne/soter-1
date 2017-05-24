@@ -115,11 +115,8 @@ class Options_Page {
 	 * Renders the html email field.
 	 */
 	public function render_email_type() {
-		$type = $this->options->email_type();
-
 		echo $this->template->render( 'options/email-type', [
-			'html_checked' => 'html' === $type,
-			'text_checked' => 'text' === $type,
+			'type' => $this->options->email_type(),
 		] );
 	}
 

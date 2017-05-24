@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<label>
 		<input
-			<?php checked( $text_checked, true ) ?>
+			<?php checked( 'text' === $type ) ?>
 			id="soter_email_type_text"
 			name="soter_email_type"
 			type="radio"
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<label>
 		<input
-			<?php checked( $html_checked, true ) ?>
+			<?php checked( 'text' === $type, false ) ?>
 			id="soter_email_type_html"
 			name="soter_email_type"
 			type="radio"
