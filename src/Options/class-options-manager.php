@@ -44,10 +44,20 @@ class Options_Manager {
 		return (string) $this->store->get( 'installed_version', '' );
 	}
 
+	public function last_scan_hash() {
+		return (string) $this->store->get( 'last_scan_hash', '' );
+	}
+
 	public function register_settings() {
 		register_setting( 'soter_backend', 'soter_installed_version', [
 			'default' => '',
 			'sanitize_callback' => [ $this, 'sanitize_installed_version' ],
+			'show_in_rest' => true,
+		] );
+
+		register_setting( 'soter_backend', 'soter_last_scan_hash', [
+			'default' => '',
+			'sanitize_callback' => 'strval',
 			'show_in_rest' => true,
 		] );
 
@@ -222,6 +232,10 @@ class Options_Manager {
 
 	public function set_installed_version( $value ) {
 		return $this->store->set( 'installed_version', $value );
+	}
+
+	public function set_last_scan_hash( $value ) {
+		return $this->store->set( 'last_scan_hash', $value );
 	}
 
 	public function set_should_nag( $value ) {

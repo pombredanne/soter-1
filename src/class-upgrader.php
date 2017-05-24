@@ -110,6 +110,7 @@ class Upgrader {
 		}
 
 		$this->options->set_should_nag( 'yes' );
+		$this->options->set_last_scan_hash( '' );
 
 		$this->options->get_store()->delete( 'settings' );
 	}
