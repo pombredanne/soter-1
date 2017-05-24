@@ -21,6 +21,8 @@ function _soter_uninstall() {
 		'soter_ignored_plugins',
 		'soter_ignored_themes',
 		'soter_installed_version',
+		'soter_last_scan_hash',
+		'soter_should_nag',
 	];
 
 	foreach ( $options as $option ) {
