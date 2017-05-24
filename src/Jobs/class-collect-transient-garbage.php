@@ -7,70 +7,44 @@
 
 namespace Soter\Jobs;
 
+use Soter_Core\Cache_Interface;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
 /**
- * This class handles garbage collecting plugin-specific orphaned transients.
+ * This class handles expired cache garbage collection.
  *
- * This *may* not be necessary. Sources of orphaned transients include uninstalling
- * plugins or themes, upgrading WordPress and the query which produces the vulnerable
- * site report in wp-admin.
+ * It is intended for cleaning up transients that would otherwise be left lingering
+ * after uninstalling a plugin or theme.
  *
- * WordPress already cleans out expired transients on DB upgrade which is more than
- * likely sufficient.
+ * This is probably not necessary and will likely be removed soon.
+ *
+ * WP already cleans out expired transients on DB upgrade which should be sufficient.
  */
 class Collect_Transient_Garbage {
 	/**
-	 * Transient prefix.
+	 * Cache instance.
 	 *
-	 * @var string
+	 * @var Cache_Interface
 	 */
-	protected $prefix;
+	protected $cache;
 
 	/**
 	 * Class constructor.
 	 *
-	 * @param string $prefix Transient prefix.
+	 * @param Cache_Interface $cache Cache instance.
 	 */
-	public function __construct( $prefix ) {
-		$this->prefix = substr( (string) $prefix, 0, 12 ) . '_';
+	public function __construct( Cache_Interface $cache ) {
+		$this->cache = $cache;
 	}
 
 	/**
-	 * Deletes all transients from the database with the specified prefix.
-	 *
-	 * Mostly swiped from populate_options() in wp-admin/includes/schema.php.
+	 * Deletes all expired cache entries.
 	 */
 	public function run() {
-		global $wpdb;
-
-		// Only needs to run if site is storing transients in database.
-		if ( wp_using_ext_object_cache() ) {
-			return;
-		}
-
-		$time = time();
-
-		$transient_prefix = '_transient_' . $this->prefix;
-		$timeout_prefix = '_transient_timeout_' . $this->prefix;
-		$length = strlen( $transient_prefix ) + 1;
-
-		$sql = "DELETE a, b FROM $wpdb->options a, $wpdb->options b
-			WHERE a.option_name LIKE %s
-			AND a.option_name NOT LIKE %s
-			AND b.option_name = CONCAT( %s, SUBSTRING( a.option_name, %d ) )
-			AND b.option_value < %d";
-
-		$wpdb->query( $wpdb->prepare(
-			$sql,
-			$wpdb->esc_like( $transient_prefix ) . '%',
-			$wpdb->esc_like( $timeout_prefix ) . '%',
-			$timeout_prefix,
-			$length,
-			$time
-		) );
+		$this->cache->flush_expired();
 	}
 
 	public static function get_hook() {

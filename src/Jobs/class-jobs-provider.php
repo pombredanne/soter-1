@@ -31,7 +31,7 @@ class Jobs_Provider implements ServiceProviderInterface {
 		};
 
 		$container['jobs.gc_transients'] = function( Container $c ) {
-			return new Collect_Transient_Garbage( $c['prefix'] );
+			return new Collect_Transient_Garbage( $c['core.cache'] );
 		};
 	}
 

@@ -22,7 +22,11 @@ class Soter_Core_Provider implements ServiceProviderInterface {
 		};
 
 		$container['core.cache'] = function( Container $c ) {
-			return new WP_Transient_Cache( $c['wp.db'], $c['prefix'] );
+			return new WP_Transient_Cache(
+				$c['wp.db'],
+				$c['prefix'],
+				HOUR_IN_SECONDS
+			);
 		};
 
 		$container['core.checker'] = function( Container $c ) {
