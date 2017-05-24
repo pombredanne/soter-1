@@ -45,6 +45,12 @@ class Options_Manager {
 	}
 
 	public function register_settings() {
+		register_setting( 'soter_backend', 'soter_installed_version', [
+			'default' => '',
+			'sanitize_callback' => [ $this, 'sanitize_installed_version' ],
+			'show_in_rest' => true,
+		] );
+
 		register_setting( 'soter_group', 'soter_email_address', [
 			'default' => get_bloginfo( 'admin_email' ),
 			'sanitize_callback' => [ $this, 'sanitize_email_address' ],
@@ -66,12 +72,6 @@ class Options_Manager {
 		register_setting( 'soter_group', 'soter_ignored_themes', [
 			'default' => [],
 			'sanitize_callback' => [ $this, 'sanitize_ignored_themes' ],
-			'show_in_rest' => true,
-		] );
-
-		register_setting( 'soter_group', 'soter_installed_version', [
-			'default' => '',
-			'sanitize_callback' => [ $this, 'sanitize_installed_version' ],
 			'show_in_rest' => true,
 		] );
 
