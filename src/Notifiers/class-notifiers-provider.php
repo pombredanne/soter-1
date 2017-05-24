@@ -17,7 +17,7 @@ class Notifiers_Provider implements ServiceProviderInterface {
 
 		add_action(
 			'soter_check_complete',
-			[ $container['notifiers.send_mail'], 'send_email' ],
+			[ $container['notifiers.send_mail'], 'notify' ],
 			10,
 			2
 		);
@@ -25,7 +25,7 @@ class Notifiers_Provider implements ServiceProviderInterface {
 
 	public function register( Container $container ) {
 		$container['notifiers.send_mail'] = function( Container $c ) {
-			return new Send_Vulnerable_Packages_Email(
+			return new Email_Notifier(
 				$c['plates'],
 				$c['options.manager']
 			);

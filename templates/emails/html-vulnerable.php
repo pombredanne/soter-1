@@ -14,12 +14,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title><?php echo esc_html( $count ) ?> Vulnerabilities Detected!</title>
+		<title><?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> Detected!</title>
 	</head>
 	<body style="-webkit-text-size-adjust: none; box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; height: 100%; line-height: 1.4; margin: 0; width: 100% !important;" bgcolor="#F2F4F6">
 		<style type="text/css">
 			body {
-			width: 100% !important; height: 100%; margin: 0; line-height: 1.4; background-color: #F2F4F6; color: #74787E; -webkit-text-size-adjust: none;
+				width: 100% !important; height: 100%; margin: 0; line-height: 1.4; background-color: #F2F4F6; color: #74787E; -webkit-text-size-adjust: none;
 			}
 			@media only screen and (max-width: 600px) {
 				.email-body_inner {
@@ -58,10 +58,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<tr>
 										<td class="content-cell" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 35px;">
 											<h1 style="box-sizing: border-box; color: #2F3133; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 19px; font-weight: bold; margin-top: 0;" align="left">
-												<?php echo esc_html( $count ) ?> Vulnerabilities Detected!
+												<?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> Detected!
 											</h1>
 											<p style="box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 16px; line-height: 1.5em; margin-top: 0;" align="left">
-												A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ) ?> vulnerabilities on your WordPress site.
+												A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> on your WordPress site.
 											</p>
 											<p style="box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 16px; line-height: 1.5em; margin-top: 0;" align="left">
 												Please ensure your WordPress install, plugins and themes are all up-to-date from your dashboard:
@@ -87,6 +87,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 													</td>
 												</tr>
 											</table>
+
 											<p style="box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 16px; line-height: 1.5em; margin-top: 0;" align="left">
 												For reference, here are the details of the flagged vulnerabilities:
 											</p>
@@ -146,13 +147,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<tr>
 										<td class="content-cell" align="center" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 35px;">
 											<p class="sub align-center" style="box-sizing: border-box; color: #AEAEAE; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.5em; margin-top: 0;" align="center">
-												Scan performed by the <a href="https://github.com/ssnepenthe/soter">Soter Vulnerability Scanner</a> plugin.
+												Site check performed by the <a href="https://github.com/ssnepenthe/soter">Soter</a> plugin.
 												<br>Powered by the <a href="https://wpvulndb.com/">WPScan Vulnerability Database</a> API.
 											</p>
 											<p class="sub align-center" style="box-sizing: border-box; color: #AEAEAE; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.5em; margin-top: 0;" align="center">
-												Soter checks your site against the WPScan Vulnerability Database.
-												<br>It only knows whether or not you are using a vulnerable version of a given package.
-												<br>It does not verify the integrity individual packages.
+												This plugin does not verify the integrity of files on your site.
+												<br>It only checks installed packages against a list of known vulnerabilities.
 											</p>
 										</td>
 									</tr>

@@ -21,10 +21,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 [<?php echo esc_html( $site_name ) ?>] Security Digest
 
 ******************
-<?php echo esc_html( $count ) ?> Vulnerabilities Detected!
+<?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> Detected!
 ******************
 
-A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ) ?> vulnerabilities on your WordPress site.
+A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> on your WordPress site.
 
 Please ensure your WordPress install, plugins and themes are all up-to-date from your dashboard:
 

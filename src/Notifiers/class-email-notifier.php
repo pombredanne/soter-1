@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * This class creates and sends email notifications after a site scan.
  */
-class Send_Vulnerable_Packages_Email {
+class Email_Notifier {
 	protected $options;
 
 	protected $template;
@@ -36,7 +36,7 @@ class Send_Vulnerable_Packages_Email {
 	 *
 	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
 	 */
-	public function send_email( $vulnerabilities, $has_changed ) {
+	public function notify( $vulnerabilities, $has_changed ) {
 		if (
 			empty( $vulnerabilities )
 			|| ( ! $has_changed && ! $this->options->should_nag() )
@@ -50,13 +50,13 @@ class Send_Vulnerable_Packages_Email {
 			$vulnerabilities = [ $vulnerabilities ];
 		}
 
+		$this->send_email( $vulnerabilities );
+	}
+
+	protected function send_email( array $vulnerabilities ) {
 		$count = count( $vulnerabilities );
+		$label = 1 === $count ? 'vulnerability' : 'vulnerabilities';
 		$site_name = get_bloginfo( 'name' );
-		$subject = sprintf(
-			'[%s] %s %s detected',
-			$site_name,
-			$count, 1 < $count ? 'vulnerabilities' : 'vulnerability'
-		);
 		$headers = [];
 		$template = 'emails/text-vulnerable';
 		$action_url = admin_url( 'update-core.php' );
@@ -74,10 +74,10 @@ class Send_Vulnerable_Packages_Email {
 
 		wp_mail(
 			$this->options->email_address(),
-			$subject,
+			"[{$site_name}] {$count} {$label} detected",
 			$this->template->render(
 				$template,
-				compact( 'action_url', 'count', 'messages', 'site_name' )
+				compact( 'action_url', 'count', 'label', 'messages', 'site_name' )
 			),
 			$headers
 		);
