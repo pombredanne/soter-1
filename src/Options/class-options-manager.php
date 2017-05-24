@@ -231,7 +231,7 @@ class Options_Manager {
 	public function should_nag() {
 		// Option is stored as yes/no.
 		return filter_var(
-			$this->store->get( 'should_nag' ),
+			$this->store->get( 'should_nag', true ),
 			FILTER_VALIDATE_BOOLEAN
 		);
 	}
