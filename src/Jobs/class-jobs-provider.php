@@ -11,17 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Jobs_Provider implements ServiceProviderInterface {
 	public function boot( Container $container ) {
-		if ( ! $this->doing_cron() ) {
-			return;
-		}
-
 		add_action(
-			$container['jobs.check_site']->get_hook(),
-			[ $container['jobs.check_site'], 'run' ]
+			'soter_run_check',
+			[ $container->proxy( 'jobs.check_site' ), 'run' ]
 		);
 		add_action(
-			$container['jobs.gc_transients']->get_hook(),
-			[ $container['jobs.gc_transients'], 'run' ]
+			'wp_scheduled_delete',
+			[ $container->proxy( 'jobs.gc_transients' ), 'run' ]
 		);
 	}
 
@@ -33,9 +29,5 @@ class Jobs_Provider implements ServiceProviderInterface {
 		$container['jobs.gc_transients'] = function( Container $c ) {
 			return new Collect_Transient_Garbage( $c['core.cache'] );
 		};
-	}
-
-	protected function doing_cron() {
-		return defined( 'DOING_CRON' ) && DOING_CRON;
 	}
 }

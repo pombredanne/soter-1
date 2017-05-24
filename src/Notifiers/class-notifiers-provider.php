@@ -11,13 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Notifiers_Provider implements ServiceProviderInterface {
 	public function boot( Container $container ) {
-		if ( ! $this->doing_cron() ) {
-			return;
-		}
-
 		add_action(
 			'soter_check_complete',
-			[ $container['notifiers.send_mail'], 'notify' ],
+			[ $container->proxy( 'notifiers.send_mail' ), 'notify' ],
 			10,
 			2
 		);
@@ -30,9 +26,5 @@ class Notifiers_Provider implements ServiceProviderInterface {
 				$c['options.manager']
 			);
 		};
-	}
-
-	protected function doing_cron() {
-		return defined( 'DOING_CRON' ) && DOING_CRON;
 	}
 }

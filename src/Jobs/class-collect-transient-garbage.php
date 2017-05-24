@@ -46,8 +46,4 @@ class Collect_Transient_Garbage {
 	public function run() {
 		$this->cache->flush_expired();
 	}
-
-	public static function get_hook() {
-		return 'wp_scheduled_delete';
-	}
 }

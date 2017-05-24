@@ -61,10 +61,6 @@ class Check_Site {
 		}
 	}
 
-	public static function get_hook() {
-		return 'soter_run_check';
-	}
-
 	protected function generate_scan_hash( array $vulnerabilities ) {
 		if ( empty( $vulnerabilities ) ) {
 			return '';

@@ -11,21 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Options_Provider implements ServiceProviderInterface {
 	public function boot( Container $container ) {
-		$this->boot_manager( $container );
-		$this->boot_page( $container );
-	}
-
-	protected function boot_manager( Container $container ) {
 		add_action( 'init', [ $container['options.manager'], 'register_settings' ] );
-	}
 
-	protected function boot_page( Container $container ) {
-		if ( ! is_admin() ) {
-			return;
-		}
-
-		add_action( 'admin_init', [ $container['options.page'], 'admin_init' ] );
-		add_action( 'admin_menu', [ $container['options.page'], 'admin_menu' ] );
+		add_action(
+			'admin_init',
+			[ $container->proxy( 'options.page' ), 'admin_init' ]
+		);
+		add_action(
+			'admin_menu',
+			[ $container->proxy( 'options.page' ), 'admin_menu' ]
+		);
 	}
 
 	public function register( Container $container ) {

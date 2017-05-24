@@ -21,6 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Plugin extends Container {
 	protected $providers = [];
 
+	protected $proxies = [];
+
 	public function activate() {
 		foreach ( $this->providers as $provider ) {
 			if ( method_exists( $provider, 'activate' ) ) {
@@ -43,6 +45,16 @@ class Plugin extends Container {
 				$provider->deactivate( $this );
 			}
 		}
+	}
+
+	public function proxy( $key ) {
+		if ( isset( $this->proxies[ $key ] ) ) {
+			return $this->proxies[ $key ];
+		}
+
+		$this->proxies[ $key ] = new Service_Proxy( $this, $key );
+
+		return $this->proxies[ $key ];
 	}
 
 	public function register(
