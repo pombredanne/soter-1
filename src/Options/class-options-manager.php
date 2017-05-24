@@ -74,6 +74,12 @@ class Options_Manager {
 			'sanitize_callback' => [ $this, 'sanitize_installed_version' ],
 			'show_in_rest' => true,
 		] );
+
+		register_setting( 'soter_group', 'soter_should_nag', [
+			'default' => 'yes',
+			'sanitize_callback' => [ $this, 'sanitize_should_nag' ],
+			'show_in_rest' => true,
+		] );
 	}
 
 	public function sanitize_email_address( $value ) {
@@ -194,6 +200,10 @@ class Options_Manager {
 		return $value;
 	}
 
+	public function sanitize_should_nag( $value ) {
+		return filter_var( $value, FILTER_VALIDATE_BOOLEAN ) ? 'yes' : 'no';
+	}
+
 	public function set_email_address( $value ) {
 		return $this->store->set( 'email_address', $value );
 	}
@@ -212,5 +222,17 @@ class Options_Manager {
 
 	public function set_installed_version( $value ) {
 		return $this->store->set( 'installed_version', $value );
+	}
+
+	public function set_should_nag( $value ) {
+		return $this->store->set( 'should_nag', $value );
+	}
+
+	public function should_nag() {
+		// Option is stored as yes/no.
+		return filter_var(
+			$this->store->get( 'should_nag' ),
+			FILTER_VALIDATE_BOOLEAN
+		);
 	}
 }

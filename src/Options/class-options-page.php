@@ -43,6 +43,14 @@ class Options_Page {
 		);
 
 		add_settings_field(
+			'soter_should_nag',
+			'Notification Frequency',
+			[ $this, 'render_should_nag' ],
+			'soter',
+			'soter_main'
+		);
+
+		add_settings_field(
 			'soter_email_address',
 			'Email Address',
 			[ $this, 'render_email_address' ],
@@ -175,5 +183,11 @@ class Options_Page {
 	public function render_section_main() {
 		// @todo Move this into a template file?
 		echo '<p>The main settings for the Soter Security Checker plugin.</p>';
+	}
+
+	public function render_should_nag() {
+		echo $this->template->render( 'options/should-nag', [
+			'should_nag' => $this->options->should_nag(),
+		] );
 	}
 }

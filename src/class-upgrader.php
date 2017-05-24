@@ -109,6 +109,8 @@ class Upgrader {
 			$this->options->set_ignored_themes( $old_options['ignored_themes'] );
 		}
 
+		$this->options->set_should_nag( 'yes' );
+
 		$this->options->get_store()->delete( 'settings' );
 	}
 
