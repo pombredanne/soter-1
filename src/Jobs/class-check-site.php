@@ -25,12 +25,18 @@ class Check_Site {
 	 */
 	protected $checker;
 
+	/**
+	 * Options manager instance.
+	 *
+	 * @var Options_Manager
+	 */
 	protected $options;
 
 	/**
 	 * Class constructor.
 	 *
-	 * @param Checker $checker Checker instance.
+	 * @param Checker         $checker Checker instance.
+	 * @param Options_Manager $options Options manager instance.
 	 */
 	public function __construct( Checker $checker, Options_Manager $options ) {
 		$this->checker = $checker;
@@ -39,6 +45,8 @@ class Check_Site {
 
 	/**
 	 * Run the site check.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		try {
@@ -61,6 +69,13 @@ class Check_Site {
 		}
 	}
 
+	/**
+	 * Generate a hash representing the scan results.
+	 *
+	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
+	 *
+	 * @return string
+	 */
 	protected function generate_scan_hash( array $vulnerabilities ) {
 		if ( empty( $vulnerabilities ) ) {
 			return '';

@@ -1,6 +1,6 @@
 <?php
 /**
- * The main plugin bootstrap.
+ * Plugin class.
  *
  * @package soter
  */
@@ -16,13 +16,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * This class acts as the plugin bootstrap, handling WordPress and WP-Cron.
+ * Defines the plugin class.
  */
 class Plugin extends Container {
+	/**
+	 * List of registered providers.
+	 *
+	 * @var ServiceProviderInterface[]
+	 */
 	protected $providers = [];
 
+	/**
+	 * Cached proxy objects.
+	 *
+	 * @var Service_Proxy[]
+	 */
 	protected $proxies = [];
 
+	/**
+	 * Loops through all providers calling the activate method on each.
+	 *
+	 * @return void
+	 */
 	public function activate() {
 		foreach ( $this->providers as $provider ) {
 			if ( method_exists( $provider, 'activate' ) ) {
@@ -31,6 +46,11 @@ class Plugin extends Container {
 		}
 	}
 
+	/**
+	 * Loops through all providers calling the boot method on each.
+	 *
+	 * @return void
+	 */
 	public function boot() {
 		foreach ( $this->providers as $provider ) {
 			if ( method_exists( $provider, 'boot' ) ) {
@@ -39,6 +59,11 @@ class Plugin extends Container {
 		}
 	}
 
+	/**
+	 * Loops through all providers calling the deactivate method on each.
+	 *
+	 * @return void
+	 */
 	public function deactivate() {
 		foreach ( $this->providers as $provider ) {
 			if ( method_exists( $provider, 'deactivate' ) ) {
@@ -47,6 +72,13 @@ class Plugin extends Container {
 		}
 	}
 
+	/**
+	 * Gets a proxy object for a given container entry.
+	 *
+	 * @param  string $key Container entry key.
+	 *
+	 * @return Service_Proxy
+	 */
 	public function proxy( $key ) {
 		if ( isset( $this->proxies[ $key ] ) ) {
 			return $this->proxies[ $key ];
@@ -57,6 +89,14 @@ class Plugin extends Container {
 		return $this->proxies[ $key ];
 	}
 
+	/**
+	 * Registers a service provider.
+	 *
+	 * @param  ServiceProviderInterface $provider Provider instance.
+	 * @param  array                    $values   Values to customize the provider.
+	 *
+	 * @return static
+	 */
 	public function register(
 		ServiceProviderInterface $provider,
 		array $values = array()

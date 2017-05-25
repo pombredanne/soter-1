@@ -1,14 +1,37 @@
 <?php
+/**
+ * Options_Manager class.
+ *
+ * @package soter
+ */
 
 namespace Soter\Options;
 
+/**
+ * Defines the options manager class.
+ */
 class Options_Manager {
+	/**
+	 * Options store instance.
+	 *
+	 * @var Options_Store
+	 */
 	protected $store;
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param Options_Store $store Options store instance.
+	 */
 	public function __construct( Options_Store $store ) {
 		$this->store = $store;
 	}
 
+	/**
+	 * Get the currently configured email address.
+	 *
+	 * @return string
+	 */
 	public function email_address() {
 		$current = $this->store->get( 'email_address' );
 
@@ -20,34 +43,74 @@ class Options_Manager {
 		return (string) $current;
 	}
 
+	/**
+	 * Get the currently configured email type.
+	 *
+	 * @return string
+	 */
 	public function email_type() {
 		return (string) $this->store->get( 'email_type', 'text' );
 	}
 
+	/**
+	 * Get the options store instance.
+	 *
+	 * @return Options_Store
+	 */
 	public function get_store() {
 		return $this->store;
 	}
 
+	/**
+	 * Get the list of ignored package slugs.
+	 *
+	 * @return string[]
+	 */
 	public function ignored_packages() {
 		return array_merge( $this->ignored_plugins(), $this->ignored_themes() );
 	}
 
+	/**
+	 * Get the list of ignored plugins.
+	 *
+	 * @return string[]
+	 */
 	public function ignored_plugins() {
 		return (array) $this->store->get( 'ignored_plugins', [] );
 	}
 
+	/**
+	 * Get the list of ignored themes.
+	 *
+	 * @return string[]
+	 */
 	public function ignored_themes() {
 		return (array) $this->store->get( 'ignored_themes', [] );
 	}
 
+	/**
+	 * Get the currently installed plugin version.
+	 *
+	 * @return string
+	 */
 	public function installed_version() {
 		return (string) $this->store->get( 'installed_version', '' );
 	}
 
+	/**
+	 * Get the hash of the last scan.
+	 *
+	 * @return string
+	 */
 	public function last_scan_hash() {
 		return (string) $this->store->get( 'last_scan_hash', '' );
 	}
 
+	/**
+	 * Register all plugin settings.
+	 *
+	 * @return void
+	 */
 	public function register_settings() {
 		register_setting( 'soter_backend', 'soter_installed_version', [
 			'default' => '',
@@ -92,6 +155,13 @@ class Options_Manager {
 		] );
 	}
 
+	/**
+	 * Sanitize the email address setting.
+	 *
+	 * @param  string $value Email address submitted by user.
+	 *
+	 * @return string
+	 */
 	public function sanitize_email_address( $value ) {
 		// Allow user to unset by providing an empty string.
 		if ( ! $value ) {
@@ -116,6 +186,13 @@ class Options_Manager {
 		return $new_value;
 	}
 
+	/**
+	 * Sanitize the email type setting.
+	 *
+	 * @param  string $value The value provided by the user.
+	 *
+	 * @return string
+	 */
 	public function sanitize_email_type( $value ) {
 		$new_value = '';
 
@@ -139,6 +216,13 @@ class Options_Manager {
 		return $new_value;
 	}
 
+	/**
+	 * Sanitize the ignored plugins list.
+	 *
+	 * @param  string[] $value The value provided by the user.
+	 *
+	 * @return string[]
+	 */
 	public function sanitize_ignored_plugins( $value ) {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -172,6 +256,13 @@ class Options_Manager {
 		return $value;
 	}
 
+	/**
+	 * Sanitize the ignored themes setting.
+	 *
+	 * @param  string[] $value The value provided by the user.
+	 *
+	 * @return string[]
+	 */
 	public function sanitize_ignored_themes( $value ) {
 		$value = (array) $value;
 		$valid_slugs = array_values( wp_list_pluck(
@@ -196,7 +287,16 @@ class Options_Manager {
 		return $value;
 	}
 
+	/**
+	 * Sanitize the installed version setting.
+	 *
+	 * @param  string $value The value provided by the user.
+	 *
+	 * @return string
+	 */
 	public function sanitize_installed_version( $value ) {
+		$value = (string) $value;
+
 		if ( (bool) preg_match( '/[^\d\.]/', $value ) ) {
 			add_settings_error(
 				'soter_installed_version',
@@ -210,38 +310,99 @@ class Options_Manager {
 		return $value;
 	}
 
+	/**
+	 * Sanitize the nag setting.
+	 *
+	 * @param  string $value The value provided by the user.
+	 *
+	 * @return string
+	 */
 	public function sanitize_should_nag( $value ) {
 		return filter_var( $value, FILTER_VALIDATE_BOOLEAN ) ? 'yes' : 'no';
 	}
 
+	/**
+	 * Set the email address setting.
+	 *
+	 * @param string $value An email address.
+	 *
+	 * @return boolean
+	 */
 	public function set_email_address( $value ) {
 		return $this->store->set( 'email_address', $value );
 	}
 
+	/**
+	 * Set the email type setting.
+	 *
+	 * @param string $value Eamil type - 'text' or 'html'.
+	 *
+	 * @return boolean
+	 */
 	public function set_email_type( $value ) {
 		return $this->store->set( 'email_type', $value );
 	}
 
+	/**
+	 * Set the ignored plugins list.
+	 *
+	 * @param string[] $value List of pluign slugs.
+	 *
+	 * @return boolean
+	 */
 	public function set_ignored_plugins( $value ) {
 		return $this->store->set( 'ignored_plugins', $value );
 	}
 
+	/**
+	 * Set the ignored themes list.
+	 *
+	 * @param string[] $value List of theme slugs.
+	 *
+	 * @return boolean
+	 */
 	public function set_ignored_themes( $value ) {
 		return $this->store->set( 'ignored_themes', $value );
 	}
 
+	/**
+	 * Set the installed version.
+	 *
+	 * @param string $value Version string.
+	 *
+	 * @return boolean
+	 */
 	public function set_installed_version( $value ) {
 		return $this->store->set( 'installed_version', $value );
 	}
 
+	/**
+	 * Set the last scan hash setting.
+	 *
+	 * @param string $value Unique hash representing the results of a scan.
+	 *
+	 * @return boolean
+	 */
 	public function set_last_scan_hash( $value ) {
 		return $this->store->set( 'last_scan_hash', $value );
 	}
 
+	/**
+	 * Set the nag setting.
+	 *
+	 * @param string $value Should nagging notification be enabled - 'yes' or 'no'.
+	 *
+	 * @return boolean
+	 */
 	public function set_should_nag( $value ) {
 		return $this->store->set( 'should_nag', $value );
 	}
 
+	/**
+	 * Get the nag setting.
+	 *
+	 * @return boolean
+	 */
 	public function should_nag() {
 		// Option is stored as yes/no.
 		return filter_var(

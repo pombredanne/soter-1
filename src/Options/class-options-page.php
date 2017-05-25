@@ -17,14 +17,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This class registers/renders everything on the plugin options page.
  */
 class Options_Page {
+	/**
+	 * Options manager instance.
+	 *
+	 * @var Options_Manager
+	 */
 	protected $options;
 
+	/**
+	 * Template engine instance.
+	 *
+	 * @var Engine
+	 */
 	protected $template;
 
 	/**
 	 * Class constructor.
 	 *
-	 * @param Template   $template Template object.
+	 * @param Options_Manager $options  Options manager instance.
+	 * @param Engine          $template Template engine instance.
 	 */
 	public function __construct( Options_Manager $options, Engine $template ) {
 		$this->options = $options;
@@ -33,6 +44,8 @@ class Options_Page {
 
 	/**
 	 * Registers settings, sections and fields.
+	 *
+	 * @return void
 	 */
 	public function admin_init() {
 		add_settings_section(
@@ -85,6 +98,8 @@ class Options_Page {
 
 	/**
 	 * Registers the options page.
+	 *
+	 * @return void
 	 */
 	public function admin_menu() {
 		add_options_page(
@@ -98,6 +113,8 @@ class Options_Page {
 
 	/**
 	 * Renders the email address field.
+	 *
+	 * @return void
 	 */
 	public function render_email_address() {
 		// @todo
@@ -113,6 +130,8 @@ class Options_Page {
 
 	/**
 	 * Renders the html email field.
+	 *
+	 * @return void
 	 */
 	public function render_email_type() {
 		echo $this->template->render( 'options/email-type', [
@@ -122,6 +141,8 @@ class Options_Page {
 
 	/**
 	 * Renders the ignored plugins field.
+	 *
+	 * @return void
 	 */
 	public function render_ignored_plugins() {
 		$plugins = get_plugins();
@@ -129,7 +150,10 @@ class Options_Page {
 			$parts = explode( DIRECTORY_SEPARATOR, $key );
 			$slug = reset( $parts );
 
-			return [ 'name' => $value['Name'], 'slug' => $slug ];
+			return [
+				'name' => $value['Name'],
+				'slug' => $slug,
+			];
 		}, array_keys( $plugins ), $plugins );
 
 		echo $this->template->render( 'options/ignored-packages', [
@@ -141,6 +165,8 @@ class Options_Page {
 
 	/**
 	 * Renders the ignored themes field.
+	 *
+	 * @return void
 	 */
 	public function render_ignored_themes() {
 		$themes = array_map( function( $value ) {
@@ -159,6 +185,8 @@ class Options_Page {
 
 	/**
 	 * Renders the full settings page.
+	 *
+	 * @return void
 	 */
 	public function render_page_soter() {
 		// @todo Move this to a template file?
@@ -176,12 +204,19 @@ class Options_Page {
 
 	/**
 	 * Renders the main page section.
+	 *
+	 * @return void
 	 */
 	public function render_section_main() {
 		// @todo Move this into a template file?
 		echo '<p>The main settings for the Soter Security Checker plugin.</p>';
 	}
 
+	/**
+	 * Render the nag/notification frequency setting.
+	 *
+	 * @return void
+	 */
 	public function render_should_nag() {
 		echo $this->template->render( 'options/should-nag', [
 			'should_nag' => $this->options->should_nag(),

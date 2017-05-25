@@ -20,10 +20,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * needed when moving to a new version of the plugin.
  */
 class Upgrader {
+	/**
+	 * Options manager instance.
+	 *
+	 * @var Options_Manager
+	 */
 	protected $options;
 
 	/**
 	 * Class constructor.
+	 *
+	 * @param Options_Manager $options Options manager instance.
 	 */
 	public function __construct( Options_Manager $options ) {
 		$this->options = $options;
@@ -31,11 +38,18 @@ class Upgrader {
 
 	/**
 	 * Performs all necessary upgrade steps for current version.
+	 *
+	 * @return void
 	 */
 	public function perform_upgrade() {
 		$this->upgrade_to_050();
 	}
 
+	/**
+	 * Deletes any lingering soter_vulnerability posts.
+	 *
+	 * @return void
+	 */
 	protected function delete_vulnerabilities() {
 		$query = new WP_Query( [
 			'fields' => 'ids',
@@ -55,6 +69,11 @@ class Upgrader {
 		}
 	}
 
+	/**
+	 * Required logic for upgrading to v0.5.0.
+	 *
+	 * @return void
+	 */
 	protected function upgrade_to_050() {
 		if ( $this->options->installed_version() ) {
 			return;
@@ -70,6 +89,11 @@ class Upgrader {
 		$this->options->set_installed_version( '0.5.0' );
 	}
 
+	/**
+	 * Upgrade to latest cron implementation.
+	 *
+	 * @return void
+	 */
 	protected function upgrade_cron() {
 		// Delete pre-0.4.0 cron hook if it exists.
 		if ( false !== wp_next_scheduled( 'SSNepenthe\\Soter\\run_check' ) ) {
@@ -82,6 +106,11 @@ class Upgrader {
 		}
 	}
 
+	/**
+	 * Upgrade to latest options implementation.
+	 *
+	 * @return void
+	 */
 	protected function upgrade_options() {
 		// Pre-0.4.0 options array to 0.5.0+ individual option entries.
 		$old_options = (array) $this->options->get_store()->get( 'settings', [] );
@@ -108,12 +137,19 @@ class Upgrader {
 			$this->options->set_ignored_themes( $old_options['ignored_themes'] );
 		}
 
+		// These options don't technically get set because they are the same as the
+		// defaults we have defined in the options manager class...
 		$this->options->set_should_nag( 'yes' );
 		$this->options->set_last_scan_hash( '' );
 
 		$this->options->get_store()->delete( 'settings' );
 	}
 
+	/**
+	 * Delete lingering results.
+	 *
+	 * @return void
+	 */
 	protected function upgrade_results() {
 		$this->options->get_store()->delete( 'results' );
 	}

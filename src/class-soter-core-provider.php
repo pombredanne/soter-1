@@ -1,4 +1,9 @@
 <?php
+/**
+ * Soter_Core_Provider class.
+ *
+ * @package soter
+ */
 
 namespace Soter;
 
@@ -15,7 +20,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/**
+ * Defines the soter core provider class.
+ */
 class Soter_Core_Provider implements ServiceProviderInterface {
+	/**
+	 * Provider-specific registration logic.
+	 *
+	 * @param  Container $container Plugin container instance.
+	 *
+	 * @return void
+	 */
 	public function register( Container $container ) {
 		$container['core.api'] = function( Container $c ) {
 			return new Api_Client( $c['core.http'] );

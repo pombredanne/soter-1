@@ -19,12 +19,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This class creates and sends email notifications after a site scan.
  */
 class Email_Notifier {
+	/**
+	 * Options manager instance.
+	 *
+	 * @var Options_Manager
+	 */
 	protected $options;
 
+	/**
+	 * Template engine instance.
+	 *
+	 * @var Engine
+	 */
 	protected $template;
 
 	/**
 	 * Class constructor.
+	 *
+	 * @param Engine          $template Template engine instance.
+	 * @param Options_Manager $options  Options manager instance.
 	 */
 	public function __construct( Engine $template, Options_Manager $options ) {
 		$this->template = $template;
@@ -32,9 +45,10 @@ class Email_Notifier {
 	}
 
 	/**
-	 * Sends the actual email when appropriate.
+	 * Handle the notification.
 	 *
-	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
+	 * @param Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
+	 * @param boolean                   $has_changed     Whether the status has changed since last scan.
 	 */
 	public function notify( $vulnerabilities, $has_changed ) {
 		if (
@@ -53,6 +67,13 @@ class Email_Notifier {
 		$this->send_email( $vulnerabilities );
 	}
 
+	/**
+	 * Send the actual email.
+	 *
+	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
+	 *
+	 * @return void
+	 */
 	protected function send_email( array $vulnerabilities ) {
 		$count = count( $vulnerabilities );
 		$label = 1 === $count ? 'vulnerability' : 'vulnerabilities';

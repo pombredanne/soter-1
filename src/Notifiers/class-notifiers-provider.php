@@ -1,4 +1,9 @@
 <?php
+/**
+ * Notifiers_Provider class.
+ *
+ * @package soter
+ */
 
 namespace Soter\Notifiers;
 
@@ -9,7 +14,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/**
+ * Defines the notifiers provider class.
+ */
 class Notifiers_Provider implements ServiceProviderInterface {
+	/**
+	 * Provider-specific boot logic.
+	 *
+	 * @param  Container $container Plugin container instance.
+	 *
+	 * @return void
+	 */
 	public function boot( Container $container ) {
 		add_action(
 			'soter_check_complete',
@@ -19,6 +34,13 @@ class Notifiers_Provider implements ServiceProviderInterface {
 		);
 	}
 
+	/**
+	 * Provider-specific registration logic.
+	 *
+	 * @param  Container $container Plugin container instance.
+	 *
+	 * @return void
+	 */
 	public function register( Container $container ) {
 		$container['notifiers.send_mail'] = function( Container $c ) {
 			return new Email_Notifier(

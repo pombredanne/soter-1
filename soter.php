@@ -35,6 +35,11 @@ function _soter_require_if_exists( $file ) {
 	}
 }
 
+/**
+ * Initializes the plugin.
+ *
+ * @return void
+ */
 function _soter_init() {
 	$checker = new WP_Requirements\Plugin_Checker( 'Soter', __FILE__ );
 
