@@ -49,9 +49,16 @@ class Options_Page {
 	 */
 	public function admin_init() {
 		add_settings_section(
-			'soter_main',
-			'Main Settings',
-			[ $this, 'render_section_main' ],
+			'soter_general',
+			'General Settings',
+			[ $this, 'render_section_general' ],
+			'soter'
+		);
+
+		add_settings_section(
+			'soter_email',
+			'Email Settings',
+			[ $this, 'render_section_email' ],
 			'soter'
 		);
 
@@ -60,23 +67,7 @@ class Options_Page {
 			'Notification Frequency',
 			[ $this, 'render_should_nag' ],
 			'soter',
-			'soter_main'
-		);
-
-		add_settings_field(
-			'soter_email_address',
-			'Email Address',
-			[ $this, 'render_email_address' ],
-			'soter',
-			'soter_main'
-		);
-
-		add_settings_field(
-			'soter_email_type',
-			'Email Type',
-			[ $this, 'render_email_type' ],
-			'soter',
-			'soter_main'
+			'soter_general'
 		);
 
 		add_settings_field(
@@ -84,7 +75,7 @@ class Options_Page {
 			'Ignored Plugins',
 			[ $this, 'render_ignored_plugins' ],
 			'soter',
-			'soter_main'
+			'soter_general'
 		);
 
 		add_settings_field(
@@ -92,7 +83,23 @@ class Options_Page {
 			'Ignored Themes',
 			[ $this, 'render_ignored_themes' ],
 			'soter',
-			'soter_main'
+			'soter_general'
+		);
+
+		add_settings_field(
+			'soter_email_address',
+			'Email Address',
+			[ $this, 'render_email_address' ],
+			'soter',
+			'soter_email'
+		);
+
+		add_settings_field(
+			'soter_email_type',
+			'Email Type',
+			[ $this, 'render_email_type' ],
+			'soter',
+			'soter_email'
 		);
 	}
 
@@ -207,9 +214,12 @@ class Options_Page {
 	 *
 	 * @return void
 	 */
-	public function render_section_main() {
-		// @todo Move this into a template file?
-		echo '<p>The main settings for the Soter Security Checker plugin.</p>';
+	public function render_section_general() {
+		echo '<p>Configure plugin settings.</p>';
+	}
+
+	public function render_section_email() {
+		echo '<p>Configure email notifications.</p>';
 	}
 
 	/**
