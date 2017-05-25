@@ -32,6 +32,13 @@ class Notifiers_Provider implements ServiceProviderInterface {
 			10,
 			2
 		);
+
+		add_action(
+			'soter_check_complete',
+			[ $container->proxy( 'notifiers.slack' ), 'notify' ],
+			10,
+			2
+		);
 	}
 
 	/**
@@ -46,6 +53,13 @@ class Notifiers_Provider implements ServiceProviderInterface {
 			return new Email_Notifier(
 				$c['plates'],
 				$c['options.manager']
+			);
+		};
+
+		$container['notifiers.slack'] = function( Container $c ) {
+			return new Slack_Notifier(
+				$c['options.manager'],
+				$c['user-agent']
 			);
 		};
 	}
