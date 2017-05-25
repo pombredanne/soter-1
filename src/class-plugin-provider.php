@@ -44,8 +44,8 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 * @return void
 	 */
 	public function activate( Container $container ) {
-		if ( false === wp_next_scheduled( Check_Site::get_hook() ) ) {
-			wp_schedule_event( time(), 'twicedaily', Check_Site::get_hook() );
+		if ( false === wp_next_scheduled( 'soter_run_check' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'soter_run_check' );
 		}
 	}
 
@@ -57,7 +57,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 * @return void
 	 */
 	public function deactivate( Container $container ) {
-		wp_clear_scheduled_hook( Check_Site::get_hook() );
+		wp_clear_scheduled_hook( 'soter_run_check' );
 	}
 
 	/**

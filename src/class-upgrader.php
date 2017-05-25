@@ -101,8 +101,8 @@ class Upgrader {
 		}
 
 		// Create 0.4.0+ cron hook if it does not exist.
-		if ( false === wp_next_scheduled( Check_Site::get_hook() ) ) {
-			wp_schedule_event( time(), 'twicedaily', Check_Site::get_hook() );
+		if ( false === wp_next_scheduled( 'soter_run_check' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'soter_run_check' );
 		}
 	}
 
