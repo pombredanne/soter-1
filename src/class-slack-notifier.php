@@ -1,8 +1,9 @@
 <?php
 
-namespace Soter\Notifiers;
+namespace Soter;
 
 use Soter\Options\Options_Manager;
+use Soter_Core\Vulnerability_Interface;
 
 class Slack_Notifier {
 	protected $options;

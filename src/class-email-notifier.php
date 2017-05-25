@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace Soter\Notifiers;
+namespace Soter;
 
 use League\Plates\Engine;
 use Soter\Options\Options_Manager;

@@ -31,6 +31,20 @@ class Plugin_Provider implements ServiceProviderInterface {
 			[ $container->proxy( 'check_site_job' ), 'run' ]
 		);
 
+		add_action(
+			'soter_check_complete',
+			[ $container->proxy( 'email_notifier' ), 'notify' ],
+			10,
+			2
+		);
+
+		add_action(
+			'soter_check_complete',
+			[ $container->proxy( 'slack_notifier' ), 'notify' ],
+			10,
+			2
+		);
+
 		if ( ! $this->doing_cron() && ! is_admin() ) {
 			return;
 		}
@@ -71,7 +85,21 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 */
 	public function register( Container $container ) {
 		$container['check_site_job'] = function( Container $c ) {
-			return new Check_Site( $c['core.checker'], $c['options.manager'] );
+			return new Check_Site_Job( $c['core.checker'], $c['options.manager'] );
+		};
+
+		$container['email_notifier'] = function( Container $c ) {
+			return new Email_Notifier(
+				$c['plates'],
+				$c['options.manager']
+			);
+		};
+
+		$container['slack_notifier'] = function( Container $c ) {
+			return new Slack_Notifier(
+				$c['options.manager'],
+				$c['user-agent']
+			);
 		};
 
 		$container['upgrader'] = function( Container $c ) {
