@@ -138,8 +138,9 @@ class Upgrader {
 
 		// These options don't technically get set because they are the same as the
 		// defaults we have defined in the options manager class...
-		$this->options->set_should_nag( 'yes' );
 		$this->options->set_last_scan_hash( '' );
+		$this->options->set_should_nag( 'yes' );
+		$this->options->set_slack_url( '' );
 
 		$this->options->get_store()->delete( 'settings' );
 	}

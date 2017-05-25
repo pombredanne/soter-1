@@ -62,6 +62,13 @@ class Options_Page {
 			'soter'
 		);
 
+		add_settings_section(
+			'soter_slack',
+			'Slack Settings',
+			[ $this, 'render_section_slack' ],
+			'soter'
+		);
+
 		add_settings_field(
 			'soter_should_nag',
 			'Notification Frequency',
@@ -100,6 +107,14 @@ class Options_Page {
 			[ $this, 'render_email_type' ],
 			'soter',
 			'soter_email'
+		);
+
+		add_settings_field(
+			'soter_slack_url',
+			'WebHook URL',
+			[ $this, 'render_slack_url' ],
+			'soter',
+			'soter_slack'
 		);
 	}
 
@@ -222,6 +237,10 @@ class Options_Page {
 		echo '<p>Configure email notifications.</p>';
 	}
 
+	public function render_section_slack() {
+		echo '<p>To send Slack notifications you must first configure an "Incoming WebHook" integration for your team.</p>';
+	}
+
 	/**
 	 * Render the nag/notification frequency setting.
 	 *
@@ -230,6 +249,13 @@ class Options_Page {
 	public function render_should_nag() {
 		echo $this->template->render( 'options/should-nag', [
 			'should_nag' => $this->options->should_nag(),
+		] );
+	}
+
+	public function render_slack_url() {
+		echo $this->template->render( 'options/slack-url', [
+			'placeholder' => 'Slack WebHook URL',
+			'value' => $this->options->slack_url(),
 		] );
 	}
 }

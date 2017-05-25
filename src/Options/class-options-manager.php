@@ -157,6 +157,12 @@ class Options_Manager {
 			'sanitize_callback' => [ $this, 'sanitize_should_nag' ],
 			'show_in_rest' => true,
 		] );
+
+		register_setting( 'soter_group', 'soter_slack_url', [
+			'default' => '',
+			'sanitize_callback' => [ $this, 'sanitize_slack_url' ],
+			'show_in_rest' => true,
+		] );
 	}
 
 	/**
@@ -325,6 +331,41 @@ class Options_Manager {
 		return filter_var( $value, FILTER_VALIDATE_BOOLEAN ) ? 'yes' : 'no';
 	}
 
+	public function sanitize_slack_url( $value ) {
+		if ( ! $value ) {
+			return '';
+		}
+
+		$url = filter_var( $value, FILTER_VALIDATE_URL );
+
+		if ( ! $url ) {
+			add_settings_error(
+				'soter_slack_url',
+				'invalid_soter_slack_url',
+				'Provided Slack webhook URL does not appear to be a valid URL.'
+			);
+
+			return $this->slack_url();
+		}
+
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+		if ( 'hooks.slack.com' !== $host ) {
+			add_settings_error(
+				'soter_slack_url',
+				'invalid_soter_slack_url',
+				sprintf(
+					'Slack webhook URL host must be hooks.slack.com - given %s.',
+					$host
+				)
+			);
+
+			return $this->slack_url();
+		}
+
+		return $url;
+	}
+
 	/**
 	 * Set the email address setting.
 	 *
@@ -402,6 +443,10 @@ class Options_Manager {
 		return $this->store->set( 'should_nag', $value );
 	}
 
+	public function set_slack_url( $value ) {
+		return $this->store->set( 'slack_url', $value );
+	}
+
 	/**
 	 * Get the nag setting.
 	 *
@@ -413,5 +458,9 @@ class Options_Manager {
 			$this->store->get( 'should_nag', true ),
 			FILTER_VALIDATE_BOOLEAN
 		);
+	}
+
+	public function slack_url() {
+		return (string) $this->store->get( 'slack_url', '' );
 	}
 }
