@@ -30,10 +30,6 @@ class Jobs_Provider implements ServiceProviderInterface {
 			'soter_run_check',
 			[ $container->proxy( 'jobs.check_site' ), 'run' ]
 		);
-		add_action(
-			'wp_scheduled_delete',
-			[ $container->proxy( 'jobs.gc_transients' ), 'run' ]
-		);
 	}
 
 	/**
@@ -46,10 +42,6 @@ class Jobs_Provider implements ServiceProviderInterface {
 	public function register( Container $container ) {
 		$container['jobs.check_site'] = function( Container $c ) {
 			return new Check_Site( $c['core.checker'], $c['options.manager'] );
-		};
-
-		$container['jobs.gc_transients'] = function( Container $c ) {
-			return new Collect_Transient_Garbage( $c['core.cache'] );
 		};
 	}
 }
