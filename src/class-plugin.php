@@ -7,7 +7,6 @@
 
 namespace Soter;
 
-use Closure;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 

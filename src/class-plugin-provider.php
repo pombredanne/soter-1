@@ -8,10 +8,7 @@
 namespace Soter;
 
 use Pimple\Container;
-use Soter\Jobs\Check_Site;
-use Soter\Options\Options_Provider;
 use Pimple\ServiceProviderInterface;
-use Soter\Jobs\Collect_Transient_Garbage;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
