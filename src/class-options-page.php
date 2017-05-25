@@ -211,34 +211,38 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_page_soter() {
-		// @todo Move this to a template file?
-		echo '<div class="wrap">';
-		echo '<h1>' . esc_html( get_admin_page_title() ) . '</h1>';
-		echo '<form action="options.php" method="POST">';
-
-		settings_fields( 'soter_group' );
-		do_settings_sections( 'soter' );
-		submit_button();
-
-		echo '</form>';
-		echo '</div>';
+		echo $this->template->render( 'options/page', [
+			'group' => 'soter_group',
+			'page' => 'soter',
+			'title' => get_admin_page_title(),
+		] );
 	}
 
 	/**
-	 * Renders the main page section.
+	 * Renders the general page section.
 	 *
 	 * @return void
 	 */
 	public function render_section_general() {
-		echo '<p>Configure plugin settings.</p>';
+		echo $this->template->render( 'options/general-section' );
 	}
 
+	/**
+	 * Renders the email page section.
+	 *
+	 * @return void
+	 */
 	public function render_section_email() {
-		echo '<p>By default, email notifications are sent as plain text to the WordPress admin email.</p>';
+		echo $this->template->render( 'options/email-section' );
 	}
 
+	/**
+	 * Renders the Slack page section.
+	 *
+	 * @return void
+	 */
 	public function render_section_slack() {
-		echo '<p>To send Slack notifications you must first configure an "Incoming WebHook" integration for your team.</p>';
+		echo $this->template->render( 'options/slack-section' );
 	}
 
 	/**
@@ -252,6 +256,11 @@ class Options_Page {
 		] );
 	}
 
+	/**
+	 * Render the Slack WebHook URL setting.
+	 *
+	 * @return void
+	 */
 	public function render_slack_url() {
 		echo $this->template->render( 'options/slack-url', [
 			'placeholder' => 'Slack WebHook URL',

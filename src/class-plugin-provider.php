@@ -138,6 +138,13 @@ class Plugin_Provider implements ServiceProviderInterface {
 		};
 	}
 
+	/**
+	 * Boots the upgrader object on cron or admin requests.
+	 *
+	 * @param  Container $container Plugin container instance.
+	 *
+	 * @return void
+	 */
 	protected function boot_upgrader( Container $container ) {
 		if ( ! $this->doing_cron() && ! is_admin() ) {
 			return;

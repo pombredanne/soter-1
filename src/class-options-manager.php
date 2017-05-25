@@ -334,6 +334,13 @@ class Options_Manager {
 		return filter_var( $value, FILTER_VALIDATE_BOOLEAN ) ? 'yes' : 'no';
 	}
 
+	/**
+	 * Sanitize the Slack WebHook URL setting.
+	 *
+	 * @param  string $value The value provided by the user.
+	 *
+	 * @return string
+	 */
 	public function sanitize_slack_url( $value ) {
 		$value = trim( (string) $value );
 
@@ -448,6 +455,11 @@ class Options_Manager {
 		return $this->store->set( 'should_nag', $value );
 	}
 
+	/**
+	 * Set the Slack WebHook URL settings.
+	 *
+	 * @param string $value The WebHook URL.
+	 */
 	public function set_slack_url( $value ) {
 		return $this->store->set( 'slack_url', $value );
 	}
@@ -465,6 +477,11 @@ class Options_Manager {
 		);
 	}
 
+	/**
+	 * Get the Slack WebHook URL setting.
+	 *
+	 * @return string
+	 */
 	public function slack_url() {
 		return trim( (string) $this->store->get( 'slack_url', '' ) );
 	}
