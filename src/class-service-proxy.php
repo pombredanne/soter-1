@@ -9,6 +9,10 @@ namespace Soter;
 
 use Pimple\Container;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 /**
  * Defines the service proxy class.
  */

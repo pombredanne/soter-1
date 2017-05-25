@@ -7,6 +7,10 @@
 
 namespace Soter\Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
+
 /**
  * Defines the options manager class.
  */
