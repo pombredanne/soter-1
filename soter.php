@@ -23,6 +23,75 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Initializes the plugin.
+ *
+ * @return void
+ */
+function _soter_init() {
+	static $initialized = false;
+
+	if ( $initialized ) {
+		return;
+	}
+
+	$checker = new WP_Requirements\Plugin_Checker( 'Soter', __FILE__ );
+
+	// Short array syntax.
+	$checker->php_at_least( '5.4' );
+
+	// Register_setting() with args array.
+	$checker->wp_at_least( '4.7' );
+
+	if ( ! $checker->requirements_met() ) {
+		return $checker->deactivate_and_notify();
+	}
+
+	$plugin = _soter_instance();
+
+	register_activation_hook( $plugin['file'], [ $plugin, 'activate' ] );
+	register_deactivation_hook( $plugin['file'], [ $plugin, 'deactivate' ] );
+
+	add_action( 'plugins_loaded', [ $plugin, 'boot' ] );
+}
+
+/**
+ * Gets the plugin instance.
+ *
+ * @return Soter\Plugin
+ */
+function _soter_instance() {
+	static $instance = null;
+
+	if ( ! is_null( $instance ) ) {
+		return $instance;
+	}
+
+	$instance = new Soter\Plugin( [
+		'dir' => plugin_dir_path( __FILE__ ),
+		'file' => __FILE__,
+		'name' => 'Soter',
+		'prefix' => 'soter',
+		'url' => 'https://github.com/ssnepenthe/soter',
+		'version' => '0.4.0',
+	] );
+
+	$providers = [
+		new Soter\Notifiers\Notifiers_Provider,
+		new Soter\Options\Options_Provider,
+		new Soter\Jobs\Jobs_Provider,
+		new Soter\Plates_Provider,
+		new Soter\Plugin_Provider,
+		new Soter\Soter_Core_Provider,
+	];
+
+	foreach ( $providers as $provider ) {
+		$instance->register( $provider );
+	}
+
+	return $instance;
+}
+
+/**
  * Require a file (once) if it exists.
  *
  * @param  string $file The file to check and require.
@@ -32,52 +101,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 function _soter_require_if_exists( $file ) {
 	if ( file_exists( $file ) ) {
 		require_once $file;
-	}
-}
-
-/**
- * Initializes the plugin.
- *
- * @return void
- */
-function _soter_init() {
-	$checker = new WP_Requirements\Plugin_Checker( 'Soter', __FILE__ );
-
-	// Short array syntax.
-	$checker->php_at_least( '5.4' );
-
-	// Register_setting() with args array.
-	$checker->wp_at_least( '4.7' );
-
-	if ( $checker->requirements_met() ) {
-		$plugin = new Soter\Plugin( [
-			'dir' => plugin_dir_path( __FILE__ ),
-			'file' => __FILE__,
-			'name' => 'Soter',
-			'prefix' => 'soter',
-			'url' => 'https://github.com/ssnepenthe/soter',
-			'version' => '0.4.0',
-		] );
-
-		$providers = [
-			new Soter\Notifiers\Notifiers_Provider,
-			new Soter\Options\Options_Provider,
-			new Soter\Jobs\Jobs_Provider,
-			new Soter\Plates_Provider,
-			new Soter\Plugin_Provider,
-			new Soter\Soter_Core_Provider,
-		];
-
-		foreach ( $providers as $provider ) {
-			$plugin->register( $provider );
-		}
-
-		register_activation_hook( $plugin['file'], [ $plugin, 'activate' ] );
-		register_deactivation_hook( $plugin['file'], [ $plugin, 'deactivate' ] );
-
-		add_action( 'plugins_loaded', [ $plugin, 'boot' ] );
-	} else {
-		$checker->deactivate_and_notify();
 	}
 }
 
