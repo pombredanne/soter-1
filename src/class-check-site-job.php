@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace Soter\Jobs;
+namespace Soter;
 
 use Soter_Core\Checker;
 use Soter\Options\Options_Manager;
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * This class hooks the checker to our WP-Cron hook.
  */
-class Check_Site {
+class Check_Site_Job {
 	/**
 	 * Checker instance.
 	 *

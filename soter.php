@@ -78,7 +78,6 @@ function _soter_instance() {
 	$providers = [
 		new Soter\Notifiers\Notifiers_Provider,
 		new Soter\Options\Options_Provider,
-		new Soter\Jobs\Jobs_Provider,
 		new Soter\Plates_Provider,
 		new Soter\Plugin_Provider,
 		new Soter\Soter_Core_Provider,

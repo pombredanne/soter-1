@@ -26,6 +26,11 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 * @return void
 	 */
 	public function boot( Container $container ) {
+		add_action(
+			'soter_run_check',
+			[ $container->proxy( 'check_site_job' ), 'run' ]
+		);
+
 		if ( ! $this->doing_cron() && ! is_admin() ) {
 			return;
 		}
@@ -65,6 +70,10 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 * @return void
 	 */
 	public function register( Container $container ) {
+		$container['check_site_job'] = function( Container $c ) {
+			return new Check_Site( $c['core.checker'], $c['options.manager'] );
+		};
+
 		$container['upgrader'] = function( Container $c ) {
 			return new Upgrader( $c['options.manager'] );
 		};
