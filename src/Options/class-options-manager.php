@@ -44,7 +44,7 @@ class Options_Manager {
 			$current = get_bloginfo( 'admin_email' );
 		}
 
-		return (string) $current;
+		return trim( (string) $current );
 	}
 
 	/**
@@ -53,7 +53,7 @@ class Options_Manager {
 	 * @return string
 	 */
 	public function email_type() {
-		return (string) $this->store->get( 'email_type', 'text' );
+		return trim( (string) $this->store->get( 'email_type', 'text' ) );
 	}
 
 	/**
@@ -98,7 +98,7 @@ class Options_Manager {
 	 * @return string
 	 */
 	public function installed_version() {
-		return (string) $this->store->get( 'installed_version', '' );
+		return trim( (string) $this->store->get( 'installed_version', '' ) );
 	}
 
 	/**
@@ -107,7 +107,7 @@ class Options_Manager {
 	 * @return string
 	 */
 	public function last_scan_hash() {
-		return (string) $this->store->get( 'last_scan_hash', '' );
+		return trim( (string) $this->store->get( 'last_scan_hash', '' ) );
 	}
 
 	/**
@@ -173,6 +173,8 @@ class Options_Manager {
 	 * @return string
 	 */
 	public function sanitize_email_address( $value ) {
+		$value = trim( (string) $value );
+
 		// Allow user to unset by providing an empty string.
 		if ( ! $value ) {
 			return '';
@@ -204,6 +206,7 @@ class Options_Manager {
 	 * @return string
 	 */
 	public function sanitize_email_type( $value ) {
+		$value = trim( (string) $value );
 		$new_value = '';
 
 		if ( in_array( $value, [ 'html', 'text' ], true ) ) {
@@ -305,7 +308,7 @@ class Options_Manager {
 	 * @return string
 	 */
 	public function sanitize_installed_version( $value ) {
-		$value = (string) $value;
+		$value = trim( (string) $value );
 
 		if ( (bool) preg_match( '/[^\d\.]/', $value ) ) {
 			add_settings_error(
@@ -332,6 +335,8 @@ class Options_Manager {
 	}
 
 	public function sanitize_slack_url( $value ) {
+		$value = trim( (string) $value );
+
 		if ( ! $value ) {
 			return '';
 		}
@@ -461,6 +466,6 @@ class Options_Manager {
 	}
 
 	public function slack_url() {
-		return (string) $this->store->get( 'slack_url', '' );
+		return trim( (string) $this->store->get( 'slack_url', '' ) );
 	}
 }
