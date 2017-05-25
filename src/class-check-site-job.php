@@ -8,7 +8,6 @@
 namespace Soter;
 
 use Soter_Core\Checker;
-use Soter\Options\Options_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

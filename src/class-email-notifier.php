@@ -8,7 +8,6 @@
 namespace Soter;
 
 use League\Plates\Engine;
-use Soter\Options\Options_Manager;
 use Soter_Core\Vulnerability_Interface;
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace Soter\Options;
+namespace Soter;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

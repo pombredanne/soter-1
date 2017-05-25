@@ -8,7 +8,6 @@
 namespace Soter;
 
 use WP_Query;
-use Soter\Options\Options_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;

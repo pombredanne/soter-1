@@ -27,6 +27,18 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 */
 	public function boot( Container $container ) {
 		add_action(
+			'admin_init',
+			[ $container->proxy( 'options_page' ), 'admin_init' ]
+		);
+
+		add_action(
+			'admin_menu',
+			[ $container->proxy( 'options_page' ), 'admin_menu' ]
+		);
+
+		add_action( 'init', [ $container['options_manager'], 'register_settings' ] );
+
+		add_action(
 			'soter_run_check',
 			[ $container->proxy( 'check_site_job' ), 'run' ]
 		);
@@ -85,25 +97,37 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 */
 	public function register( Container $container ) {
 		$container['check_site_job'] = function( Container $c ) {
-			return new Check_Site_Job( $c['core.checker'], $c['options.manager'] );
+			return new Check_Site_Job( $c['core.checker'], $c['options_manager'] );
 		};
 
 		$container['email_notifier'] = function( Container $c ) {
 			return new Email_Notifier(
 				$c['plates'],
-				$c['options.manager']
+				$c['options_manager']
 			);
+		};
+
+		$container['options_manager'] = function( Container $c ) {
+			return new Options_Manager( $c['options_store'] );
+		};
+
+		$container['options_page'] = function( Container $c ) {
+			return new Options_Page( $c['options_manager'], $c['plates'] );
+		};
+
+		$container['options_store'] = function( Container $c ) {
+			return new Options_Store( $c['prefix'] );
 		};
 
 		$container['slack_notifier'] = function( Container $c ) {
 			return new Slack_Notifier(
-				$c['options.manager'],
+				$c['options_manager'],
 				$c['user-agent']
 			);
 		};
 
 		$container['upgrader'] = function( Container $c ) {
-			return new Upgrader( $c['options.manager'] );
+			return new Upgrader( $c['options_manager'] );
 		};
 
 		$container['user-agent'] = function( Container $c ) {

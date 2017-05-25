@@ -5,7 +5,7 @@
  * @package soter
  */
 
-namespace Soter\Options;
+namespace Soter;
 
 use League\Plates\Engine;
 

@@ -76,7 +76,6 @@ function _soter_instance() {
 	] );
 
 	$providers = [
-		new Soter\Options\Options_Provider,
 		new Soter\Plates_Provider,
 		new Soter\Plugin_Provider,
 		new Soter\Soter_Core_Provider,
