@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 ?><input
+	class="regular-text"
 	id="soter_email_address"
 	name="soter_email_address"
 	placeholder="<?php echo esc_attr( $placeholder ) ?>"

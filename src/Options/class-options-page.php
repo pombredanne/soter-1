@@ -234,7 +234,7 @@ class Options_Page {
 	}
 
 	public function render_section_email() {
-		echo '<p>Configure email notifications.</p>';
+		echo '<p>By default, email notifications are sent as plain text to the WordPress admin email.</p>';
 	}
 
 	public function render_section_slack() {
