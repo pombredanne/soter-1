@@ -19,6 +19,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Plugin_Provider implements ServiceProviderInterface {
 	/**
+	 * Provider-specific activation logic.
+	 *
+	 * @param  Container $container Plugin container instance.
+	 *
+	 * @return void
+	 */
+	public function activate( Container $container ) {
+		if ( false === wp_next_scheduled( 'soter_run_check' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'soter_run_check' );
+		}
+	}
+
+	/**
 	 * Provider-specific boot logic.
 	 *
 	 * @param  Container $container Plugin container instance.
@@ -57,24 +70,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 			2
 		);
 
-		if ( ! $this->doing_cron() && ! is_admin() ) {
-			return;
-		}
-
-		add_action( 'init', [ $container['upgrader'], 'perform_upgrade' ] );
-	}
-
-	/**
-	 * Provider-specific activation logic.
-	 *
-	 * @param  Container $container Plugin container instance.
-	 *
-	 * @return void
-	 */
-	public function activate( Container $container ) {
-		if ( false === wp_next_scheduled( 'soter_run_check' ) ) {
-			wp_schedule_event( time(), 'twicedaily', 'soter_run_check' );
-		}
+		$this->boot_upgrader();
 	}
 
 	/**
@@ -140,6 +136,14 @@ class Plugin_Provider implements ServiceProviderInterface {
 				$c['url']
 			);
 		};
+	}
+
+	protected function boot_upgrader() {
+		if ( ! $this->doing_cron() && ! is_admin() ) {
+			return;
+		}
+
+		add_action( 'init', [ $container['upgrader'], 'perform_upgrade' ] );
 	}
 
 	/**
