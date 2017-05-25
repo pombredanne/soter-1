@@ -70,7 +70,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 			2
 		);
 
-		$this->boot_upgrader();
+		$this->boot_upgrader( $container );
 	}
 
 	/**
@@ -138,7 +138,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 		};
 	}
 
-	protected function boot_upgrader() {
+	protected function boot_upgrader( Container $container ) {
 		if ( ! $this->doing_cron() && ! is_admin() ) {
 			return;
 		}
