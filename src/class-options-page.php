@@ -207,8 +207,11 @@ class Options_Page {
 	public function render_ignored_plugins() {
 		$plugins = get_plugins();
 		$plugins = array_map( function( $key, $value ) {
-			$parts = explode( DIRECTORY_SEPARATOR, $key );
-			$slug = reset( $parts );
+			if ( false === strpos( $key, '/' ) ) {
+				$slug = basename( $key, '.php' );
+			} else {
+				$slug = dirname( $key );
+			}
 
 			return [
 				'name' => $value['Name'],
