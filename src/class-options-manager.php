@@ -237,7 +237,7 @@ class Options_Manager {
 				)
 			);
 
-			return $this->email_address();
+			return $this->email_address;
 		}
 
 		return $new_value;
@@ -268,7 +268,7 @@ class Options_Manager {
 				)
 			);
 
-			return $this->email_type();
+			return $this->email_type;
 		}
 
 		return $new_value;
@@ -308,7 +308,7 @@ class Options_Manager {
 				)
 			);
 
-			return $this->ignored_plugins();
+			return $this->ignored_plugins;
 		}
 
 		return $value;
@@ -339,7 +339,7 @@ class Options_Manager {
 				)
 			);
 
-			return $this->ignored_themes();
+			return $this->ignored_themes;
 		}
 
 		return $value;
@@ -362,7 +362,7 @@ class Options_Manager {
 				'Installed version can only contain the following characters: 0123456789.'
 			);
 
-			return $this->installed_version();
+			return $this->installed_version;
 		}
 
 		return $value;
@@ -402,7 +402,7 @@ class Options_Manager {
 				'Provided Slack webhook URL does not appear to be a valid URL.'
 			);
 
-			return $this->slack_url();
+			return $this->slack_url;
 		}
 
 		$host = wp_parse_url( $url, PHP_URL_HOST );
@@ -417,7 +417,7 @@ class Options_Manager {
 				)
 			);
 
-			return $this->slack_url();
+			return $this->slack_url;
 		}
 
 		return $url;
