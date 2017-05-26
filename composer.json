@@ -1,6 +1,6 @@
 {
     "name": "ssnepenthe/soter",
-    "description": "Check your full site for vulnerabilities against the WPScan vulnerabilities database API.",
+    "description": "Check your WordPress site for vulnerabilities against the WPScan vulnerabilities database API.",
     "type": "wordpress-plugin",
     "homepage": "https://github.com/ssnepenthe/soter",
     "license": "GPL-2.0",
