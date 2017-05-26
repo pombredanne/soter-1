@@ -32,9 +32,12 @@ Once activated, this plugin will check your site against the WPScan API twice da
 The plugin is configurable by visiting `settings > soter` in `wp-admin`:
 
 * Notification frequency: choose whether to receive notifications after every scan where vulnerabilities are detected or only to receive notifications when your sites status changes.
+* Ignored plugins and themes: Select any packages that should not be checked against the WPScan API. This is intended for custom packages which are not tracked by the API and there would generate unnecessary HTTP requests or possible false positives.
+* Send email notifications: enable/disable email notifications.
 * Email address: if notifications should be sent to an email address other than your site administrator email, enter it here.
 * Email type: Choose whether you prefer HTML or text emails.
-* Ignored plugins and themes: Select any packages that should not be checked against the WPScan API. This is intended for custom packages which are not tracked by the API and there would generate unnecessary HTTP requests or possible false positives.
+* Send Slack notifications: enable/disable Slack notifications.
+* Slack WebHook URL: provide a URL of an "Incoming WebHook" integration for your team to receive Slack notifications.
 
 ## Acknowledgements
 This plugin wouldn't be possible without the work of the [WPScan team](https://github.com/wpscanteam) and their amazing [WPScan Vulnerabilities Database](https://wpvulndb.com/).
@@ -42,7 +45,7 @@ This plugin wouldn't be possible without the work of the [WPScan team](https://g
 The email templates for this plugin are created from the [Postmark Transactional Email Templates](https://github.com/wildbit/postmark-templates) which are released under the MIT license.
 
 ## Similar Projects
-If you are only interested in WP-CLI integration, one of the following projects may be of more interest to you:
+If you are interested in WP-CLI integration, one of the following projects may be of more interest to you:
 
 * [WP Vulnerability Scanner](https://github.com/10up/wp-vulnerability-scanner) by 10up
 * [WP-sec](https://github.com/markri/wp-sec) by Marco de Krijger
