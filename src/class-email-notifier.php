@@ -47,13 +47,13 @@ class Email_Notifier {
 	 * Handle the notification.
 	 *
 	 * @param Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
-	 * @param boolean                   $has_changed     Whether the status has changed since last scan.
+	 * @param boolean                   $should_notify   Whether the user wants a notification.
 	 */
-	public function notify( $vulnerabilities, $has_changed ) {
+	public function notify( $vulnerabilities, $should_notify ) {
 		if (
 			! $this->options->email_enabled()
 			|| empty( $vulnerabilities )
-			|| ( ! $has_changed && ! $this->options->should_nag() )
+			|| ! $should_notify
 		) {
 			return;
 		}

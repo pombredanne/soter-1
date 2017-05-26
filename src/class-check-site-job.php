@@ -55,10 +55,12 @@ class Check_Site_Job {
 
 			$hash = $this->generate_scan_hash( $vulnerabilities );
 			$has_changed = $hash !== $this->options->last_scan_hash();
+			$should_notify = $this->options->should_nag() || $has_changed;
 
 			do_action(
 				'soter_check_complete',
 				$vulnerabilities,
+				$should_notify,
 				$has_changed
 			);
 

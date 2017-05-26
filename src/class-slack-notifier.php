@@ -42,16 +42,16 @@ class Slack_Notifier {
 	 * Handle the Slack notification.
 	 *
 	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
-	 * @param  boolean                   $has_changed     Whether the status has changed since the last scan.
+	 * @param  boolean                   $should_notify   Whether the user wants a notification.
 	 *
 	 * @return void
 	 */
-	public function notify( $vulnerabilities, $has_changed ) {
+	public function notify( $vulnerabilities, $should_notify ) {
 		if (
 			! $this->options->slack_enabled()
 			|| ! $this->options->slack_url()
 			|| empty( $vulnerabilities )
-			|| ( ! $has_changed && ! $this->options->should_nag() )
+			|| ! $should_notify
 		) {
 			return;
 		}
