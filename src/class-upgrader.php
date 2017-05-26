@@ -67,6 +67,33 @@ class Upgrader {
 		}
 	}
 
+	protected function prepare_ignored_plugins( array $plugins ) {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$valid_slugs = array_map( function( $file ) {
+			if ( false === strpos( $file, '/' ) ) {
+				$slug = basename( $file, '.php' );
+			} else {
+				$slug = dirname( $file );
+			}
+
+			return $slug;
+		}, array_keys( get_plugins() ) );
+
+		return array_values( array_intersect( $valid_slugs, $plugins ) );
+	}
+
+	protected function prepare_ignored_themes( array $themes ) {
+		$valid_slugs = array_values( wp_list_pluck(
+			wp_get_themes(),
+			'stylesheet'
+		) );
+
+		return array_values( array_intersect( $valid_slugs, $themes ) );
+	}
+
 	/**
 	 * Required logic for upgrading to v0.5.0.
 	 *
@@ -114,10 +141,14 @@ class Upgrader {
 		$old_options = (array) $this->options->get_store()->get( 'settings', [] );
 
 		if ( isset( $old_options['email_address'] ) ) {
-			$this->options->get_store()->set(
-				'email_address',
-				$old_options['email_address']
-			);
+			$sanitized = sanitize_email( $old_options['email_address'] );
+
+			if ( $sanitized ) {
+				$this->options->get_store()->set(
+					'email_address',
+					$old_options['email_address']
+				);
+			}
 		}
 
 		if ( isset( $old_options['html_email'] ) && $old_options['html_email'] ) {
@@ -128,22 +159,32 @@ class Upgrader {
 			isset( $old_options['ignored_plugins'] )
 			&& is_array( $old_options['ignored_plugins'] )
 		) {
-			// @todo Pre-sanitize?
-			$this->options->get_store()->set(
-				'ignored_plugins',
+			$ignored_plugins = $this->prepare_ignored_plugins(
 				$old_options['ignored_plugins']
 			);
+
+			if ( ! empty( $ignored_plugins ) ) {
+				$this->options->get_store()->set(
+					'ignored_plugins',
+					$ignored_plugins
+				);
+			}
 		}
 
 		if (
 			isset( $old_options['ignored_themes'] )
 			&& is_array( $old_options['ignored_themes'] )
 		) {
-			// @todo Pre-sanitize?
-			$this->options->get_store()->set(
-				'ignored_themes',
+			$ignored_themes = $this->prepare_ignored_themes(
 				$old_options['ignored_themes']
 			);
+
+			if ( ! empty( $ignored_themes ) ) {
+				$this->options->get_store()->set(
+					'ignored_themes',
+					$ignored_themes
+				);
+			}
 		}
 
 		// These options don't technically get set because they are the same as the
