@@ -149,13 +149,27 @@ class Options_Page {
 		);
 	}
 
+	public function print_notice_when_no_notifiers_active() {
+		if (
+			'settings_page_soter' !== get_current_screen()->base
+			|| $this->options->email_enabled()
+			|| $this->options->slack_enabled()
+		) {
+			return;
+		}
+
+		echo $this->template->render( 'admin-notice', [
+			'type' => 'error',
+			'message' => 'All notification channels are currently disabled. Please enable one or more below.',
+		] );
+	}
+
 	/**
 	 * Renders the email address field.
 	 *
 	 * @return void
 	 */
 	public function render_email_address() {
-		// @todo
 		$placeholder = get_bloginfo( 'admin_email' );
 		$current = $this->options->email_address();
 		$value = $placeholder === $current ? '' : $current;

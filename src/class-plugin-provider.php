@@ -49,6 +49,14 @@ class Plugin_Provider implements ServiceProviderInterface {
 			[ $container->proxy( 'options_page' ), 'admin_menu' ]
 		);
 
+		add_action(
+			'admin_notices',
+			[
+				$container->proxy( 'options_page' ),
+				'print_notice_when_no_notifiers_active'
+			]
+		);
+
 		add_action( 'init', [ $container['options_manager'], 'register_settings' ] );
 
 		add_action(
