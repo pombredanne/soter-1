@@ -152,8 +152,8 @@ class Options_Page {
 	public function print_notice_when_no_notifiers_active() {
 		if (
 			'settings_page_soter' !== get_current_screen()->base
-			|| $this->options->email_enabled()
-			|| $this->options->slack_enabled()
+			|| $this->options->email_enabled
+			|| $this->options->slack_enabled
 		) {
 			return;
 		}
@@ -171,7 +171,7 @@ class Options_Page {
 	 */
 	public function render_email_address() {
 		$placeholder = get_bloginfo( 'admin_email' );
-		$current = $this->options->email_address();
+		$current = $this->options->email_address;
 		$value = $placeholder === $current ? '' : $current;
 
 		echo $this->template->render(
@@ -182,7 +182,7 @@ class Options_Page {
 
 	public function render_email_enabled() {
 		echo $this->template->render( 'options/boolean', [
-			'checked' => $this->options->email_enabled(),
+			'checked' => $this->options->email_enabled,
 			'label' => 'Enable email notifications',
 			'setting' => 'soter_email_enabled',
 		] );
@@ -195,7 +195,7 @@ class Options_Page {
 	 */
 	public function render_email_type() {
 		echo $this->template->render( 'options/email-type', [
-			'type' => $this->options->email_type(),
+			'type' => $this->options->email_type,
 		] );
 	}
 
@@ -217,7 +217,7 @@ class Options_Page {
 		}, array_keys( $plugins ), $plugins );
 
 		echo $this->template->render( 'options/ignored-packages', [
-			'ignored_packages' => $this->options->ignored_plugins(),
+			'ignored_packages' => $this->options->ignored_plugins,
 			'packages' => $plugins,
 			'type' => 'plugins',
 		] );
@@ -237,7 +237,7 @@ class Options_Page {
 		}, wp_get_themes() );
 
 		echo $this->template->render( 'options/ignored-packages', [
-			'ignored_packages' => $this->options->ignored_themes(),
+			'ignored_packages' => $this->options->ignored_themes,
 			'packages' => $themes,
 			'type' => 'themes',
 		] );
@@ -290,13 +290,13 @@ class Options_Page {
 	 */
 	public function render_should_nag() {
 		echo $this->template->render( 'options/should-nag', [
-			'should_nag' => $this->options->should_nag(),
+			'should_nag' => $this->options->should_nag,
 		] );
 	}
 
 	public function render_slack_enabled() {
 		echo $this->template->render( 'options/boolean', [
-			'checked' => $this->options->slack_enabled(),
+			'checked' => $this->options->slack_enabled,
 			'label' => 'Enable slack notifications',
 			'setting' => 'soter_slack_enabled',
 		] );
@@ -310,7 +310,7 @@ class Options_Page {
 	public function render_slack_url() {
 		echo $this->template->render( 'options/slack-url', [
 			'placeholder' => 'Slack WebHook URL',
-			'value' => $this->options->slack_url(),
+			'value' => $this->options->slack_url,
 		] );
 	}
 }

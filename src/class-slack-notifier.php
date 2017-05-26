@@ -48,8 +48,8 @@ class Slack_Notifier {
 	 */
 	public function notify( $vulnerabilities, $should_notify ) {
 		if (
-			! $this->options->slack_enabled()
-			|| ! $this->options->slack_url()
+			! $this->options->slack_enabled
+			|| ! $this->options->slack_url
 			|| empty( $vulnerabilities )
 			|| ! $should_notify
 		) {
@@ -71,7 +71,7 @@ class Slack_Notifier {
 			admin_url( 'update-core.php' )
 		);
 
-		wp_remote_post( $this->options->slack_url(), [
+		wp_remote_post( $this->options->slack_url, [
 			'body' => wp_json_encode( [
 				'attachments' => [
 					[

@@ -73,7 +73,7 @@ class Upgrader {
 	 * @return void
 	 */
 	protected function upgrade_to_050() {
-		if ( $this->options->installed_version() ) {
+		if ( $this->options->installed_version ) {
 			return;
 		}
 
@@ -84,7 +84,7 @@ class Upgrader {
 		$this->delete_vulnerabilities();
 
 		// Set installed version so upgrader does not run again.
-		$this->options->set_installed_version( '0.5.0' );
+		$this->options->get_store()->set( 'installed_version', '0.5.0' );
 	}
 
 	/**
@@ -114,34 +114,45 @@ class Upgrader {
 		$old_options = (array) $this->options->get_store()->get( 'settings', [] );
 
 		if ( isset( $old_options['email_address'] ) ) {
-			$this->options->set_email_address( $old_options['email_address'] );
+			$this->options->get_store()->set(
+				'email_address',
+				$old_options['email_address']
+			);
 		}
 
 		if ( isset( $old_options['html_email'] ) && $old_options['html_email'] ) {
-			$this->options->set_email_type( 'html' );
+			$this->options->get_store()->set( 'email_type', 'html' );
 		}
 
 		if (
 			isset( $old_options['ignored_plugins'] )
 			&& is_array( $old_options['ignored_plugins'] )
 		) {
-			$this->options->set_ignored_plugins( $old_options['ignored_plugins'] );
+			// @todo Pre-sanitize?
+			$this->options->get_store()->set(
+				'ignored_plugins',
+				$old_options['ignored_plugins']
+			);
 		}
 
 		if (
 			isset( $old_options['ignored_themes'] )
 			&& is_array( $old_options['ignored_themes'] )
 		) {
-			$this->options->set_ignored_themes( $old_options['ignored_themes'] );
+			// @todo Pre-sanitize?
+			$this->options->get_store()->set(
+				'ignored_themes',
+				$old_options['ignored_themes']
+			);
 		}
 
 		// These options don't technically get set because they are the same as the
 		// defaults we have defined in the options manager class...
-		$this->options->set_email_enabled( 'yes' );
-		$this->options->set_last_scan_hash( '' );
-		$this->options->set_should_nag( 'yes' );
-		$this->options->set_slack_enabled( 'no' );
-		$this->options->set_slack_url( '' );
+		$this->options->get_store()->set( 'email_enabled', 'yes' );
+		$this->options->get_store()->set( 'last_scan_hash', '' );
+		$this->options->get_store()->set( 'should_nag', 'yes' );
+		$this->options->get_store()->set( 'slack_enabled', 'no' );
+		$this->options->get_store()->set( 'slack_url', '' );
 
 		$this->options->get_store()->delete( 'settings' );
 	}

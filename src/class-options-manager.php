@@ -31,12 +31,95 @@ class Options_Manager {
 		$this->store = $store;
 	}
 
+	public function __get( $key ) {
+		$key = strtolower( $key );
+		$getter = "_get_{$key}";
+
+		if ( method_exists( $this, $getter ) ) {
+			return $this->{$getter}();
+		}
+
+		if ( isset( $this->types[ $key ] ) ) {
+			$getter = "_get_{$this->types[ $key ]}_value";
+
+			return $this->{$getter}( $key );
+		}
+
+		return null;
+	}
+
+	protected function _get_string_value( $key ) {
+		if (
+			! isset( $this->types[ $key ] )
+			|| 'string' !== $this->types[ $key ]
+		) {
+			return null;
+		}
+
+		$default = array_key_exists( $key, $this->defaults )
+			? $this->defaults[ $key ]
+			: '';
+
+		return trim( (string) $this->store->get( $key, $default ) );
+	}
+
+	protected function _get_boolean_value( $key ) {
+		if (
+			! isset( $this->types[ $key ] )
+			|| 'boolean' !== $this->types[ $key ]
+		) {
+			return null;
+		}
+
+		$default = array_key_exists( $key, $this->defaults )
+			? $this->defaults[ $key ]
+			: true;
+
+		// Values are stored as yes/no strings.
+		return filter_var(
+			$this->store->get( $key, $default ),
+			FILTER_VALIDATE_BOOLEAN
+		);
+	}
+
+	protected function _get_array_value( $key ) {
+		if (
+			! isset( $this->types[ $key ] )
+			|| 'array' !== $this->types[ $key ]
+		) {
+			return null;
+		}
+
+		$default = array_key_exists( $key, $this->defaults )
+			? $this->defaults[ $key ]
+			: [];
+
+		// @todo Could be taken a step further to array map strval?
+		return (array) $this->store->get( $key, $default );
+	}
+
+	protected $types = [
+		'email_enabled' => 'boolean',
+		'email_type' => 'string',
+		'ignored_plugins' => 'array',
+		'ignored_themes' => 'array',
+		'installed_version' => 'string',
+		'last_scan_hash' => 'string',
+		'should_nag' => 'boolean',
+		'slack_enabled' => 'boolean',
+		'slack_url' => 'string',
+	];
+	protected $defaults = [
+		'email_type' => 'text',
+		'slack_enabled' => false,
+	];
+
 	/**
 	 * Get the currently configured email address.
 	 *
 	 * @return string
 	 */
-	public function email_address() {
+	protected function _get_email_address() {
 		$current = $this->store->get( 'email_address' );
 
 		// Might be null or an empty string...
@@ -47,20 +130,8 @@ class Options_Manager {
 		return trim( (string) $current );
 	}
 
-	public function email_enabled() {
-		return filter_var(
-			$this->store->get( 'email_enabled', true ),
-			FILTER_VALIDATE_BOOLEAN
-		);
-	}
-
-	/**
-	 * Get the currently configured email type.
-	 *
-	 * @return string
-	 */
-	public function email_type() {
-		return trim( (string) $this->store->get( 'email_type', 'text' ) );
+	protected function _get_ignored_packages() {
+		return array_merge( $this->ignored_plugins, $this->ignored_themes );
 	}
 
 	/**
@@ -70,51 +141,6 @@ class Options_Manager {
 	 */
 	public function get_store() {
 		return $this->store;
-	}
-
-	/**
-	 * Get the list of ignored package slugs.
-	 *
-	 * @return string[]
-	 */
-	public function ignored_packages() {
-		return array_merge( $this->ignored_plugins(), $this->ignored_themes() );
-	}
-
-	/**
-	 * Get the list of ignored plugins.
-	 *
-	 * @return string[]
-	 */
-	public function ignored_plugins() {
-		return (array) $this->store->get( 'ignored_plugins', [] );
-	}
-
-	/**
-	 * Get the list of ignored themes.
-	 *
-	 * @return string[]
-	 */
-	public function ignored_themes() {
-		return (array) $this->store->get( 'ignored_themes', [] );
-	}
-
-	/**
-	 * Get the currently installed plugin version.
-	 *
-	 * @return string
-	 */
-	public function installed_version() {
-		return trim( (string) $this->store->get( 'installed_version', '' ) );
-	}
-
-	/**
-	 * Get the hash of the last scan.
-	 *
-	 * @return string
-	 */
-	public function last_scan_hash() {
-		return trim( (string) $this->store->get( 'last_scan_hash', '' ) );
 	}
 
 	/**
@@ -395,128 +421,5 @@ class Options_Manager {
 		}
 
 		return $url;
-	}
-
-	/**
-	 * Set the email address setting.
-	 *
-	 * @param string $value An email address.
-	 *
-	 * @return boolean
-	 */
-	public function set_email_address( $value ) {
-		return $this->store->set( 'email_address', $value );
-	}
-
-	public function set_email_enabled( $value ) {
-		return $this->store->set( 'email_enabled', $value );
-	}
-
-	/**
-	 * Set the email type setting.
-	 *
-	 * @param string $value Eamil type - 'text' or 'html'.
-	 *
-	 * @return boolean
-	 */
-	public function set_email_type( $value ) {
-		return $this->store->set( 'email_type', $value );
-	}
-
-	/**
-	 * Set the ignored plugins list.
-	 *
-	 * @param string[] $value List of pluign slugs.
-	 *
-	 * @return boolean
-	 */
-	public function set_ignored_plugins( $value ) {
-		return $this->store->set( 'ignored_plugins', $value );
-	}
-
-	/**
-	 * Set the ignored themes list.
-	 *
-	 * @param string[] $value List of theme slugs.
-	 *
-	 * @return boolean
-	 */
-	public function set_ignored_themes( $value ) {
-		return $this->store->set( 'ignored_themes', $value );
-	}
-
-	/**
-	 * Set the installed version.
-	 *
-	 * @param string $value Version string.
-	 *
-	 * @return boolean
-	 */
-	public function set_installed_version( $value ) {
-		return $this->store->set( 'installed_version', $value );
-	}
-
-	/**
-	 * Set the last scan hash setting.
-	 *
-	 * @param string $value Unique hash representing the results of a scan.
-	 *
-	 * @return boolean
-	 */
-	public function set_last_scan_hash( $value ) {
-		return $this->store->set( 'last_scan_hash', $value );
-	}
-
-	/**
-	 * Set the nag setting.
-	 *
-	 * @param string $value Should nagging notification be enabled - 'yes' or 'no'.
-	 *
-	 * @return boolean
-	 */
-	public function set_should_nag( $value ) {
-		return $this->store->set( 'should_nag', $value );
-	}
-
-	public function set_slack_enabled( $value ) {
-		return $this->store->set( 'slack_enabled', $value );
-	}
-
-	/**
-	 * Set the Slack WebHook URL settings.
-	 *
-	 * @param string $value The WebHook URL.
-	 */
-	public function set_slack_url( $value ) {
-		return $this->store->set( 'slack_url', $value );
-	}
-
-	/**
-	 * Get the nag setting.
-	 *
-	 * @return boolean
-	 */
-	public function should_nag() {
-		// Option is stored as yes/no.
-		return filter_var(
-			$this->store->get( 'should_nag', true ),
-			FILTER_VALIDATE_BOOLEAN
-		);
-	}
-
-	public function slack_enabled() {
-		return filter_var(
-			$this->store->get( 'slack_enabled', false ),
-			FILTER_VALIDATE_BOOLEAN
-		);
-	}
-
-	/**
-	 * Get the Slack WebHook URL setting.
-	 *
-	 * @return string
-	 */
-	public function slack_url() {
-		return trim( (string) $this->store->get( 'slack_url', '' ) );
 	}
 }

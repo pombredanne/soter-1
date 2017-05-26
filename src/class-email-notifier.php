@@ -51,7 +51,7 @@ class Email_Notifier {
 	 */
 	public function notify( $vulnerabilities, $should_notify ) {
 		if (
-			! $this->options->email_enabled()
+			! $this->options->email_enabled
 			|| empty( $vulnerabilities )
 			|| ! $should_notify
 		) {
@@ -82,7 +82,7 @@ class Email_Notifier {
 		$template = 'emails/text-vulnerable';
 		$action_url = admin_url( 'update-core.php' );
 
-		if ( 'html' === $this->options->email_type() ) {
+		if ( 'html' === $this->options->email_type ) {
 			$headers[] = 'Content-type: text/html';
 			$template = 'emails/html-vulnerable';
 		}
@@ -94,7 +94,7 @@ class Email_Notifier {
 		}
 
 		wp_mail(
-			$this->options->email_address(),
+			$this->options->email_address,
 			"[{$site_name}] {$count} {$label} detected",
 			$this->template->render(
 				$template,
