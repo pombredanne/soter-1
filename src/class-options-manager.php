@@ -47,6 +47,13 @@ class Options_Manager {
 		return trim( (string) $current );
 	}
 
+	public function email_enabled() {
+		return filter_var(
+			$this->store->get( 'email_enabled', true ),
+			FILTER_VALIDATE_BOOLEAN
+		);
+	}
+
 	/**
 	 * Get the currently configured email type.
 	 *
@@ -134,6 +141,12 @@ class Options_Manager {
 			'show_in_rest' => true,
 		] );
 
+		register_setting( 'soter_group', 'soter_email_enabled', [
+			'default' => 'yes',
+			'sanitize_callback' => [ $this, 'sanitize_boolean' ],
+			'show_in_rest' => true,
+		] );
+
 		register_setting( 'soter_group', 'soter_email_type', [
 			'default' => 'text',
 			'sanitize_callback' => [ $this, 'sanitize_email_type' ],
@@ -154,7 +167,7 @@ class Options_Manager {
 
 		register_setting( 'soter_group', 'soter_should_nag', [
 			'default' => 'yes',
-			'sanitize_callback' => [ $this, 'sanitize_should_nag' ],
+			'sanitize_callback' => [ $this, 'sanitize_boolean' ],
 			'show_in_rest' => true,
 		] );
 
@@ -330,7 +343,7 @@ class Options_Manager {
 	 *
 	 * @return string
 	 */
-	public function sanitize_should_nag( $value ) {
+	public function sanitize_boolean( $value ) {
 		return filter_var( $value, FILTER_VALIDATE_BOOLEAN ) ? 'yes' : 'no';
 	}
 
@@ -387,6 +400,10 @@ class Options_Manager {
 	 */
 	public function set_email_address( $value ) {
 		return $this->store->set( 'email_address', $value );
+	}
+
+	public function set_email_enabled( $value ) {
+		return $this->store->set( 'email_enabled', $value );
 	}
 
 	/**

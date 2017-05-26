@@ -51,7 +51,8 @@ class Email_Notifier {
 	 */
 	public function notify( $vulnerabilities, $has_changed ) {
 		if (
-			empty( $vulnerabilities )
+			! $this->options->email_enabled()
+			|| empty( $vulnerabilities )
 			|| ( ! $has_changed && ! $this->options->should_nag() )
 		) {
 			return;

@@ -94,6 +94,14 @@ class Options_Page {
 		);
 
 		add_settings_field(
+			'soter_email_enabled',
+			'Send Email Notifications',
+			[ $this, 'render_email_enabled' ],
+			'soter',
+			'soter_email'
+		);
+
+		add_settings_field(
 			'soter_email_address',
 			'Email Address',
 			[ $this, 'render_email_address' ],
@@ -148,6 +156,12 @@ class Options_Page {
 			'options/email-address',
 			compact( 'placeholder', 'value' )
 		);
+	}
+
+	public function render_email_enabled() {
+		echo $this->template->render( 'options/email-enabled', [
+			'checked' => $this->options->email_enabled(),
+		] );
 	}
 
 	/**
