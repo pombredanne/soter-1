@@ -156,13 +156,13 @@ class Options_Manager {
 		register_setting( 'soter_group', 'soter_ignored_plugins', [
 			'default' => [],
 			'sanitize_callback' => [ $this, 'sanitize_ignored_plugins' ],
-			'show_in_rest' => true,
+			'show_in_rest' => false,
 		] );
 
 		register_setting( 'soter_group', 'soter_ignored_themes', [
 			'default' => [],
 			'sanitize_callback' => [ $this, 'sanitize_ignored_themes' ],
-			'show_in_rest' => true,
+			'show_in_rest' => false,
 		] );
 
 		register_setting( 'soter_group', 'soter_should_nag', [
