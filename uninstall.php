@@ -35,12 +35,15 @@ if ( ! function_exists( '_soter_require_if_exists' ) ) {
 function _soter_uninstall() {
 	$options = [
 		'soter_email_address',
+		'soter_email_enabled',
 		'soter_email_type',
 		'soter_ignored_plugins',
 		'soter_ignored_themes',
 		'soter_installed_version',
 		'soter_last_scan_hash',
 		'soter_should_nag',
+		'soter_slack_enabled',
+		'soter_slack_url',
 	];
 
 	foreach ( $options as $option ) {
