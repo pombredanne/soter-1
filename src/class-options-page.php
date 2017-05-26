@@ -118,6 +118,14 @@ class Options_Page {
 		);
 
 		add_settings_field(
+			'soter_slack_enabled',
+			'Send Slack Notifications',
+			[ $this, 'render_slack_enabled' ],
+			'soter',
+			'soter_slack'
+		);
+
+		add_settings_field(
 			'soter_slack_url',
 			'WebHook URL',
 			[ $this, 'render_slack_url' ],
@@ -159,8 +167,10 @@ class Options_Page {
 	}
 
 	public function render_email_enabled() {
-		echo $this->template->render( 'options/email-enabled', [
+		echo $this->template->render( 'options/boolean', [
 			'checked' => $this->options->email_enabled(),
+			'label' => 'Enable email notifications',
+			'setting' => 'soter_email_enabled',
 		] );
 	}
 
@@ -267,6 +277,14 @@ class Options_Page {
 	public function render_should_nag() {
 		echo $this->template->render( 'options/should-nag', [
 			'should_nag' => $this->options->should_nag(),
+		] );
+	}
+
+	public function render_slack_enabled() {
+		echo $this->template->render( 'options/boolean', [
+			'checked' => $this->options->slack_enabled(),
+			'label' => 'Enable slack notifications',
+			'setting' => 'soter_slack_enabled',
 		] );
 	}
 

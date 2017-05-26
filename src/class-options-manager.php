@@ -171,6 +171,12 @@ class Options_Manager {
 			'show_in_rest' => true,
 		] );
 
+		register_setting( 'soter_group', 'soter_slack_enabled', [
+			'default' => 'no',
+			'sanitize_callback' => [ $this, 'sanitize_boolean' ],
+			'show_in_rest' => true,
+		] );
+
 		register_setting( 'soter_group', 'soter_slack_url', [
 			'default' => '',
 			'sanitize_callback' => [ $this, 'sanitize_slack_url' ],
@@ -472,6 +478,10 @@ class Options_Manager {
 		return $this->store->set( 'should_nag', $value );
 	}
 
+	public function set_slack_enabled( $value ) {
+		return $this->store->set( 'slack_enabled', $value );
+	}
+
 	/**
 	 * Set the Slack WebHook URL settings.
 	 *
@@ -490,6 +500,13 @@ class Options_Manager {
 		// Option is stored as yes/no.
 		return filter_var(
 			$this->store->get( 'should_nag', true ),
+			FILTER_VALIDATE_BOOLEAN
+		);
+	}
+
+	public function slack_enabled() {
+		return filter_var(
+			$this->store->get( 'slack_enabled', false ),
 			FILTER_VALIDATE_BOOLEAN
 		);
 	}

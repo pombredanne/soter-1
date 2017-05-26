@@ -140,6 +140,7 @@ class Upgrader {
 		$this->options->set_email_enabled( 'yes' );
 		$this->options->set_last_scan_hash( '' );
 		$this->options->set_should_nag( 'yes' );
+		$this->options->set_slack_enabled( 'no' );
 		$this->options->set_slack_url( '' );
 
 		$this->options->get_store()->delete( 'settings' );

@@ -48,9 +48,10 @@ class Slack_Notifier {
 	 */
 	public function notify( $vulnerabilities, $has_changed ) {
 		if (
-			empty( $vulnerabilities )
-			|| ( ! $has_changed && ! $this->options->should_nag() )
+			! $this->options->slack_enabled()
 			|| ! $this->options->slack_url()
+			|| empty( $vulnerabilities )
+			|| ( ! $has_changed && ! $this->options->should_nag() )
 		) {
 			return;
 		}
