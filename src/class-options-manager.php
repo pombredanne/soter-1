@@ -149,64 +149,44 @@ class Options_Manager {
 	 * @return void
 	 */
 	public function register_settings() {
-		register_setting( 'soter_backend', 'soter_installed_version', [
-			'default' => '',
-			'sanitize_callback' => [ $this, 'sanitize_installed_version' ],
-			'show_in_rest' => true,
-		] );
-
-		register_setting( 'soter_backend', 'soter_last_scan_hash', [
-			'default' => '',
-			'sanitize_callback' => 'strval',
-			'show_in_rest' => true,
-		] );
-
 		register_setting( 'soter_group', 'soter_email_address', [
 			'default' => get_bloginfo( 'admin_email' ),
 			'sanitize_callback' => [ $this, 'sanitize_email_address' ],
-			'show_in_rest' => true,
 		] );
 
 		register_setting( 'soter_group', 'soter_email_enabled', [
 			'default' => 'yes',
 			'sanitize_callback' => [ $this, 'sanitize_boolean' ],
-			'show_in_rest' => true,
 		] );
 
 		register_setting( 'soter_group', 'soter_email_type', [
 			'default' => 'text',
 			'sanitize_callback' => [ $this, 'sanitize_email_type' ],
-			'show_in_rest' => true,
 		] );
 
 		register_setting( 'soter_group', 'soter_ignored_plugins', [
 			'default' => [],
 			'sanitize_callback' => [ $this, 'sanitize_ignored_plugins' ],
-			'show_in_rest' => false,
 		] );
 
 		register_setting( 'soter_group', 'soter_ignored_themes', [
 			'default' => [],
 			'sanitize_callback' => [ $this, 'sanitize_ignored_themes' ],
-			'show_in_rest' => false,
 		] );
 
 		register_setting( 'soter_group', 'soter_should_nag', [
 			'default' => 'yes',
 			'sanitize_callback' => [ $this, 'sanitize_boolean' ],
-			'show_in_rest' => true,
 		] );
 
 		register_setting( 'soter_group', 'soter_slack_enabled', [
 			'default' => 'no',
 			'sanitize_callback' => [ $this, 'sanitize_boolean' ],
-			'show_in_rest' => true,
 		] );
 
 		register_setting( 'soter_group', 'soter_slack_url', [
 			'default' => '',
 			'sanitize_callback' => [ $this, 'sanitize_slack_url' ],
-			'show_in_rest' => true,
 		] );
 	}
 

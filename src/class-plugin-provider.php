@@ -57,7 +57,10 @@ class Plugin_Provider implements ServiceProviderInterface {
 			]
 		);
 
-		add_action( 'init', [ $container['options_manager'], 'register_settings' ] );
+		add_action(
+			'admin_init',
+			[ $container['options_manager'], 'register_settings' ]
+		);
 
 		add_action(
 			'soter_run_check',
