@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * This class creates and sends email notifications after a site scan.
  */
-class Email_Notifier {
+class Email_Notifier implements Notifier_Interface {
 	/**
 	 * Options manager instance.
 	 *
@@ -44,6 +44,10 @@ class Email_Notifier {
 		$this->options = $options;
 	}
 
+	public function is_enabled() {
+		return $this->options->email_enabled;
+	}
+
 	/**
 	 * Handle the notification.
 	 *
@@ -52,28 +56,6 @@ class Email_Notifier {
 	 * @return void
 	 */
 	public function notify( Vulnerabilities $vulnerabilities ) {
-		if ( ! $this->options->email_enabled || $vulnerabilities->is_empty() ) {
-			return;
-		}
-
-		$has_changed = $vulnerabilities->hash() !== $this->options->last_scan_hash;
-		$should_notify = $this->options->should_nag || $has_changed;
-
-		if ( ! $should_notify ) {
-			return;
-		}
-
-		$this->send_email( $vulnerabilities );
-	}
-
-	/**
-	 * Send the actual email.
-	 *
-	 * @param  Vulnerabilities $vulnerabilities List of vulnerabilities.
-	 *
-	 * @return void
-	 */
-	protected function send_email( Vulnerabilities $vulnerabilities ) {
 		$count = $vulnerabilities->count();
 		$label = 1 === $count ? 'vulnerability' : 'vulnerabilities';
 		$site_name = get_bloginfo( 'name' );

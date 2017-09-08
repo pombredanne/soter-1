@@ -12,7 +12,7 @@ use Soter_Core\Vulnerabilities;
 /**
  * Defines the Slack notifier class.
  */
-class Slack_Notifier {
+class Slack_Notifier implements Notifier_Interface {
 	/**
 	 * Options manager instance.
 	 *
@@ -38,6 +38,10 @@ class Slack_Notifier {
 		$this->user_agent = (string) $user_agent;
 	}
 
+	public function is_enabled() {
+		return $this->options->slack_enabled && $this->options->slack_url;
+	}
+
 	/**
 	 * Handle the Slack notification.
 	 *
@@ -46,21 +50,6 @@ class Slack_Notifier {
 	 * @return void
 	 */
 	public function notify( Vulnerabilities $vulnerabilities ) {
-		if ( ! $this->options->slack_enabled || ! $this->options->slack_url ) {
-			return;
-		}
-
-		if ( $vulnerabilities->is_empty() ) {
-			return;
-		}
-
-		$has_changed = $vulnerabilities->hash() !== $this->options->last_scan_hash;
-		$should_notify = $this->options->should_nag || $has_changed;
-
-		if ( ! $should_notify ) {
-			return;
-		}
-
 		$vuln_count = $vulnerabilities->count();
 		$text = sprintf(
 			'%s %s detected on %s. <%s|Please update your site.>',
