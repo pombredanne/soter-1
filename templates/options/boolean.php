@@ -12,4 +12,5 @@
 			value="1"
 		>
 		<?php echo esc_html( $label ) ?>
+	</label>
 </fieldset>
