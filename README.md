@@ -32,7 +32,7 @@ Once activated, this plugin will check your site against the WPScan API twice da
 The plugin is configurable by visiting `settings > soter` in `wp-admin`:
 
 * Notification frequency: choose whether to receive notifications after every scan where vulnerabilities are detected or only to receive notifications when your sites status changes.
-* Ignored plugins and themes: Select any packages that should not be checked against the WPScan API. This is intended for custom packages which are not tracked by the API and there would generate unnecessary HTTP requests or possible false positives.
+* Ignored plugins and themes: Select any packages that should not be checked against the WPScan API. This is intended for custom packages which are not tracked by the API and therefore would generate unnecessary HTTP requests or possible false positives.
 * Send email notifications: enable/disable email notifications.
 * Email address: if notifications should be sent to an email address other than your site administrator email, enter it here.
 * Email type: Choose whether you prefer HTML or text emails.
