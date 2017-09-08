@@ -43,7 +43,9 @@ function _soter_init() {
 	$checker->wp_at_least( '4.7' );
 
 	if ( ! $checker->requirements_met() ) {
-		return $checker->deactivate_and_notify();
+		$checker->deactivate_and_notify();
+
+		return;
 	}
 
 	$plugin = _soter_instance();
@@ -52,6 +54,8 @@ function _soter_init() {
 	register_deactivation_hook( $plugin['file'], [ $plugin, 'deactivate' ] );
 
 	add_action( 'plugins_loaded', [ $plugin, 'boot' ] );
+
+	$initialized = true;
 }
 
 /**
@@ -59,11 +63,11 @@ function _soter_init() {
  *
  * @return Soter\Plugin
  */
-function _soter_instance() {
+function _soter_instance( $id = null ) {
 	static $instance = null;
 
-	if ( ! is_null( $instance ) ) {
-		return $instance;
+	if ( null !== $instance ) {
+		return null === $id ? $instance : $instance[ $id ];
 	}
 
 	$instance = new Soter\Plugin( [
@@ -75,17 +79,11 @@ function _soter_instance() {
 		'version' => '0.4.0',
 	] );
 
-	$providers = [
-		new Soter\Plates_Provider,
-		new Soter\Plugin_Provider,
-		new Soter\Soter_Core_Provider,
-	];
+	$instance->register( new Soter\Plates_Provider );
+	$instance->register( new Soter\Plugin_Provider );
+	$instance->register( new Soter\Soter_Core_Provider );
 
-	foreach ( $providers as $provider ) {
-		$instance->register( $provider );
-	}
-
-	return $instance;
+	return _soter_instance( $id );
 }
 
 /**
