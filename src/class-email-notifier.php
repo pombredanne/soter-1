@@ -8,7 +8,8 @@
 namespace Soter;
 
 use League\Plates\Engine;
-use Soter_Core\Vulnerability_Interface;
+use Soter_Core\Vulnerability;
+use Soter_Core\Vulnerabilities;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -46,22 +47,20 @@ class Email_Notifier {
 	/**
 	 * Handle the notification.
 	 *
-	 * @param Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
-	 * @param boolean                   $should_notify   Whether the user wants a notification.
+	 * @param Vulnerabilities $vulnerabilities List of vulnerabilities.
+	 *
+	 * @return void
 	 */
-	public function notify( $vulnerabilities, $should_notify ) {
-		if (
-			! $this->options->email_enabled
-			|| empty( $vulnerabilities )
-			|| ! $should_notify
-		) {
+	public function notify( Vulnerabilities $vulnerabilities ) {
+		if ( ! $this->options->email_enabled || $vulnerabilities->is_empty() ) {
 			return;
 		}
 
-		// If an array only has one object, do_action() passes that object by itself
-		// instead of the original array. Let's put it back in an array.
-		if ( $vulnerabilities instanceof Vulnerability_Interface ) {
-			$vulnerabilities = [ $vulnerabilities ];
+		$has_changed = $vulnerabilities->hash() !== $this->options->last_scan_hash;
+		$should_notify = $this->options->should_nag || $has_changed;
+
+		if ( ! $should_notify ) {
+			return;
 		}
 
 		$this->send_email( $vulnerabilities );
@@ -70,12 +69,12 @@ class Email_Notifier {
 	/**
 	 * Send the actual email.
 	 *
-	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
+	 * @param  Vulnerabilities $vulnerabilities List of vulnerabilities.
 	 *
 	 * @return void
 	 */
-	protected function send_email( array $vulnerabilities ) {
-		$count = count( $vulnerabilities );
+	protected function send_email( Vulnerabilities $vulnerabilities ) {
+		$count = $vulnerabilities->count();
 		$label = 1 === $count ? 'vulnerability' : 'vulnerabilities';
 		$site_name = get_bloginfo( 'name' );
 		$headers = [];
@@ -107,13 +106,11 @@ class Email_Notifier {
 	/**
 	 * Generates a summary of a vulnerability for use in the template data.
 	 *
-	 * @param  Vulnerability_Interface $vulnerability Vulnerability instance.
+	 * @param  Vulnerability $vulnerability Vulnerability instance.
 	 *
 	 * @return array
 	 */
-	protected function generate_vuln_summary(
-		Vulnerability_Interface $vulnerability
-	) {
+	protected function generate_vuln_summary( Vulnerability $vulnerability ) {
 		$summary = [
 			'title' => $vulnerability->title,
 			'meta' => [],

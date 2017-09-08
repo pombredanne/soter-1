@@ -39,15 +39,8 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 * @return void
 	 */
 	public function boot( Container $container ) {
-		add_action(
-			'admin_init',
-			[ $container->proxy( 'options_page' ), 'admin_init' ]
-		);
-
-		add_action(
-			'admin_menu',
-			[ $container->proxy( 'options_page' ), 'admin_menu' ]
-		);
+		add_action( 'admin_init', [ $container->proxy( 'options_page' ), 'admin_init' ] );
+		add_action( 'admin_menu', [ $container->proxy( 'options_page' ), 'admin_menu' ] );
 
 		add_action(
 			'admin_notices',
@@ -57,29 +50,10 @@ class Plugin_Provider implements ServiceProviderInterface {
 			]
 		);
 
-		add_action(
-			'admin_init',
-			[ $container['options_manager'], 'register_settings' ]
-		);
-
-		add_action(
-			'soter_run_check',
-			[ $container->proxy( 'check_site_job' ), 'run' ]
-		);
-
-		add_action(
-			'soter_check_complete',
-			[ $container->proxy( 'email_notifier' ), 'notify' ],
-			10,
-			2
-		);
-
-		add_action(
-			'soter_check_complete',
-			[ $container->proxy( 'slack_notifier' ), 'notify' ],
-			10,
-			2
-		);
+		add_action( 'admin_init', [ $container['options_manager'], 'register_settings' ] );
+		add_action( 'soter_run_check', [ $container->proxy( 'check_site_job' ), 'run' ] );
+		add_action( 'soter_check_complete', [ $container->proxy( 'email_notifier' ), 'notify' ] );
+		add_action( 'soter_check_complete', [ $container->proxy( 'slack_notifier' ), 'notify' ] );
 
 		$this->boot_upgrader( $container );
 	}
@@ -108,10 +82,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 		};
 
 		$container['email_notifier'] = function( Container $c ) {
-			return new Email_Notifier(
-				$c['plates'],
-				$c['options_manager']
-			);
+			return new Email_Notifier( $c['plates'], $c['options_manager'] );
 		};
 
 		$container['options_manager'] = function( Container $c ) {
@@ -127,10 +98,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 		};
 
 		$container['slack_notifier'] = function( Container $c ) {
-			return new Slack_Notifier(
-				$c['options_manager'],
-				$c['user-agent']
-			);
+			return new Slack_Notifier( $c['options_manager'], $c['user-agent'] );
 		};
 
 		$container['upgrader'] = function( Container $c ) {

@@ -37,11 +37,7 @@ class Soter_Core_Provider implements ServiceProviderInterface {
 		};
 
 		$container['core.cache'] = function( Container $c ) {
-			return new WP_Transient_Cache(
-				$c['wp.db'],
-				$c['prefix'],
-				HOUR_IN_SECONDS
-			);
+			return new WP_Transient_Cache( $c['prefix'], HOUR_IN_SECONDS );
 		};
 
 		$container['core.checker'] = function( Container $c ) {
@@ -57,14 +53,6 @@ class Soter_Core_Provider implements ServiceProviderInterface {
 
 		$container['core.manager'] = function( Container $c ) {
 			return new WP_Package_Manager;
-		};
-
-		$container['wp.db'] = function( Container $c ) {
-			if ( ! isset( $GLOBALS['wpdb'] ) ) {
-				require_wp_db();
-			}
-
-			return $GLOBALS['wpdb'];
 		};
 	}
 }

@@ -49,42 +49,13 @@ class Check_Site_Job {
 	 */
 	public function run() {
 		try {
-			$vulnerabilities = $this->checker->check_site(
-				$this->options->ignored_packages
-			);
+			$vulnerabilities = $this->checker->check_site( $this->options->ignored_packages );
 
-			$hash = $this->generate_scan_hash( $vulnerabilities );
-			$has_changed = $hash !== $this->options->last_scan_hash;
-			$should_notify = $this->options->should_nag || $has_changed;
+			do_action( 'soter_check_complete', $vulnerabilities );
 
-			do_action(
-				'soter_check_complete',
-				$vulnerabilities,
-				$should_notify,
-				$has_changed
-			);
-
-			$this->options->get_store()->set( 'last_scan_hash', $hash );
+			$this->options->get_store()->set( 'last_scan_hash', $vulnerabilities->hash() );
 		} catch ( \RuntimeException $e ) {
 			// @todo How to handle HTTP error? Ignore? Log? Email user?
 		}
-	}
-
-	/**
-	 * Generate a hash representing the scan results.
-	 *
-	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
-	 *
-	 * @return string
-	 */
-	protected function generate_scan_hash( array $vulnerabilities ) {
-		if ( empty( $vulnerabilities ) ) {
-			return '';
-		}
-
-		$ids = array_map( 'intval', wp_list_pluck( $vulnerabilities, 'id' ) );
-		sort( $ids );
-
-		return hash( 'sha1', implode( ':', $ids ) );
 	}
 }
