@@ -77,7 +77,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 */
 	public function register( Container $container ) {
 		$container['check_site_job'] = function( Container $c ) {
-			return new Check_Site_Job( $c['core.checker'], $c['options_manager'] );
+			return new Check_Site_Job( $c['checker'], $c['options_manager'] );
 		};
 
 		$container['notifier_manager'] = function( Container $c ) {
@@ -85,7 +85,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 
 			return new Notifier_Manager( $options, [
 				new Email_Notifier( $c['plates'], $options ),
-				new Slack_Notifier( $options, $c['user-agent'] ),
+				new Slack_Notifier( $options, $c['user_agent'] ),
 			] );
 		};
 
@@ -105,7 +105,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 			return new Upgrader( $c['options_manager'] );
 		};
 
-		$container['user-agent'] = function( Container $c ) {
+		$container['user_agent'] = function( Container $c ) {
 			return sprintf(
 				'%s (%s) | %s | v%s | %s',
 				get_bloginfo( 'name' ),
