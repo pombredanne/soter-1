@@ -61,7 +61,7 @@ function _soter_init() {
 /**
  * Gets the plugin instance.
  *
- * @return Soter\Plugin
+ * @return Metis\Container
  */
 function _soter_instance( $id = null ) {
 	static $instance = null;
@@ -70,7 +70,7 @@ function _soter_instance( $id = null ) {
 		return null === $id ? $instance : $instance[ $id ];
 	}
 
-	$instance = new Soter\Plugin( [
+	$instance = new Metis\Container( [
 		'dir' => plugin_dir_path( __FILE__ ),
 		'file' => __FILE__,
 		'name' => 'Soter',
