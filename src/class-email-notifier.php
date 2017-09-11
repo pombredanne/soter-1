@@ -8,7 +8,8 @@
 namespace Soter;
 
 use League\Plates\Engine;
-use Soter_Core\Vulnerability_Interface;
+use Soter_Core\Vulnerability;
+use Soter_Core\Vulnerabilities;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -17,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * This class creates and sends email notifications after a site scan.
  */
-class Email_Notifier {
+class Email_Notifier implements Notifier_Interface {
 	/**
 	 * Options manager instance.
 	 *
@@ -43,39 +44,19 @@ class Email_Notifier {
 		$this->options = $options;
 	}
 
-	/**
-	 * Handle the notification.
-	 *
-	 * @param Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
-	 * @param boolean                   $should_notify   Whether the user wants a notification.
-	 */
-	public function notify( $vulnerabilities, $should_notify ) {
-		if (
-			! $this->options->email_enabled
-			|| empty( $vulnerabilities )
-			|| ! $should_notify
-		) {
-			return;
-		}
-
-		// If an array only has one object, do_action() passes that object by itself
-		// instead of the original array. Let's put it back in an array.
-		if ( $vulnerabilities instanceof Vulnerability_Interface ) {
-			$vulnerabilities = [ $vulnerabilities ];
-		}
-
-		$this->send_email( $vulnerabilities );
+	public function is_enabled() {
+		return $this->options->email_enabled;
 	}
 
 	/**
-	 * Send the actual email.
+	 * Handle the notification.
 	 *
-	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
+	 * @param Vulnerabilities $vulnerabilities List of vulnerabilities.
 	 *
 	 * @return void
 	 */
-	protected function send_email( array $vulnerabilities ) {
-		$count = count( $vulnerabilities );
+	public function notify( Vulnerabilities $vulnerabilities ) {
+		$count = $vulnerabilities->count();
 		$label = 1 === $count ? 'vulnerability' : 'vulnerabilities';
 		$site_name = get_bloginfo( 'name' );
 		$headers = [];
@@ -107,13 +88,11 @@ class Email_Notifier {
 	/**
 	 * Generates a summary of a vulnerability for use in the template data.
 	 *
-	 * @param  Vulnerability_Interface $vulnerability Vulnerability instance.
+	 * @param  Vulnerability $vulnerability Vulnerability instance.
 	 *
 	 * @return array
 	 */
-	protected function generate_vuln_summary(
-		Vulnerability_Interface $vulnerability
-	) {
+	protected function generate_vuln_summary( Vulnerability $vulnerability ) {
 		$summary = [
 			'title' => $vulnerability->title,
 			'meta' => [],
@@ -134,26 +113,19 @@ class Email_Notifier {
 			foreach ( $vulnerability->references['url'] as $url ) {
 				$parsed = wp_parse_url( $url );
 
-				$host = isset( $parsed['host'] ) ?
-					$parsed['host'] :
-					$url;
+				$host = isset( $parsed['host'] ) ? $parsed['host'] : $url;
 
 				$summary['links'][ $url ] = $host;
 			}
 		}
 
-		$summary['links'][ sprintf(
-			'https://wpvulndb.com/vulnerabilities/%s',
-			$vulnerability->id
-		) ] = 'wpvulndb.com';
+		$wpvdb_url = sprintf( 'https://wpvulndb.com/vulnerabilities/%s', $vulnerability->id );
+		$summary['links'][ $wpvdb_url ] = 'wpvulndb.com';
 
 		if ( is_null( $vulnerability->fixed_in ) ) {
 			$summary['meta'][] = 'Not fixed yet';
 		} else {
-			$summary['meta'][] = sprintf(
-				'Fixed in v%s',
-				$vulnerability->fixed_in
-			);
+			$summary['meta'][] = sprintf( 'Fixed in v%s', $vulnerability->fixed_in );
 		}
 
 		return $summary;

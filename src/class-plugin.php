@@ -96,10 +96,7 @@ class Plugin extends Container {
 	 *
 	 * @return static
 	 */
-	public function register(
-		ServiceProviderInterface $provider,
-		array $values = array()
-	) {
+	public function register( ServiceProviderInterface $provider, array $values = array() ) {
 		parent::register( $provider, $values );
 
 		$this->providers[] = $provider;

@@ -8,6 +8,13 @@
 namespace Soter;
 
 use Pimple\Container;
+use Soter_Core\Checker;
+use League\Plates\Engine;
+use Soter_Core\Api_Client;
+use Soter_Core\WP_Http_Client;
+use Soter_Core\Cached_Http_Client;
+use Soter_Core\WP_Package_Manager;
+use Soter_Core\WP_Transient_Cache;
 use Pimple\ServiceProviderInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -39,15 +46,8 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 * @return void
 	 */
 	public function boot( Container $container ) {
-		add_action(
-			'admin_init',
-			[ $container->proxy( 'options_page' ), 'admin_init' ]
-		);
-
-		add_action(
-			'admin_menu',
-			[ $container->proxy( 'options_page' ), 'admin_menu' ]
-		);
+		add_action( 'admin_init', [ $container->proxy( 'options_page' ), 'admin_init' ] );
+		add_action( 'admin_menu', [ $container->proxy( 'options_page' ), 'admin_menu' ] );
 
 		add_action(
 			'admin_notices',
@@ -57,29 +57,9 @@ class Plugin_Provider implements ServiceProviderInterface {
 			]
 		);
 
-		add_action(
-			'admin_init',
-			[ $container['options_manager'], 'register_settings' ]
-		);
-
-		add_action(
-			'soter_run_check',
-			[ $container->proxy( 'check_site_job' ), 'run' ]
-		);
-
-		add_action(
-			'soter_check_complete',
-			[ $container->proxy( 'email_notifier' ), 'notify' ],
-			10,
-			2
-		);
-
-		add_action(
-			'soter_check_complete',
-			[ $container->proxy( 'slack_notifier' ), 'notify' ],
-			10,
-			2
-		);
+		add_action( 'admin_init', [ $container['options_manager'], 'register_settings' ] );
+		add_action( 'soter_run_check', [ $container->proxy( 'check_site_job' ), 'run' ] );
+		add_action( 'soter_check_complete', [ $container->proxy( 'notifier_manager' ), 'notify' ] );
 
 		$this->boot_upgrader( $container );
 	}
@@ -104,40 +84,41 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 */
 	public function register( Container $container ) {
 		$container['check_site_job'] = function( Container $c ) {
-			return new Check_Site_Job( $c['core.checker'], $c['options_manager'] );
-		};
-
-		$container['email_notifier'] = function( Container $c ) {
-			return new Email_Notifier(
-				$c['plates'],
+			return new Check_Site_Job(
+				new Checker( new Api_Client( $c['http'] ), new WP_Package_Manager() ),
 				$c['options_manager']
 			);
 		};
 
+		$container['http'] = function( Container $c ) {
+			return new Cached_Http_Client(
+				new WP_Http_Client( $c['user_agent'] ),
+				new WP_Transient_Cache( $c['prefix'], HOUR_IN_SECONDS )
+			);
+		};
+
+		$container['notifier_manager'] = function( Container $c ) {
+			$options = $c['options_manager'];
+
+			return new Notifier_Manager( $options, [
+				new Email_Notifier( $c['plates'], $options ),
+				new Slack_Notifier( $options, $c['user_agent'] ),
+			] );
+		};
+
 		$container['options_manager'] = function( Container $c ) {
-			return new Options_Manager( $c['options_store'] );
+			return new Options_Manager( new Options_Store( $c['prefix'] ) );
 		};
 
 		$container['options_page'] = function( Container $c ) {
 			return new Options_Page( $c['options_manager'], $c['plates'] );
 		};
 
-		$container['options_store'] = function( Container $c ) {
-			return new Options_Store( $c['prefix'] );
+		$container['plates'] = function( Container $c ) {
+			return new Engine( $c['dir'] . '/templates' );
 		};
 
-		$container['slack_notifier'] = function( Container $c ) {
-			return new Slack_Notifier(
-				$c['options_manager'],
-				$c['user-agent']
-			);
-		};
-
-		$container['upgrader'] = function( Container $c ) {
-			return new Upgrader( $c['options_manager'] );
-		};
-
-		$container['user-agent'] = function( Container $c ) {
+		$container['user_agent'] = function( Container $c ) {
 			return sprintf(
 				'%s (%s) | %s | v%s | %s',
 				get_bloginfo( 'name' ),
@@ -161,7 +142,9 @@ class Plugin_Provider implements ServiceProviderInterface {
 			return;
 		}
 
-		add_action( 'init', [ $container['upgrader'], 'perform_upgrade' ] );
+		$upgrader = new Upgrader( $container['options_manager'] );
+
+		add_action( 'init', [ $upgrader, 'perform_upgrade' ] );
 	}
 
 	/**

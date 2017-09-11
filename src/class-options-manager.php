@@ -49,50 +49,32 @@ class Options_Manager {
 	}
 
 	protected function _get_string_value( $key ) {
-		if (
-			! isset( $this->types[ $key ] )
-			|| 'string' !== $this->types[ $key ]
-		) {
+		if ( ! isset( $this->types[ $key ] ) || 'string' !== $this->types[ $key ] ) {
 			return null;
 		}
 
-		$default = array_key_exists( $key, $this->defaults )
-			? $this->defaults[ $key ]
-			: '';
+		$default = array_key_exists( $key, $this->defaults ) ? $this->defaults[ $key ] : '';
 
 		return trim( (string) $this->store->get( $key, $default ) );
 	}
 
 	protected function _get_boolean_value( $key ) {
-		if (
-			! isset( $this->types[ $key ] )
-			|| 'boolean' !== $this->types[ $key ]
-		) {
+		if ( ! isset( $this->types[ $key ] ) || 'boolean' !== $this->types[ $key ] ) {
 			return null;
 		}
 
-		$default = array_key_exists( $key, $this->defaults )
-			? $this->defaults[ $key ]
-			: true;
+		$default = array_key_exists( $key, $this->defaults ) ? $this->defaults[ $key ] : true;
 
 		// Values are stored as yes/no strings.
-		return filter_var(
-			$this->store->get( $key, $default ),
-			FILTER_VALIDATE_BOOLEAN
-		);
+		return filter_var( $this->store->get( $key, $default ), FILTER_VALIDATE_BOOLEAN );
 	}
 
 	protected function _get_array_value( $key ) {
-		if (
-			! isset( $this->types[ $key ] )
-			|| 'array' !== $this->types[ $key ]
-		) {
+		if ( ! isset( $this->types[ $key ] ) || 'array' !== $this->types[ $key ] ) {
 			return null;
 		}
 
-		$default = array_key_exists( $key, $this->defaults )
-			? $this->defaults[ $key ]
-			: [];
+		$default = array_key_exists( $key, $this->defaults ) ? $this->defaults[ $key ] : [];
 
 		// @todo Could be taken a step further to array map strval?
 		return (array) $this->store->get( $key, $default );
@@ -303,10 +285,7 @@ class Options_Manager {
 	 */
 	public function sanitize_ignored_themes( $value ) {
 		$value = (array) $value;
-		$valid_slugs = array_values( wp_list_pluck(
-			wp_get_themes(),
-			'stylesheet'
-		) );
+		$valid_slugs = array_values( wp_list_pluck( wp_get_themes(), 'stylesheet' ) );
 		$invalid_slugs = array_diff( $value, $valid_slugs );
 
 		if ( ! empty( $invalid_slugs ) ) {

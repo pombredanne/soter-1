@@ -7,12 +7,12 @@
 
 namespace Soter;
 
-use Soter_Core\Vulnerability_Interface;
+use Soter_Core\Vulnerabilities;
 
 /**
  * Defines the Slack notifier class.
  */
-class Slack_Notifier {
+class Slack_Notifier implements Notifier_Interface {
 	/**
 	 * Options manager instance.
 	 *
@@ -38,31 +38,19 @@ class Slack_Notifier {
 		$this->user_agent = (string) $user_agent;
 	}
 
+	public function is_enabled() {
+		return $this->options->slack_enabled && $this->options->slack_url;
+	}
+
 	/**
 	 * Handle the Slack notification.
 	 *
-	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
-	 * @param  boolean                   $should_notify   Whether the user wants a notification.
+	 * @param  Vulnerabilities $vulnerabilities List of vulnerabilities.
 	 *
 	 * @return void
 	 */
-	public function notify( $vulnerabilities, $should_notify ) {
-		if (
-			! $this->options->slack_enabled
-			|| ! $this->options->slack_url
-			|| empty( $vulnerabilities )
-			|| ! $should_notify
-		) {
-			return;
-		}
-
-		// If an array only has one object, do_action() passes that object by itself
-		// instead of the original array. Let's put it back in an array.
-		if ( $vulnerabilities instanceof Vulnerability_Interface ) {
-			$vulnerabilities = [ $vulnerabilities ];
-		}
-
-		$vuln_count = count( $vulnerabilities );
+	public function notify( Vulnerabilities $vulnerabilities ) {
+		$vuln_count = $vulnerabilities->count();
 		$text = sprintf(
 			'%s %s detected on %s. <%s|Please update your site.>',
 			$vuln_count,
@@ -77,13 +65,14 @@ class Slack_Notifier {
 					[
 						'color' => 'danger',
 						'fallback' => $text,
-						'fields' => $this->build_attachment_fields(
-							$vulnerabilities
-						),
+						'fields' => $this->build_attachment_fields( $vulnerabilities ),
 						'pretext' => $text,
 					],
 				],
 			] ),
+			'headers' => [
+				'Content-type' => 'application/json',
+			],
 			'user-agent' => $this->user_agent,
 		] );
 	}
@@ -91,11 +80,11 @@ class Slack_Notifier {
 	/**
 	 * Generates the fields array for the message attachment.
 	 *
-	 * @param  Vulnerability_Interface[] $vulnerabilities List of vulnerabilities.
+	 * @param  Vulnerabilities $vulnerabilities List of vulnerabilities.
 	 *
 	 * @return array
 	 */
-	protected function build_attachment_fields( $vulnerabilities ) {
+	protected function build_attachment_fields( Vulnerabilities $vulnerabilities ) {
 		$fields = [];
 
 		foreach ( $vulnerabilities as $vulnerability ) {

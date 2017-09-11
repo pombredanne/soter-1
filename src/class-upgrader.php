@@ -144,10 +144,7 @@ class Upgrader {
 			$sanitized = sanitize_email( $old_options['email_address'] );
 
 			if ( $sanitized ) {
-				$this->options->get_store()->set(
-					'email_address',
-					$old_options['email_address']
-				);
+				$this->options->get_store()->set( 'email_address', $old_options['email_address'] );
 			}
 		}
 
@@ -159,15 +156,10 @@ class Upgrader {
 			isset( $old_options['ignored_plugins'] )
 			&& is_array( $old_options['ignored_plugins'] )
 		) {
-			$ignored_plugins = $this->prepare_ignored_plugins(
-				$old_options['ignored_plugins']
-			);
+			$ignored_plugins = $this->prepare_ignored_plugins( $old_options['ignored_plugins'] );
 
 			if ( ! empty( $ignored_plugins ) ) {
-				$this->options->get_store()->set(
-					'ignored_plugins',
-					$ignored_plugins
-				);
+				$this->options->get_store()->set( 'ignored_plugins', $ignored_plugins );
 			}
 		}
 
@@ -175,15 +167,10 @@ class Upgrader {
 			isset( $old_options['ignored_themes'] )
 			&& is_array( $old_options['ignored_themes'] )
 		) {
-			$ignored_themes = $this->prepare_ignored_themes(
-				$old_options['ignored_themes']
-			);
+			$ignored_themes = $this->prepare_ignored_themes( $old_options['ignored_themes'] );
 
 			if ( ! empty( $ignored_themes ) ) {
-				$this->options->get_store()->set(
-					'ignored_themes',
-					$ignored_themes
-				);
+				$this->options->get_store()->set( 'ignored_themes', $ignored_themes );
 			}
 		}
 

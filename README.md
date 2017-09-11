@@ -11,19 +11,8 @@ NOTE: This plugin does not verify the integrity of files on your server - it onl
 WordPress 4.7 or later, PHP 5.4 or later and Composer.
 
 ## Installation
-Install using Composer:
-
 ```
 $ composer require ssnepenthe/soter
-```
-
-*OR*
-
-```
-$ cd /path/to/project/wp-content/plugins
-$ git clone git@github.com:ssnepenthe/soter.git
-$ cd soter
-$ composer install
 ```
 
 ## Usage
@@ -31,13 +20,48 @@ Once activated, this plugin will check your site against the WPScan API twice da
 
 The plugin is configurable by visiting `settings > soter` in `wp-admin`:
 
-* Notification frequency: choose whether to receive notifications after every scan where vulnerabilities are detected or only to receive notifications when your sites status changes.
+* Notification frequency: Choose whether to receive notifications after every scan where vulnerabilities are detected or only to receive notifications when your sites status changes.
 * Ignored plugins and themes: Select any packages that should not be checked against the WPScan API. This is intended for custom packages which are not tracked by the API and therefore would generate unnecessary HTTP requests or possible false positives.
-* Send email notifications: enable/disable email notifications.
-* Email address: if notifications should be sent to an email address other than your site administrator email, enter it here.
+* Send email notifications: Enable/disable email notifications.
+* Email address: Provide an email address to notify if other than your site administrator email.
 * Email type: Choose whether you prefer HTML or text emails.
-* Send Slack notifications: enable/disable Slack notifications.
-* Slack WebHook URL: provide a URL of an "Incoming WebHook" integration for your team to receive Slack notifications.
+* Send Slack notifications: Enable/disable Slack notifications.
+* Slack WebHook URL: Provide a URL for a Slack "Incoming WebHook" integration if you wish to receive Slack notifications.
+
+## Extending
+There are two ways to extend the functionality of this plugin.
+
+### Via Pimple
+Use the [Pimple `extend()`](https://pimple.symfony.com/#modifying-services-after-definition) method to add additional notifiers to the manager instance.
+
+This is the preferred method as it will automatically honor the notification frequency setting configured by the site admin.
+
+```
+class Sms_Notifier implements Soter\Notifier_Interface {
+    public function is_enabled() {
+        // Return boolean indicating whether this notifier is currently enabled.
+    }
+
+    public function notify( Soter_Core\Vulnerabilities $vulnerabilities ) {
+        // Build and send the message.
+    }
+}
+
+_soter_instance()->extend( 'notifier_manager', function( $manager, $container ) {
+    $manager->add( new Sms_Notifier );
+
+    return $manager;
+} );
+```
+
+### Via WordPress hooks
+After a scan has been run against the WPScan API, the `soter_check_complete` action is triggered. You can use this hook to perform any custom logic:
+
+```
+add_action( 'soter_check_complete', function( Soter_Core\Vulnerabilities $vulnerabilities ) {
+    // Do something crazy...
+} );
+```
 
 ## Acknowledgements
 This plugin wouldn't be possible without the work of the [WPScan team](https://github.com/wpscanteam) and their amazing [WPScan Vulnerabilities Database](https://wpvulndb.com/).
