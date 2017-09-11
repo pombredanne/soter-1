@@ -16,11 +16,38 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Options_Manager {
 	/**
+	 * Map of option keys to their default values.
+	 *
+	 * @var array
+	 */
+	protected $defaults = [
+		'email_type' => 'text',
+		'slack_enabled' => false,
+	];
+
+	/**
 	 * Options store instance.
 	 *
 	 * @var Options_Store
 	 */
 	protected $store;
+
+	/**
+	 * Map of option keys to their expected types.
+	 *
+	 * @var array
+	 */
+	protected $types = [
+		'email_enabled' => 'boolean',
+		'email_type' => 'string',
+		'ignored_plugins' => 'array',
+		'ignored_themes' => 'array',
+		'installed_version' => 'string',
+		'last_scan_hash' => 'string',
+		'should_nag' => 'boolean',
+		'slack_enabled' => 'boolean',
+		'slack_url' => 'string',
+	];
 
 	/**
 	 * Class constructor.
@@ -107,33 +134,6 @@ class Options_Manager {
 		// @todo Could be taken a step further to array map strval?
 		return (array) $this->store->get( $key, $default );
 	}
-
-	/**
-	 * Map of option keys to their expected types.
-	 *
-	 * @var array
-	 */
-	protected $types = [
-		'email_enabled' => 'boolean',
-		'email_type' => 'string',
-		'ignored_plugins' => 'array',
-		'ignored_themes' => 'array',
-		'installed_version' => 'string',
-		'last_scan_hash' => 'string',
-		'should_nag' => 'boolean',
-		'slack_enabled' => 'boolean',
-		'slack_url' => 'string',
-	];
-
-	/**
-	 * Map of option keys to their default values.
-	 *
-	 * @var array
-	 */
-	protected $defaults = [
-		'email_type' => 'text',
-		'slack_enabled' => false,
-	];
 
 	/**
 	 * Get the currently configured email address.
