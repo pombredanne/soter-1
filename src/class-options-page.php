@@ -163,7 +163,7 @@ class Options_Page {
 			return;
 		}
 
-		echo $this->template->render( 'admin-notice', [
+		echo $this->template->render( 'admin-notice', [ // WPCS: XSS OK.
 			'type' => 'error',
 			'message' => 'All notification channels are currently disabled. Please enable one or more below.',
 		] );
@@ -179,7 +179,7 @@ class Options_Page {
 		$current = $this->options->email_address;
 		$value = $placeholder === $current ? '' : $current;
 
-		echo $this->template->render( 'options/email-address', compact( 'placeholder', 'value' ) );
+		echo $this->template->render( 'options/email-address', compact( 'placeholder', 'value' ) ); // WPCS: XSS OK.
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_email_enabled() {
-		echo $this->template->render( 'options/boolean', [
+		echo $this->template->render( 'options/boolean', [ // WPCS: XSS OK.
 			'checked' => $this->options->email_enabled,
 			'label' => 'Enable email notifications',
 			'setting' => 'soter_email_enabled',
@@ -201,7 +201,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_email_type() {
-		echo $this->template->render( 'options/email-type', [
+		echo $this->template->render( 'options/email-type', [ // WPCS: XSS OK.
 			'type' => $this->options->email_type,
 		] );
 	}
@@ -226,7 +226,7 @@ class Options_Page {
 			];
 		}, array_keys( $plugins ), $plugins );
 
-		echo $this->template->render( 'options/ignored-packages', [
+		echo $this->template->render( 'options/ignored-packages', [ // WPCS: XSS OK.
 			'ignored_packages' => $this->options->ignored_plugins,
 			'packages' => $plugins,
 			'type' => 'plugins',
@@ -246,7 +246,7 @@ class Options_Page {
 			];
 		}, wp_get_themes() );
 
-		echo $this->template->render( 'options/ignored-packages', [
+		echo $this->template->render( 'options/ignored-packages', [ // WPCS: XSS OK.
 			'ignored_packages' => $this->options->ignored_themes,
 			'packages' => $themes,
 			'type' => 'themes',
@@ -259,7 +259,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_page_soter() {
-		echo $this->template->render( 'options/page', [
+		echo $this->template->render( 'options/page', [ // WPCS: XSS OK.
 			'group' => 'soter_group',
 			'page' => 'soter',
 			'title' => get_admin_page_title(),
@@ -272,7 +272,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_section_general() {
-		echo $this->template->render( 'options/general-section' );
+		echo $this->template->render( 'options/general-section' ); // WPCS: XSS OK.
 	}
 
 	/**
@@ -281,7 +281,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_section_email() {
-		echo $this->template->render( 'options/email-section' );
+		echo $this->template->render( 'options/email-section' ); // WPCS: XSS OK.
 	}
 
 	/**
@@ -290,7 +290,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_section_slack() {
-		echo $this->template->render( 'options/slack-section' );
+		echo $this->template->render( 'options/slack-section' ); // WPCS: XSS OK.
 	}
 
 	/**
@@ -299,7 +299,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_should_nag() {
-		echo $this->template->render( 'options/should-nag', [
+		echo $this->template->render( 'options/should-nag', [ // WPCS: XSS OK.
 			'should_nag' => $this->options->should_nag,
 		] );
 	}
@@ -310,7 +310,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_slack_enabled() {
-		echo $this->template->render( 'options/boolean', [
+		echo $this->template->render( 'options/boolean', [ // WPCS: XSS OK.
 			'checked' => $this->options->slack_enabled,
 			'label' => 'Enable slack notifications',
 			'setting' => 'soter_slack_enabled',
@@ -323,7 +323,7 @@ class Options_Page {
 	 * @return void
 	 */
 	public function render_slack_url() {
-		echo $this->template->render( 'options/slack-url', [
+		echo $this->template->render( 'options/slack-url', [ // WPCS: XSS OK.
 			'placeholder' => 'Slack WebHook URL',
 			'value' => $this->options->slack_url,
 		] );
