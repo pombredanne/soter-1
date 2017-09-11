@@ -70,6 +70,9 @@ class Slack_Notifier implements Notifier_Interface {
 					],
 				],
 			] ),
+			'headers' => [
+				'Content-type' => 'application/json',
+			],
 			'user-agent' => $this->user_agent,
 		] );
 	}
