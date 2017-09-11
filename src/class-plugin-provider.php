@@ -8,6 +8,13 @@
 namespace Soter;
 
 use Pimple\Container;
+use Soter_Core\Checker;
+use League\Plates\Engine;
+use Soter_Core\Api_Client;
+use Soter_Core\WP_Http_Client;
+use Soter_Core\Cached_Http_Client;
+use Soter_Core\WP_Package_Manager;
+use Soter_Core\WP_Transient_Cache;
 use Pimple\ServiceProviderInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -77,7 +84,17 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 */
 	public function register( Container $container ) {
 		$container['check_site_job'] = function( Container $c ) {
-			return new Check_Site_Job( $c['checker'], $c['options_manager'] );
+			return new Check_Site_Job(
+				new Checker( new Api_Client( $c['http'] ), new WP_Package_Manager() ),
+				$c['options_manager']
+			);
+		};
+
+		$container['http'] = function( Container $c ) {
+			return new Cached_Http_Client(
+				new WP_Http_Client( $c['user_agent'] ),
+				new WP_Transient_Cache( $c['prefix'], HOUR_IN_SECONDS )
+			);
 		};
 
 		$container['notifier_manager'] = function( Container $c ) {
@@ -90,19 +107,15 @@ class Plugin_Provider implements ServiceProviderInterface {
 		};
 
 		$container['options_manager'] = function( Container $c ) {
-			return new Options_Manager( $c['options_store'] );
+			return new Options_Manager( new Options_Store( $c['prefix'] ) );
 		};
 
 		$container['options_page'] = function( Container $c ) {
 			return new Options_Page( $c['options_manager'], $c['plates'] );
 		};
 
-		$container['options_store'] = function( Container $c ) {
-			return new Options_Store( $c['prefix'] );
-		};
-
-		$container['upgrader'] = function( Container $c ) {
-			return new Upgrader( $c['options_manager'] );
+		$container['plates'] = function( Container $c ) {
+			return new Engine( $c['dir'] . '/templates' );
 		};
 
 		$container['user_agent'] = function( Container $c ) {
@@ -129,7 +142,9 @@ class Plugin_Provider implements ServiceProviderInterface {
 			return;
 		}
 
-		add_action( 'init', [ $container['upgrader'], 'perform_upgrade' ] );
+		$upgrader = new Upgrader( $container['options_manager'] );
+
+		add_action( 'init', [ $upgrader, 'perform_upgrade' ] );
 	}
 
 	/**

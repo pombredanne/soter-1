@@ -79,9 +79,7 @@ function _soter_instance( $id = null ) {
 		'version' => '0.4.0',
 	] );
 
-	$instance->register( new Soter\Plates_Provider );
 	$instance->register( new Soter\Plugin_Provider );
-	$instance->register( new Soter\Soter_Core_Provider );
 
 	return _soter_instance( $id );
 }
