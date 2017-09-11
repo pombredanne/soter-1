@@ -53,7 +53,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 			'admin_notices',
 			[
 				$container->proxy( 'options_page' ),
-				'print_notice_when_no_notifiers_active'
+				'print_notice_when_no_notifiers_active',
 			]
 		);
 

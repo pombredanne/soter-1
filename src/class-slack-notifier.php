@@ -38,12 +38,17 @@ class Slack_Notifier implements Notifier_Interface {
 		$this->user_agent = (string) $user_agent;
 	}
 
+	/**
+	 * Check whether this notifier is currently enabled.
+	 *
+	 * @return boolean
+	 */
 	public function is_enabled() {
 		return $this->options->slack_enabled && $this->options->slack_url;
 	}
 
 	/**
-	 * Handle the Slack notification.
+	 * Prepare and send a notification.
 	 *
 	 * @param  Vulnerabilities $vulnerabilities List of vulnerabilities.
 	 *

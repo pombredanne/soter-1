@@ -44,12 +44,17 @@ class Email_Notifier implements Notifier_Interface {
 		$this->options = $options;
 	}
 
+	/**
+	 * Check whether this notifier is currently enabled.
+	 *
+	 * @return boolean
+	 */
 	public function is_enabled() {
 		return $this->options->email_enabled;
 	}
 
 	/**
-	 * Handle the notification.
+	 * Prepare and send a notification.
 	 *
 	 * @param Vulnerabilities $vulnerabilities List of vulnerabilities.
 	 *

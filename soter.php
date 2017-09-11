@@ -59,9 +59,11 @@ function _soter_init() {
 }
 
 /**
- * Gets the plugin instance.
+ * Gets the plugin instance or a service contained within.
  *
- * @return Metis\Container
+ * @param  string $id ID of container entry.
+ *
+ * @return mixed
  */
 function _soter_instance( $id = null ) {
 	static $instance = null;

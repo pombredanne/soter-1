@@ -31,6 +31,13 @@ class Options_Manager {
 		$this->store = $store;
 	}
 
+	/**
+	 * Magic getter - looks for an option-specific method and falls back to a type-specific method.
+	 *
+	 * @param  string $key Option key.
+	 *
+	 * @return mixed
+	 */
 	public function __get( $key ) {
 		$key = strtolower( $key );
 		$getter = "_get_{$key}";
@@ -48,6 +55,13 @@ class Options_Manager {
 		return null;
 	}
 
+	/**
+	 * Getter for string values.
+	 *
+	 * @param  string $key Option key.
+	 *
+	 * @return string|null
+	 */
 	protected function _get_string_value( $key ) {
 		if ( ! isset( $this->types[ $key ] ) || 'string' !== $this->types[ $key ] ) {
 			return null;
@@ -58,6 +72,13 @@ class Options_Manager {
 		return trim( (string) $this->store->get( $key, $default ) );
 	}
 
+	/**
+	 * Getter for boolean values.
+	 *
+	 * @param  string $key Option key.
+	 *
+	 * @return boolean|null
+	 */
 	protected function _get_boolean_value( $key ) {
 		if ( ! isset( $this->types[ $key ] ) || 'boolean' !== $this->types[ $key ] ) {
 			return null;
@@ -69,6 +90,13 @@ class Options_Manager {
 		return filter_var( $this->store->get( $key, $default ), FILTER_VALIDATE_BOOLEAN );
 	}
 
+	/**
+	 * Getter for array values.
+	 *
+	 * @param  string $key Option key.
+	 *
+	 * @return array|null
+	 */
 	protected function _get_array_value( $key ) {
 		if ( ! isset( $this->types[ $key ] ) || 'array' !== $this->types[ $key ] ) {
 			return null;
@@ -80,6 +108,11 @@ class Options_Manager {
 		return (array) $this->store->get( $key, $default );
 	}
 
+	/**
+	 * Map of option keys to their expected types.
+	 *
+	 * @var array
+	 */
 	protected $types = [
 		'email_enabled' => 'boolean',
 		'email_type' => 'string',
@@ -91,6 +124,12 @@ class Options_Manager {
 		'slack_enabled' => 'boolean',
 		'slack_url' => 'string',
 	];
+
+	/**
+	 * Map of option keys to their default values.
+	 *
+	 * @var array
+	 */
 	protected $defaults = [
 		'email_type' => 'text',
 		'slack_enabled' => false,
@@ -112,6 +151,11 @@ class Options_Manager {
 		return trim( (string) $current );
 	}
 
+	/**
+	 * Getter for the ignored packages setting.
+	 *
+	 * @return array
+	 */
 	protected function _get_ignored_packages() {
 		return array_merge( $this->ignored_plugins, $this->ignored_themes );
 	}

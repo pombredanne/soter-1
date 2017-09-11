@@ -149,6 +149,11 @@ class Options_Page {
 		);
 	}
 
+	/**
+	 * Print an admin notice indicating to user that no notifiers are currently enabled.
+	 *
+	 * @return void
+	 */
 	public function print_notice_when_no_notifiers_active() {
 		if (
 			'settings_page_soter' !== get_current_screen()->base
@@ -177,6 +182,11 @@ class Options_Page {
 		echo $this->template->render( 'options/email-address', compact( 'placeholder', 'value' ) );
 	}
 
+	/**
+	 * Renders the enable email field.
+	 *
+	 * @return void
+	 */
 	public function render_email_enabled() {
 		echo $this->template->render( 'options/boolean', [
 			'checked' => $this->options->email_enabled,
@@ -294,6 +304,11 @@ class Options_Page {
 		] );
 	}
 
+	/**
+	 * Renders the enable slack setting.
+	 *
+	 * @return void
+	 */
 	public function render_slack_enabled() {
 		echo $this->template->render( 'options/boolean', [
 			'checked' => $this->options->slack_enabled,

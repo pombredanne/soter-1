@@ -16,35 +16,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
-?>Vulnerabilities were detected on <?php echo esc_html( $site_name ) ?>. We've included some details to help you fix the problem.
+?>Vulnerabilities were detected on <?php echo esc_html( $site_name ); ?>. We've included some details to help you fix the problem.
 
-[<?php echo esc_html( $site_name ) ?>] Security Digest
+[<?php echo esc_html( $site_name ); ?>] Security Digest
 
 ******************
-<?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> Detected!
+<?php echo esc_html( $count ); ?> <?php echo esc_html( $label ); ?> Detected!
 ******************
 
-A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> on your WordPress site.
+A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ); ?> <?php echo esc_html( $label ); ?> on your WordPress site.
 
 Please ensure your WordPress install, plugins and themes are all up-to-date from your dashboard:
 
-Go To Dashboard ( <?php echo esc_url( $action_url ) ?> )
+Go To Dashboard ( <?php echo esc_url( $action_url ); ?> )
 
 For reference, here are the details of the flagged vulnerabilities:
 
 <?php foreach ( $messages as $message ) : ?>
-<?php // @todo This feels so wrong... ?>
-<?php echo esc_html( str_replace(
-	[ '<', '>', '=' ],
-	[ 'less than', 'greater than', ' or equal to' ],
-	$message['title']
-) ) ?>
+<?php
+	// @todo This feels so wrong...
+	echo esc_html( str_replace(
+		[ '<', '>', '=' ],
+		[ 'less than', 'greater than', ' or equal to' ],
+		$message['title']
+	) );
+?>
 
 <?php foreach ( $message['links'] as $url => $host ) : ?>
-<?php echo esc_url( $url ) ?>
+<?php echo esc_url( $url ); ?>
 
 <?php endforeach ?>
-<?php echo implode( ' | ', array_map( 'esc_html', $message['meta'] ) ) ?>
+<?php echo implode( ' | ', array_map( 'esc_html', $message['meta'] ) ); ?>
 
 
 <?php endforeach ?>
