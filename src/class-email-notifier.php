@@ -113,26 +113,19 @@ class Email_Notifier implements Notifier_Interface {
 			foreach ( $vulnerability->references['url'] as $url ) {
 				$parsed = wp_parse_url( $url );
 
-				$host = isset( $parsed['host'] ) ?
-					$parsed['host'] :
-					$url;
+				$host = isset( $parsed['host'] ) ? $parsed['host'] : $url;
 
 				$summary['links'][ $url ] = $host;
 			}
 		}
 
-		$summary['links'][ sprintf(
-			'https://wpvulndb.com/vulnerabilities/%s',
-			$vulnerability->id
-		) ] = 'wpvulndb.com';
+		$wpvdb_url = sprintf( 'https://wpvulndb.com/vulnerabilities/%s', $vulnerability->id );
+		$summary['links'][ $wpvdb_url ] = 'wpvulndb.com';
 
 		if ( is_null( $vulnerability->fixed_in ) ) {
 			$summary['meta'][] = 'Not fixed yet';
 		} else {
-			$summary['meta'][] = sprintf(
-				'Fixed in v%s',
-				$vulnerability->fixed_in
-			);
+			$summary['meta'][] = sprintf( 'Fixed in v%s', $vulnerability->fixed_in );
 		}
 
 		return $summary;

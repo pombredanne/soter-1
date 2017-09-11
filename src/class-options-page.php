@@ -174,10 +174,7 @@ class Options_Page {
 		$current = $this->options->email_address;
 		$value = $placeholder === $current ? '' : $current;
 
-		echo $this->template->render(
-			'options/email-address',
-			compact( 'placeholder', 'value' )
-		);
+		echo $this->template->render( 'options/email-address', compact( 'placeholder', 'value' ) );
 	}
 
 	public function render_email_enabled() {
