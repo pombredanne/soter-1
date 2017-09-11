@@ -67,6 +67,13 @@ class Upgrader {
 		}
 	}
 
+	/**
+	 * Ensure ignored plugins setting only contains currently installed plugins.
+	 *
+	 * @param  array $plugins List of ignored plugins.
+	 *
+	 * @return array
+	 */
 	protected function prepare_ignored_plugins( array $plugins ) {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -85,6 +92,13 @@ class Upgrader {
 		return array_values( array_intersect( $valid_slugs, $plugins ) );
 	}
 
+	/**
+	 * Ensure ignored themes setting only contains currently installed themes.
+	 *
+	 * @param  array $themes List of ignored themes.
+	 *
+	 * @return array
+	 */
 	protected function prepare_ignored_themes( array $themes ) {
 		$valid_slugs = array_values( wp_list_pluck(
 			wp_get_themes(),

@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	class="regular-text"
 	id="soter_email_address"
 	name="soter_email_address"
-	placeholder="<?php echo esc_attr( $placeholder ) ?>"
+	placeholder="<?php echo esc_attr( $placeholder ); ?>"
 	type="email"
-	value="<?php echo esc_attr( $value ) ?>"
+	value="<?php echo esc_attr( $value ); ?>"
 >

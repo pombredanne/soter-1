@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<label>
 		<input
-			<?php checked( $should_nag ) ?>
+			<?php checked( $should_nag ); ?>
 			id="soter_should_nag_yes"
 			name="soter_should_nag"
 			type="radio"
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<label>
 		<input
-			<?php checked( $should_nag, false ) ?>
+			<?php checked( $should_nag, false ); ?>
 			id="soter_should_nag_no"
 			name="soter_should_nag"
 			type="radio"

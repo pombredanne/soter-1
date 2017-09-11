@@ -59,9 +59,11 @@ function _soter_init() {
 }
 
 /**
- * Gets the plugin instance.
+ * Gets the plugin instance or a service contained within.
  *
- * @return Metis\Container
+ * @param  string $id ID of container entry.
+ *
+ * @return mixed
  */
 function _soter_instance( $id = null ) {
 	static $instance = null;
@@ -79,7 +81,7 @@ function _soter_instance( $id = null ) {
 		'version' => '0.4.0',
 	] );
 
-	$instance->register( new Soter\Plugin_Provider );
+	$instance->register( new Soter\Plugin_Provider() );
 
 	return _soter_instance( $id );
 }

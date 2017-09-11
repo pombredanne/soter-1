@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title><?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> Detected!</title>
+		<title><?php echo esc_html( $count ); ?> <?php echo esc_html( $label ); ?> Detected!</title>
 	</head>
 	<body style="-webkit-text-size-adjust: none; box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; height: 100%; line-height: 1.4; margin: 0; width: 100% !important;" bgcolor="#F2F4F6">
 		<style type="text/css">
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</style>
 
 		<span class="preheader" style="box-sizing: border-box; display: none !important; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
-			Vulnerabilities were detected on <?php echo esc_html( $site_name ) ?>. We've included some details to help you fix the problem.
+			Vulnerabilities were detected on <?php echo esc_html( $site_name ); ?>. We've included some details to help you fix the problem.
 		</span>
 
 		<table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; margin: 0; padding: 0; width: 100%;" bgcolor="#F2F4F6">
@@ -47,7 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<tr>
 							<td class="email-masthead" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 25px 0;" align="center">
 								<a href="https://example.com" class="email-masthead_name" style="box-sizing: border-box; color: #bbbfc3; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 16px; font-weight: bold; text-decoration: none; text-shadow: 0 1px 0 white;">
-									[<?php echo esc_html( $site_name ) ?>] Soter Security Digest
+									[<?php echo esc_html( $site_name ); ?>] Soter Security Digest
 								</a>
 							</td>
 						</tr>
@@ -58,10 +58,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<tr>
 										<td class="content-cell" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 35px;">
 											<h1 style="box-sizing: border-box; color: #2F3133; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 19px; font-weight: bold; margin-top: 0;" align="left">
-												<?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> Detected!
+												<?php echo esc_html( $count ); ?> <?php echo esc_html( $label ); ?> Detected!
 											</h1>
 											<p style="box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 16px; line-height: 1.5em; margin-top: 0;" align="left">
-												A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ) ?> <?php echo esc_html( $label ) ?> on your WordPress site.
+												A recent scan by the Soter security check plugin flagged <?php echo esc_html( $count ); ?> <?php echo esc_html( $label ); ?> on your WordPress site.
 											</p>
 											<p style="box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 16px; line-height: 1.5em; margin-top: 0;" align="left">
 												Please ensure your WordPress install, plugins and themes are all up-to-date from your dashboard:
@@ -75,7 +75,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 																	<table border="0" cellspacing="0" cellpadding="0" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
 																		<tr>
 																			<td style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
-																				<a href="<?php echo esc_url( $action_url ) ?>" class="button button--" target="_blank" style="-webkit-text-size-adjust: none; background: #3869D4; border-color: #3869d4; border-radius: 3px; border-style: solid; border-width: 10px 18px; box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16); box-sizing: border-box; color: #FFF; display: inline-block; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; text-decoration: none;">
+																				<a href="<?php echo esc_url( $action_url ); ?>" class="button button--" target="_blank" style="-webkit-text-size-adjust: none; background: #3869D4; border-color: #3869d4; border-radius: 3px; border-style: solid; border-width: 10px 18px; box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16); box-sizing: border-box; color: #FFF; display: inline-block; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; text-decoration: none;">
 																					Go To Dashboard
 																				</a>
 																			</td>
@@ -100,21 +100,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 																<tr>
 																	<td class="attributes_item" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 0;">
 																		<strong style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
-																			<?php echo esc_html( $message['title'] ) ?>
+																			<?php echo esc_html( $message['title'] ); ?>
 																		</strong>
 																	</td>
 																</tr>
 																<?php foreach ( $message['links'] as $url => $host ) : ?>
 																	<tr>
 																		<td class="attributes_item" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 0;">
-																			<a href="<?php echo esc_url( $url ) ?>"><?php echo esc_html( $host ) ?></a>
+																			<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $host ); ?></a>
 																		</td>
 																	</tr>
 																<?php endforeach ?>
 																<?php foreach ( $message['meta'] as $meta ) : ?>
 																	<tr>
 																		<td class="attributes_item" style="box-sizing: border-box; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; padding: 0;">
-																			<?php echo esc_html( $meta ) ?>
+																			<?php echo esc_html( $meta ); ?>
 																		</td>
 																	</tr>
 																<?php endforeach ?>
@@ -131,7 +131,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 															If you’re having trouble with the button above, copy and paste the URL below into your web browser.
 														</p>
 														<p class="sub" style="box-sizing: border-box; color: #74787E; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 12px; line-height: 1.5em; margin-top: 0;" align="left">
-															<?php echo esc_html( $action_url ) ?>
+															<?php echo esc_html( $action_url ); ?>
 														</p>
 													</td>
 												</tr>
