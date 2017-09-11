@@ -49,8 +49,6 @@ function _soter_uninstall() {
 	foreach ( $options as $option ) {
 		delete_option( $option );
 	}
-
-	( new Soter_Core\WP_Transient_Cache( $GLOBALS['wpdb'], 'soter' ) )->flush();
 }
 
 _soter_require_if_exists( __DIR__ . '/vendor/autoload.php' );
