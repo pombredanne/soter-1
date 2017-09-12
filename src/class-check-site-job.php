@@ -8,6 +8,7 @@
 namespace Soter;
 
 use Soter_Core\Checker;
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -55,7 +56,50 @@ class Check_Site_Job {
 
 			$this->options->get_store()->set( 'last_scan_hash', $vulnerabilities->hash() );
 		} catch ( \RuntimeException $e ) {
-			// @todo How to handle HTTP error? Ignore? Log? Email user?
+			// Gross?
+			$options = _soter_instance( 'options_manager' );
+			$use_html = 'html' === $options->email_type;
+
+			wp_mail(
+				// @todo Should this go straight to admin email instead?
+				$options->email_address,
+				'HTTP error while checking ' . get_bloginfo( 'name' ) . ' for vulnerabilities',
+				$use_html
+					? $this->render_html_error_email( $e )
+					: $this->render_text_error_email( $e ),
+				$use_html ? [ 'Content-type: text/html' ] : []
+			);
 		}
+	}
+
+	/**
+	 * Render the contents of the HTML error notification.
+	 *
+	 * @param  \RuntimeException      $exception Exception instance.
+	 * @param  CssToInlineStyles|null $inliner   Style inliner.
+	 *
+	 * @return string
+	 */
+	public function render_html_error_email( $exception, CssToInlineStyles $inliner = null ) {
+		$plates = _soter_instance( 'plates' );
+		$html = $plates->render( 'emails/html/error.php', [
+			'message' => $exception->getMessage(),
+		] );
+		$css = $plates->render( 'emails/style.css' );
+
+		return ( $inliner ?: new CssToInlineStyles() )->convert( $html, $css );
+	}
+
+	/**
+	 * Render the contents of the text error notification.
+	 *
+	 * @param  \RuntimeException $exception Exception instance.
+	 *
+	 * @return string
+	 */
+	public function render_text_error_email( $exception ) {
+		return _soter_instance( 'plates' )->render( 'emails/text/error.php', [
+			'message' => $exception->getMessage(),
+		] );
 	}
 }
