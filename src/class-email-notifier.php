@@ -8,8 +8,8 @@
 namespace Soter;
 
 use League\Plates\Engine;
-use Soter_Core\Vulnerability;
 use Soter_Core\Vulnerabilities;
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -61,78 +61,35 @@ class Email_Notifier implements Notifier_Interface {
 	 * @return void
 	 */
 	public function notify( Vulnerabilities $vulnerabilities ) {
-		$count = $vulnerabilities->count();
-		$label = 1 === $count ? 'vulnerability' : 'vulnerabilities';
-		$site_name = get_bloginfo( 'name' );
-		$headers = [];
-		$template = 'emails/text-vulnerable';
-		$action_url = admin_url( 'update-core.php' );
-
-		if ( 'html' === $this->options->email_type ) {
-			$headers[] = 'Content-type: text/html';
-			$template = 'emails/html-vulnerable';
-		}
-
-		$messages = [];
-
-		foreach ( $vulnerabilities as $vulnerability ) {
-			$messages[] = $this->generate_vuln_summary( $vulnerability );
-		}
+		$use_html = 'html' === $this->options->email_type;
 
 		wp_mail(
 			$this->options->email_address,
-			"[{$site_name}] {$count} {$label} detected",
-			$this->template->render(
-				$template,
-				compact( 'action_url', 'count', 'label', 'messages', 'site_name' )
-			),
-			$headers
+			'Vulnerabilities detected on ' . get_bloginfo( 'name' ),
+			$use_html
+				? $this->render_html_email( $vulnerabilities )
+				: $this->render_text_email( $vulnerabilities ),
+			$use_html ? [ 'Content-type: text/html' ] : []
 		);
 	}
 
-	/**
-	 * Generates a summary of a vulnerability for use in the template data.
-	 *
-	 * @param  Vulnerability $vulnerability Vulnerability instance.
-	 *
-	 * @return array
-	 */
-	protected function generate_vuln_summary( Vulnerability $vulnerability ) {
-		$summary = [
-			'title' => $vulnerability->title,
-			'meta' => [],
-			'links' => [],
-		];
+	public function render_html_email(
+		Vulnerabilities $vulnerabilities,
+		CssToInlineStyles $inliner = null
+	) {
+		$html = $this->template->render( 'emails/html/vulnerable.php', [
+			'action_url' => admin_url( 'update-core.php' ),
+			'vulnerabilities' => $vulnerabilities,
+		] );
+		$css = $this->template->render( 'emails/style.css' );
 
-		if ( ! is_null( $vulnerability->published_date ) ) {
-			$summary['meta'][] = sprintf(
-				'Published %s',
-				$vulnerability->published_date->format( 'd M Y' )
-			);
-		}
+		return ( $inliner ?: new CssToInlineStyles() )->convert( $html, $css );
+	}
 
-		if (
-			! is_null( $vulnerability->references )
-			&& isset( $vulnerability->references['url'] )
-		) {
-			foreach ( $vulnerability->references['url'] as $url ) {
-				$parsed = wp_parse_url( $url );
-
-				$host = isset( $parsed['host'] ) ? $parsed['host'] : $url;
-
-				$summary['links'][ $url ] = $host;
-			}
-		}
-
-		$wpvdb_url = sprintf( 'https://wpvulndb.com/vulnerabilities/%s', $vulnerability->id );
-		$summary['links'][ $wpvdb_url ] = 'wpvulndb.com';
-
-		if ( is_null( $vulnerability->fixed_in ) ) {
-			$summary['meta'][] = 'Not fixed yet';
-		} else {
-			$summary['meta'][] = sprintf( 'Fixed in v%s', $vulnerability->fixed_in );
-		}
-
-		return $summary;
+	public function render_text_email( Vulnerabilities $vulnerabilities ) {
+		return $this->template->render( 'emails/text/vulnerable.php', [
+			'action_url' => admin_url( 'update-core.php' ),
+			'vulnerabilities' => $vulnerabilities,
+		] );
 	}
 }

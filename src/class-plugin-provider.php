@@ -120,6 +120,19 @@ class Plugin_Provider implements ServiceProviderInterface {
 			// Drop the file extension so we can also load .css files.
 			$engine->setFileExtension( null );
 			$engine->loadExtension( new Button_Extension() );
+			$engine->addData(
+				[
+					'plugin_url' => $c['url'],
+					'site_name' => get_bloginfo( 'name' ),
+					'site_url' => site_url(),
+				],
+				[
+					'emails/html/vulnerable.php',
+					'emails/partials/footer.php',
+					'emails/partials/header.php',
+					'emails/text/vulnerable.php',
+				]
+			);
 
 			return $engine;
 		};
