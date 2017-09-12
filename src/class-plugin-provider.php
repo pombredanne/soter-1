@@ -115,7 +115,12 @@ class Plugin_Provider implements ServiceProviderInterface {
 		};
 
 		$container['plates'] = function( Container $c ) {
-			return new Engine( $c['dir'] . '/templates' );
+			$engine = new Engine( $c['dir'] . '/templates' );
+
+			// Drop the file extension so we can also load .css files.
+			$engine->setFileExtension( null );
+
+			return $engine;
 		};
 
 		$container['user_agent'] = function( Container $c ) {
