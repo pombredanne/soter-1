@@ -127,9 +127,11 @@ class Plugin_Provider implements ServiceProviderInterface {
 					'site_url' => site_url(),
 				],
 				[
+					'emails/html/error.php',
 					'emails/html/vulnerable.php',
 					'emails/partials/footer.php',
 					'emails/partials/header.php',
+					'emails/text/error.php',
 					'emails/text/vulnerable.php',
 				]
 			);
