@@ -11,7 +11,8 @@
         "pimple/pimple": "^3.0",
         "ssnepenthe/metis": "^0.6",
         "ssnepenthe/soter-core": "dev-master",
-        "ssnepenthe/wp-requirements": "^0.1"
+        "ssnepenthe/wp-requirements": "^0.1",
+        "tijsverkoyen/css-to-inline-styles": "^2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8|^5.7",
