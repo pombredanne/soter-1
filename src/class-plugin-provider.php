@@ -119,6 +119,7 @@ class Plugin_Provider implements ServiceProviderInterface {
 
 			// Drop the file extension so we can also load .css files.
 			$engine->setFileExtension( null );
+			$engine->loadExtension( new Button_Extension() );
 
 			return $engine;
 		};
