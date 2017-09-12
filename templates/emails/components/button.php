@@ -1,5 +1,12 @@
 <?php
-// Border based button https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design
+/**
+ * Template for an HTML email button.
+ *
+ * @link https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design Border based button
+ *
+ * @package soter
+ */
+
 ?><table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td align="center">

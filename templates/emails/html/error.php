@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template for HTML error email notification.
+ *
+ * @package soter
+ */
+
+?>
 <?php $this->layout( 'emails/layout.php' ); ?>
 
 <?php $this->start( 'title' ); ?>

@@ -36,7 +36,7 @@ For reference, here are the details of the detected vulnerabilities:
 
 
 <?php foreach ( $vulnerabilities as $vulnerability ) : ?>
- * Title: <?php
+ * Title: <?php // @codingStandardsIgnoreLine
 	// @todo This feels so wrong...
 	echo esc_html( str_replace(
 		[ '<', '>', '=' ],

@@ -1,4 +1,11 @@
-<tr>
+<?php
+/**
+ * Template for the HTML email footer.
+ *
+ * @package soter
+ */
+
+?><tr>
 	<td>
 		<table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0">
 			<tr>

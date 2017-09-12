@@ -73,6 +73,14 @@ class Email_Notifier implements Notifier_Interface {
 		);
 	}
 
+	/**
+	 * Render the contents of the HTML email notification.
+	 *
+	 * @param  Vulnerabilities        $vulnerabilities Vulnerabilities list.
+	 * @param  CssToInlineStyles|null $inliner         Style inliner.
+	 *
+	 * @return string
+	 */
 	public function render_html_email(
 		Vulnerabilities $vulnerabilities,
 		CssToInlineStyles $inliner = null
@@ -86,6 +94,13 @@ class Email_Notifier implements Notifier_Interface {
 		return ( $inliner ?: new CssToInlineStyles() )->convert( $html, $css );
 	}
 
+	/**
+	 * Render the contents of the text email notification.
+	 *
+	 * @param  Vulnerabilities $vulnerabilities Vulnerabilities list.
+	 *
+	 * @return string
+	 */
 	public function render_text_email( Vulnerabilities $vulnerabilities ) {
 		return $this->template->render( 'emails/text/vulnerable.php', [
 			'action_url' => admin_url( 'update-core.php' ),

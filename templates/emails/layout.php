@@ -1,11 +1,18 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?php
+/**
+ * Main email layout template.
+ *
+ * @package soter
+ */
+
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 		<?php if ( $this->section( 'title' ) ) : ?>
-			<title><?php echo $this->section( 'title' ); ?></title>
+			<title><?php echo $this->section( 'title' ); // WPCS: XSS OK. ?></title>
 		<?php endif; ?>
 	</head>
 	<body>
@@ -26,7 +33,7 @@
 
 		<?php if ( $this->section( 'preheader' ) ) : ?>
 			<span class="preheader">
-				<?php echo $this->section( 'preheader' ); ?>
+				<?php echo $this->section( 'preheader' ); // WPCS: XSS OK. ?>
 			</span>
 		<?php endif; ?>
 
@@ -45,14 +52,14 @@
 									<!-- Body content -->
 									<tr>
 										<td class="content-cell">
-											<?php echo $this->section( 'body-content' ); ?>
+											<?php echo $this->section( 'body-content' ); // WPCS: XSS OK. ?>
 
 											<!-- Sub copy -->
 											<?php if ( $this->section( 'body-sub' ) ) : ?>
 												<table class="body-sub">
 													<tr>
 														<td>
-															<?php echo $this->section( 'body-sub' ); ?>
+															<?php echo $this->section( 'body-sub' ); // WPCS: XSS OK. ?>
 														</td>
 													</tr>
 												</table>

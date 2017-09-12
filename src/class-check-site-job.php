@@ -72,7 +72,15 @@ class Check_Site_Job {
 		}
 	}
 
-	public function render_html_error_email( $exception, $inliner = null ) {
+	/**
+	 * Render the contents of the HTML error notification.
+	 *
+	 * @param  \RuntimeException      $exception Exception instance.
+	 * @param  CssToInlineStyles|null $inliner   Style inliner.
+	 *
+	 * @return string
+	 */
+	public function render_html_error_email( $exception, CssToInlineStyles $inliner = null ) {
 		$plates = _soter_instance( 'plates' );
 		$html = $plates->render( 'emails/html/error.php', [
 			'message' => $exception->getMessage(),
@@ -82,6 +90,13 @@ class Check_Site_Job {
 		return ( $inliner ?: new CssToInlineStyles() )->convert( $html, $css );
 	}
 
+	/**
+	 * Render the contents of the text error notification.
+	 *
+	 * @param  \RuntimeException $exception Exception instance.
+	 *
+	 * @return string
+	 */
 	public function render_text_error_email( $exception ) {
 		return _soter_instance( 'plates' )->render( 'emails/text/error.php', [
 			'message' => $exception->getMessage(),

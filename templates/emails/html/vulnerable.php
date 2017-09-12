@@ -1,3 +1,11 @@
+<?php
+/**
+ * Template for vulnerable site HTML email.
+ *
+ * @package soter
+ */
+
+?>
 <?php $this->layout( 'emails/layout.php' ); ?>
 
 <?php $this->start( 'title' ); ?>
@@ -17,7 +25,7 @@
 		Please ensure WordPress as well as all plugins and themes are up-to-date from your dashboard.
 	</p>
 
-	<?php echo $this->button()->blue( 'Go To Dashboard', $action_url ); ?>
+	<?php echo $this->button()->blue( 'Go To Dashboard', $action_url ); // WPCS: XSS OK. ?>
 
 	<p>
 		For reference, here are the details of the detected vulnerabilities:
@@ -29,5 +37,5 @@
 <?php $this->stop(); ?>
 
 <?php $this->start( 'body-sub' ); ?>
-	<?php echo $this->button()->fallback( $action_url ); ?>
+	<?php echo $this->button()->fallback( $action_url ); // WPCS: XSS OK. ?>
 <?php $this->stop(); ?>
