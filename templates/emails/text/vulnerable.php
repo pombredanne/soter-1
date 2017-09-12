@@ -46,10 +46,12 @@ For reference, here are the details of the detected vulnerabilities:
 ?>
 
 <?php if ( $vulnerability->vuln_type ) : ?>
- * Type: <?php echo esc_html( $vulnerability->vuln_type ) . PHP_EOL; ?>
+ * Type: <?php echo esc_html( $vulnerability->vuln_type ); ?>
+
 <?php endif; ?>
 <?php if ( $vulnerability->published_date ) : ?>
- * Published: <?php echo esc_html( $vulnerability->published_date->format( 'd M Y' ) ) . PHP_EOL; ?>
+ * Published: <?php echo esc_html( $vulnerability->published_date->format( 'd M Y' ) ); ?>
+
 <?php endif; ?>
  * Fixed In: <?php echo esc_html( $vulnerability->fixed_in ? "v{$vulnerability->fixed_in}" : 'NOT YET FIXED' ); ?>
 
