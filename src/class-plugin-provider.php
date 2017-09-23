@@ -87,10 +87,17 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 */
 	public function register( Container $container ) {
 		$container['check_site_job'] = function( Container $c ) {
-			return new Check_Site_Job(
-				new Checker( new Api_Client( $c['http'] ), new WP_Package_Manager() ),
-				$c['options_manager']
-			);
+			return new Check_Site_Job( $c['checker'], $c['options_manager'] );
+		};
+
+		$container['checker'] = function( Container $c ) {
+			$checker = new Checker( new Api_Client( $c['http'] ), new WP_Package_Manager() );
+
+			$checker->add_post_check_callback( function( $vulnerabilities, $response ) {
+				do_action( 'soter_package_check_complete', $vulnerabilities, $response );
+			} );
+
+			return $checker;
 		};
 
 		$container['http'] = function( Container $c ) {
