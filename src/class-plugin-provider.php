@@ -59,7 +59,10 @@ class Plugin_Provider implements ServiceProviderInterface {
 
 		add_action( 'admin_init', [ $container['options_manager'], 'register_settings' ] );
 		add_action( 'soter_run_check', [ $container->proxy( 'check_site_job' ), 'run' ] );
-		add_action( 'soter_check_complete', [ $container->proxy( 'notifier_manager' ), 'notify' ] );
+		add_action(
+			'soter_site_check_complete',
+			[ $container->proxy( 'notifier_manager' ), 'notify' ]
+		);
 
 		$this->boot_upgrader( $container );
 	}

@@ -52,7 +52,7 @@ class Check_Site_Job {
 		try {
 			$vulnerabilities = $this->checker->check_site( $this->options->ignored_packages );
 
-			do_action( 'soter_check_complete', $vulnerabilities );
+			do_action( 'soter_site_check_complete', $vulnerabilities );
 
 			$this->options->get_store()->set( 'last_scan_hash', $vulnerabilities->hash() );
 		} catch ( \RuntimeException $e ) {
