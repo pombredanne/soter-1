@@ -9,7 +9,7 @@
         "composer/installers": "^1.0",
         "league/plates": "^3.3",
         "ssnepenthe/metis": "^0.6",
-        "ssnepenthe/soter-core": "dev-master",
+        "ssnepenthe/soter-core": "^0.2",
         "ssnepenthe/wp-requirements": "^0.1",
         "tijsverkoyen/css-to-inline-styles": "^2.0"
     },
