@@ -9,7 +9,7 @@
  * Plugin Name: Soter
  * Plugin URI: https://github.com/ssnepenthe/soter
  * Description: This plugin checks your site for vulnerabilities against the WPScan vulnerabilities database API.
- * Version: 0.4.0
+ * Version: 0.5.0
  * Author: Ryan McLaughlin
  * Author URI: https://github.com/ssnepenthe
  * License: GPL-2.0
@@ -78,7 +78,7 @@ function _soter_instance( $id = null ) {
 		'name' => 'Soter',
 		'prefix' => 'soter',
 		'url' => 'https://github.com/ssnepenthe/soter',
-		'version' => '0.4.0',
+		'version' => '0.5.0',
 	] );
 
 	$instance->register( new Soter\Plugin_Provider() );
