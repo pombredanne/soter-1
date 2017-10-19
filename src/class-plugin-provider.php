@@ -9,13 +9,13 @@ namespace Soter;
 
 use Pimple\Container;
 use Soter_Core\Checker;
+use Metis\Base_Provider;
 use League\Plates\Engine;
 use Soter_Core\Api_Client;
 use Soter_Core\WP_Http_Client;
 use Soter_Core\Cached_Http_Client;
 use Soter_Core\WP_Package_Manager;
 use Soter_Core\WP_Transient_Cache;
-use Pimple\ServiceProviderInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die;
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Defines the plugin provider class.
  */
-class Plugin_Provider implements ServiceProviderInterface {
+class Plugin_Provider extends Base_Provider {
 	/**
 	 * Provider-specific activation logic.
 	 *
@@ -46,22 +46,22 @@ class Plugin_Provider implements ServiceProviderInterface {
 	 * @return void
 	 */
 	public function boot( Container $container ) {
-		add_action( 'admin_init', [ $container->proxy( 'options_page' ), 'admin_init' ] );
-		add_action( 'admin_menu', [ $container->proxy( 'options_page' ), 'admin_menu' ] );
+		add_action( 'admin_init', [ $this->proxy( $container, 'options_page' ), 'admin_init' ] );
+		add_action( 'admin_menu', [ $this->proxy( $container, 'options_page' ), 'admin_menu' ] );
 
 		add_action(
 			'admin_notices',
 			[
-				$container->proxy( 'options_page' ),
+				$this->proxy( $container, 'options_page' ),
 				'print_notice_when_no_notifiers_active',
 			]
 		);
 
 		add_action( 'admin_init', [ $container['options_manager'], 'register_settings' ] );
-		add_action( 'soter_run_check', [ $container->proxy( 'check_site_job' ), 'run' ] );
+		add_action( 'soter_run_check', [ $this->proxy( $container, 'check_site_job' ), 'run' ] );
 		add_action(
 			'soter_site_check_complete',
-			[ $container->proxy( 'notifier_manager' ), 'notify' ]
+			[ $this->proxy( $container, 'notifier_manager' ), 'notify' ]
 		);
 
 		$this->boot_upgrader( $container );
