@@ -86,8 +86,9 @@ class Check_Site_Job {
 			'message' => $exception->getMessage(),
 		] );
 		$css = $plates->render( 'emails/style.css' );
+		$inliner = $inliner ?: new CssToInlineStyles();
 
-		return ( $inliner ?: new CssToInlineStyles() )->convert( $html, $css );
+		return $inliner->convert( $html, $css );
 	}
 
 	/**
