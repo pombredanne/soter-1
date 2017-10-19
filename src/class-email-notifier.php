@@ -90,8 +90,9 @@ class Email_Notifier implements Notifier_Interface {
 			'vulnerabilities' => $vulnerabilities,
 		] );
 		$css = $this->template->render( 'emails/style.css' );
+		$inliner = $inliner ?: new CssToInlineStyles();
 
-		return ( $inliner ?: new CssToInlineStyles() )->convert( $html, $css );
+		return $inliner->convert( $html, $css );
 	}
 
 	/**
