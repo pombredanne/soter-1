@@ -48,16 +48,14 @@ class Plugin_Provider extends Base_Provider {
 	public function boot( Container $container ) {
 		add_action( 'admin_init', [ $this->proxy( $container, 'options_page' ), 'admin_init' ] );
 		add_action( 'admin_menu', [ $this->proxy( $container, 'options_page' ), 'admin_menu' ] );
-
 		add_action(
 			'admin_notices',
-			[
-				$this->proxy( $container, 'options_page' ),
-				'print_notice_when_no_notifiers_active',
-			]
+			[ $this->proxy( $container, 'options_page' ), 'print_notice_when_no_notifiers_active' ]
 		);
-
-		add_action( 'admin_init', [ $container['options_manager'], 'register_settings' ] );
+		add_action(
+			'admin_init',
+			[ $this->proxy( $container, 'options_manager' ), 'register_settings' ]
+		);
 		add_action( 'soter_run_check', [ $this->proxy( $container, 'check_site_job' ), 'run' ] );
 		add_action(
 			'soter_site_check_complete',
