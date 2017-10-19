@@ -14,8 +14,7 @@
         "tijsverkoyen/css-to-inline-styles": "^2.0"
     },
     "require-dev": {
-        "psy/psysh": "^0.8",
-        "wp-coding-standards/wpcs": "^0.13"
+        "psy/psysh": "^0.8"
     },
     "autoload": {
         "classmap": ["src/"]
